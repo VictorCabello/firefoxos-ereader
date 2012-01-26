@@ -69,7 +69,7 @@
 
 					});
 					
-					var writePage = function (page) {
+					var writeChapter = function (page) {
 					    var spine = epub.opf.spine[page];
 						var href = epub.opf.manifest[spine]["href"];
 						var doc = epub.files[href];
@@ -79,7 +79,7 @@
 					
 					var writeBook = function() {
 						for(i=0; i<epub.opf.spine.length; i++) {
-							writePage(i);
+							writeChapter(i);
 						}
 						
 						
@@ -89,10 +89,27 @@
 						
 						var init = function() {
 						          window.reader = Monocle.Reader('reader', null, {}, prep);
-						}
+						};
 						
+						console.log("Dumping metadata:");
+						dumpMetaData();
+												
 						init();
 					}
+					
+					var dumpMetaData = function() {
+						var printIfExists = function(field) {
+							if(undefined != epub.opf.metadata["dc:" + field]) {
+								console.log(field.charAt(0).toUpperCase() + field.slice(1) + ": " + epub.opf.metadata["dc:" + field]._text);
+							}
+						};
+						
+						var metas = ['title', 'creator', 'description', 'language'];
+						for(var i in metas) {
+							printIfExists(metas[i]);
+						}
+						
+					};
 				};				
 				
 			}
