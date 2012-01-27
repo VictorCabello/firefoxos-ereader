@@ -6,6 +6,9 @@ window.onload = function() {
 	readerElement = document.getElementById('reader');
 	container = document.getElementById('container');
 	close = document.getElementById('close');
+	close.onclick = function(){
+		hideReader();
+	};
 	printBooks();
 }
 
@@ -39,18 +42,34 @@ function initReader(content) {
 		var closeElement = document.createElement("a");
 		closeElement.appendChild(document.createTextNode("X"));
 		closeElement.style.position = "absolute";
-		closeElement.style.zIndex = "101";
-		closeElement.pointerEvents = "all";
+		closeElement.style.zIndex = "110";
+		closeElement.style.pointerEvents = "all";
+		closeElement.style.margin = "8px";
 		closeElement.href = "javascript:hideReader()";
 		container.removeChild(readerElement);
 		container.appendChild(newReaderDiv());
 		readerElement.innerHTML = content;
 		container.style.display = 'block';
-		document.reader = Monocle.Reader('reader',null, {}, function() {
+		var placeSaver = new Monocle.Controls.PlaceSaver('reader');
+		var readerOptions = {
+		panel:Monocle.Panels.Marginal,
+		place: placeSaver.savedPlace(),
+		stylesheet: 'body { font-family: Palatino, Georgia, serif; line-height: 1.3; font-size: 11pt; color: #310; } h1, h2, h3, h4 { margin-top: 1em; margin-bottom: 2em; } .cover { text-transform: uppercase; text-align: center; } .cover h1 { letter-spacing: 0.2em; font-size: 1.7em; margin-bottom: 2em; } .cover h2 { font-size: 1em; margin-bottom: 3em; } .cover h2 span { font-size: 0.8em; display: block; font-weight: normal; } .cover h3 { font-weight: normal; font-size: 2em; } .cover p { text-transform: none; font-size: 11px; }'
+		};
+		document.reader = Monocle.Reader('reader',null, readerOptions, function() {
 			close.innerHTML = "";
 			close.appendChild(closeElement);
+			var magnifier = new Monocle.Controls.Magnifier(document.reader);
+      document.reader.addControl(magnifier);
+			var scrubber = new Monocle.Controls.Scrubber(document.reader);
+			document.reader.addControl(scrubber);
+			document.reader.addControl(placeSaver, 'invisible');
 			readerElement.style.visibility = "visible";
 		});
+}
+
+function onResize() {
+	window.reader.resized();
 }
 
 function newReaderDiv(){
@@ -66,12 +85,9 @@ function hideReader() {
 }
 
 function readBook(id) {
-	if(current_book == id) {
-		container.style.display = 'block';
-	}else{
 		initReader(localStorage[id]);
 		current_book = id;
-	}
+		
 }
 
 
