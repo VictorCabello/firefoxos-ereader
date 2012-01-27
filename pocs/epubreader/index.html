@@ -1,7 +1,7 @@
 <!DOCTYPE html> 
 <html lang="en"> 
 	<head> 
-    	<title>EPub Reader</title> 
+    	<title>EPub Importer</title> 
 		<meta
 		      name="viewport"
 		      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -9,112 +9,26 @@
     	<script type="text/javascript" src="js-epub/js-epub.js"></script>
     	<script type="text/javascript" src="js-epub/vendor/js-unzip/js-unzip.js"></script>
     	<script type="text/javascript" src="js-epub/vendor/js-inflate/js-inflate.js"></script>
-		<script type="text/javascript" src="http://monocle.inventivelabs.com.au/static/scripts/monocore.js"></script>
-		<link rel="stylesheet" href="http://monocle.inventivelabs.com.au/static/styles/monocore.css" />
-		<style type="text/css">
-		      #reader {
-		        top: 0;
-		        left: 0;
-		        right: 0;
-		        bottom: 0;
-		        position: absolute;
-		        visibility: hidden;
-		        overflow: hidden;
-		      }
-		      div.monelem_container {
-		        background: #EEE;
-		      }
-		      div.monelem_page {
-		        border: none;
-		        box-shadow: #999 2px 0px 2px;
-		        -moz-box-shadow: #999 2px 0px 2px;
-		        -webkit-box-shadow: #999 2px 0px 2px;
-		      }
-		    </style>
+		<script type="text/javascript" src="js/ebookdownloader.js"></script>
   	</head> 
   	<body> 
-    	<input type="file" id="book" name="book" multiple />
+    	<input type="text" id="epub" name="epub" size="100" /><input type="button" name="click" id="click" value="Fetch!" />
 		<script type="text/javascript">
-			
-			function loadBook(event) {
-				var file = event.target.files[0];
+			function fetch() {
+				var downloader = new owd.eBookDownloader();
+				var url = document.getElementById('epub').value;
 				
-				var reader = new FileReader();
-				reader.onloadend = function () {
-	                showLoading(reader.result);
-	            };            
-	            reader.onerror = function (event) {
-	                alert("An error occurred while reading the file. Error code: " + event.target.error.code);
-	            };
-	
-	            reader.readAsBinaryString(file);
-	
-				var showLoading = function (blob) {
-					var epub = new JSEpub(blob);
-					epub.processInSteps(function (step, extras) {
-					    console.log(step);
-
-					    if (step === 1) {
-					        console.log("Unzipping");
-					    } else if (step === 2) {
-					        console.log("Uncompressing " + extras);
-					    } else if (step === 3) {
-					        console.log("Reading OPF");
-					    } else if (step === 4) {
-					        console.log("Post processing");
-					    } else if (step === 5) {
-					        console.log("Finishing");
-					        writeBook();
-					    }
-
-					});
-					
-					var writeChapter = function (page) {
-					    var spine = epub.opf.spine[page];
-						var href = epub.opf.manifest[spine]["href"];
-						var doc = epub.files[href];
-						
-						document.getElementById('reader').innerHTML += doc.getElementsByTagName('body')[0].innerHTML;	
-					};
-					
-					var writeBook = function() {
-						for(i=0; i<epub.opf.spine.length; i++) {
-							writeChapter(i);
-						}
-						
-						
-						var prep = function(rdr) {
-						          document.getElementById('reader').style.visibility = "visible";
-						}
-						
-						var init = function() {
-						          window.reader = Monocle.Reader('reader', null, {}, prep);
-						};
-						
-						console.log("Dumping metadata:");
-						dumpMetaData();
-												
-						init();
-					}
-					
-					var dumpMetaData = function() {
-						var printIfExists = function(field) {
-							if(undefined != epub.opf.metadata["dc:" + field]) {
-								console.log(field.charAt(0).toUpperCase() + field.slice(1) + ": " + epub.opf.metadata["dc:" + field]._text);
-							}
-						};
-						
-						var metas = ['title', 'creator', 'description', 'language'];
-						for(var i in metas) {
-							printIfExists(metas[i]);
-						}
-						
-					};
-				};				
-				
+				downloader.download(url, function(metadata) { 
+					alert('Book ' + metadata.title + ' downloaded')
+					document.getElementById('reader').innerHTML = localStorage[metadata.id];
+				},
+				function(msg) {
+					alert("Error: " + msg);
+				})
 			}
 			
-			document.getElementById('book').addEventListener('change', loadBook, false);
+			
+			document.getElementById('click').addEventListener('click', fetch, false);
 		</script>
 		<div id="reader">
 		</div>
