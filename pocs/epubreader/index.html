@@ -13,6 +13,9 @@
   	</head> 
   	<body> 
     	<input type="text" id="epub" name="epub" size="100" /><input type="button" name="click" id="click" value="Fetch!" />
+		<div id="reader">			
+			<ul id="books"></ul>
+		</div>
 		<script type="text/javascript">
 			function fetch() {
 				var downloader = new owd.eBookDownloader();
@@ -27,10 +30,22 @@
 				})
 			}
 			
+			function loadFromInternalStorage(bookId) {
+				document.getElementById('reader').innerHTML = localStorage[bookId];
+			}
+			
 			
 			document.getElementById('click').addEventListener('click', fetch, false);
-		</script>
-		<div id="reader">
-		</div>
+			
+			if(localStorage.hasOwnProperty('books')) {
+				var books = JSON.parse(localStorage.books);
+				
+				var ul = document.getElementById('books');
+				
+				for(var i in books) {
+					ul.innerHTML += "<li><a href='#' onClick='javascript:loadFromInternalStorage(\"" + books[i].id + "\")'>" + books[i].title + " by " + books[i].creator + "</a></li>";
+				}
+			}
+		</script>		
   </body> 
 </html>
