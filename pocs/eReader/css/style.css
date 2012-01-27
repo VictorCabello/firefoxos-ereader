@@ -65,5 +65,8 @@ ul {
 
 div.monelem_controls_magnifier_button {
 	background-color:transparent;
-	top:-1px;
+}
+
+div.monelem_container {
+	background-color:transparent;
 }
