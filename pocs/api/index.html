@@ -1,6 +1,10 @@
 <html lang="en"> 
 	<head> 
     	<title>EPub Search</title> 
+		<script type="text/javascript" src="../epubreader/js-epub/js-epub.js"></script>
+    	<script type="text/javascript" src="../epubreader/js-epub/vendor/js-unzip/js-unzip.js"></script>
+    	<script type="text/javascript" src="../epubreader/js-epub/vendor/js-inflate/js-inflate.js"></script>
+		<script type="text/javascript" src="../epubreader/js/ebookdownloader.js"></script>
 		<meta
 		      name="viewport"
 		      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -37,30 +41,22 @@
 				ePub = url + "/pg" + bookId + ".epub";
 				ePubImages = url + "/pg" + bookId + "-images.epub";
 				
-				checkUrl(ePub, function(callbackUrl, res) {
-					var reader = document.getElementById('reader');
-					var p = document.createElement('p');
-					if(res) {
-						p.innerHTML = "<a href='" + callbackUrl +"'>ePub without images</a>";
-
-					} else {
-						p.innerHTML = "There is a not ePub without images (<a href='" + callbackUrl +"'>ePub without images</a>)";						
-					}
-					
-					reader.appendChild(p);
-				});
+				//Try to download first the epub with images, then the plain one
+				var downloader = new owd.eBookDownloader();
 				
-				checkUrl(ePubImages, function(callbackUrl, res) {
-					var reader = document.getElementById('reader');
-					var p = document.createElement('p');
-					if(res) {
-						p.innerHTML = "<a href='" + callbackUrl +"'>ePub images</a>";
-					} else {
-						p.innerHTML = "There is not a ePub without images (<a href='" + callbackUrl +"'>ePub images</a>)";
+				downloader.download(ePubImages, function(metadata) { 
+						alert('Book with images ' + metadata.title + ' downloaded');
+					},
+					function(msg) {
+						console.log("There is no ebook with images availabe, trying with the plain text epub");
+						downloader.download(ePub, function(metadata){
+							alert('Book ' + metadata.title + ' downloaded');
+						}, 
+						function(msg) {
+							alert('Sorry, we cannot find any book :\'(');
+						});
 					}
-					
-					reader.appendChild(p);
-				});
+				);
 				
 			}
 			

@@ -91,7 +91,7 @@ owd.eBookDownloader = function(){
 		        //End
 				extractContent();
 		    } else {
-				_errorCallback("Error processing ePub: " + step);
+				that._errorCallback("Error processing ePub: " + step);
 			}
 
 		});
