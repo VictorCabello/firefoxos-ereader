@@ -17,6 +17,7 @@
 				var name = document.getElementById('search').value;
 				document.getElementById('click').disabled = true;
 				document.getElementById('books').innerHTML = 'Searching for ' + name;
+				document.getElementById('reader').innerHTML = '<ul id="books"></ul>';
 				
 				var head= document.getElementsByTagName('head')[0];
 				var script= document.createElement('script');
@@ -28,41 +29,67 @@
 			function findEPub(index) {
 				var url = books[index].url;
 				
-				var ePub,ePubImages;
-				ePub = url + ".epub.noimages";
-				ePubImages = url + ".epub.images";
+				var ePub,ePubImages, bookId;
+
+				bookId = url.substring(url.lastIndexOf('/') + 1);
+				url = url.replace('/ebooks/', '/cache/epub/');
+				
+				ePub = url + "/pg" + bookId + ".epub";
+				ePubImages = url + "/pg" + bookId + "-images.epub";
 				
 				checkUrl(ePub, function(callbackUrl, res) {
-					console.log(callbackUrl);
+					var reader = document.getElementById('reader');
+					var p = document.createElement('p');
 					if(res) {
-						alert("There is a ePub without images");
+						p.innerHTML = "<a href='" + callbackUrl +"'>ePub without images</a>";
+
 					} else {
-						alert("There is NOT ePub without images");
+						p.innerHTML = "There is a not ePub without images (<a href='" + callbackUrl +"'>ePub without images</a>)";						
 					}
+					
+					reader.appendChild(p);
 				});
 				
 				checkUrl(ePubImages, function(callbackUrl, res) {
-					console.log(callbackUrl);
+					var reader = document.getElementById('reader');
+					var p = document.createElement('p');
 					if(res) {
-						alert("There is a ePub with images");
+						p.innerHTML = "<a href='" + callbackUrl +"'>ePub images</a>";
 					} else {
-						alert("There is NOT a ePub with images");
+						p.innerHTML = "There is not a ePub without images (<a href='" + callbackUrl +"'>ePub images</a>)";
 					}
+					
+					reader.appendChild(p);
 				});
 				
 			}
 			
 			function checkUrl(url, callback) {
 				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.open("HEAD", url,true);
-			 	xmlhttp.onreadystatechange=function() {
-				  if (xmlhttp.readyState==4) {
-				   if (xmlhttp.status==200) callback(url, true);
-				    else if (xmlhttp.status==404) callback(url, false);
-				     else alert("Status is "+xmlhttp.status)
-				  }
+				if(url.indexOf('?') != -1) {
+					url += '&';
+				} else {
+					url += '?';
 				}
-			 	xmlhttp.send(null)
+				url += new Date().getTime();
+				xmlhttp.open("HEAD", url,true);
+				xmlhttp.onload = function(e) {
+					if (this.status == 200) {
+				    	if(xmlhttp.getResponseHeader('Content-Length') > 0) { //Not working cause ff has a problem with getResponseHeader and CORS
+							callback(url, true);
+						} else {
+							callback(url, false);
+						}
+				  	} else {
+						callback(url, false);
+				  	}
+				};
+
+				xmlhttp.onerror = function() {
+					callback(url, false);
+				}
+				
+			 	xmlhttp.send(null);
 			}
 			
 			function parseGoogleSearch(data) {
@@ -82,6 +109,9 @@
 				
 				var ul = document.getElementById('books');
 				for(var i in books) {
+					if(books[i].title.indexOf('-') != -1) {
+						books[i].title = books[i].title.substring(0, books[i].title.lastIndexOf('-') - 1);
+					}
 					ul.innerHTML += "<li><a href='#' onClick='javascript:findEPub(\"" + i + "\")'>" + books[i].title + "</a></li>";
 				} 
 				
