@@ -24,10 +24,27 @@ owd.eBookDownloader = function(){
 		
 		book = that._metadata;
 		book['id'] = id;
+		
 		books.push(book);
 		
 		localStorage.books = JSON.stringify(books);
-		localStorage[id] = that._content;
+		
+		var spine, href, doc, content = {};
+		content.metadata = that._metadata;
+		content.components = [];
+		content.contents = {};
+		for(var i=0; i<that._epub.opf.spine.length; i++) {
+			spine = that._epub.opf.spine[i];
+			content.components.push(spine);
+			href = that._epub.opf.manifest[spine]["href"];
+			doc = that._epub.files[href];
+			content.contents[spine] = doc.getElementsByTagName('body')[0].innerHTML;			
+		}
+		
+		localStorage[id] = JSON.stringify(content);
+		content = null;
+		
+		that._epub = {};
 	}
 		
 	function fetchBinary(url) {
@@ -102,13 +119,17 @@ owd.eBookDownloader = function(){
 		
 		that._content = "";
 
+/*
 		for(var i=0; i<that._epub.opf.spine.length; i++) {
 			spine = that._epub.opf.spine[i];
+			console.log('spine: ' + spine);
 			href = that._epub.opf.manifest[spine]["href"];
+			console.log('href: ' + href);
 			doc = that._epub.files[href];
-
+			console.log(doc.getElementById('title'));
 			that._content += doc.getElementsByTagName('body')[0].innerHTML;			
 		}
+*/
 		
 		extractMetadata();
 	}
@@ -126,7 +147,7 @@ owd.eBookDownloader = function(){
 			extractIfExists(metas[i]);
 		}
 		
-		that._epub = {};
+		//that._epub = {};
 		
 		onSuccess();
 	}
