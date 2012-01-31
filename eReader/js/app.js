@@ -23,7 +23,9 @@ function clear() {
 var printBooks = function() {
 	document.getElementById("list_books").innerHTML = "";
 	if(localStorage.books==undefined) {
-		return;
+		var installer = new preinstaller();
+		installer.install();
+		//return;
 	}
 	results = JSON.parse(localStorage.books);
 	var list = document.createElement("ul");
