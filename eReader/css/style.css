@@ -1,6 +1,14 @@
-html, body {
+body {
 	background-color: #FCF6F0;
 	font-family:Palatino;
+}
+
+#wrapper {
+	max-width:480px;
+	max-height:800px;
+	display:block;
+	overflow:hidden;
+	padding:10px;
 }
 
 .title {
@@ -17,13 +25,15 @@ ul {
 	margin-top:20px;
 }
 
-#home a {
+#home a, #search_container a {
 	text-decoration:none;
 	color:#fff;
 	background-color:#aaa;
 	padding:5px 10px;
 	-moz-border-radius:10px;
 }
+
+
 
 #home {
 	position: absolute;
@@ -89,4 +99,19 @@ div.monelem_container {
      border:1px solid #000;
      padding:15px;
      text-align:center;
+}
+
+.transition {
+	-moz-transition: all 0.5s ease-in-out;
+}
+
+.hidden_left {
+	margin-left: -800px;
+}
+.hidden_right {
+	margin-left: 800px;
+}
+.show {
+	display:block;
+	margin-left:0;
 }

@@ -4,7 +4,8 @@
 window.onload = function() {
 	current_book = "";
 	var books = [];
-	document.getElementById('click').addEventListener('click', search, false);
+	document.getElementById('search_button').addEventListener('click', search, false);
+	document.getElementById('library_button').addEventListener('click', library, false);
 	readerElement = document.getElementById('reader');
 	container = document.getElementById('container');
 	close = document.getElementById('close');
@@ -13,6 +14,11 @@ window.onload = function() {
 	};
 	printBooks();
 	alertBox = new alertWindow();
+}
+
+function library() {
+	document.getElementById('search_container').setAttribute('class','transition hidden_left');
+	document.getElementById('home').setAttribute('class','transition show');
 }
 
 function clear() {
@@ -118,6 +124,9 @@ function readBook(id) {
 }
 
 function search() {
+	document.getElementById('search_container').setAttribute('class','transition show');
+	document.getElementById('home').setAttribute('class','transition hidden_right');
+	/*
 	var name = document.getElementById('search').value;
 	document.getElementById('click').disabled = true;
 	document.getElementById('books').innerHTML = 'Searching for ' + name;
@@ -128,6 +137,7 @@ function search() {
 	script.type= 'text/javascript';
 	script.src= "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20gutenberg%20where%20book%3D'" + name + "'%3B&format=json&diagnostics=false&env=store%3A%2F%2FNxDtaTrVncJG3ucjzRbGsp&callback=parseGoogleSearch";
 	head.appendChild(script);
+	*/
 }
 
 function findEPub(index) {

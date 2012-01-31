@@ -17,8 +17,8 @@
     <script type="text/javascript" src="./js/preinstalled.js"></script>
     <script type="text/javascript" src="./js/app.js"></script>
 		<script type="text/javascript" src="./js/js-epub/js-epub.js"></script>
-    	<script type="text/javascript" src="./js/js-epub/vendor/js-unzip/js-unzip.js"></script>
-    	<script type="text/javascript" src="./js/js-epub/vendor/js-inflate/js-inflate.js"></script>
+    <script type="text/javascript" src="./js/js-epub/vendor/js-unzip/js-unzip.js"></script>
+    <script type="text/javascript" src="./js/js-epub/vendor/js-inflate/js-inflate.js"></script>
 		<script type="text/javascript" src="./js/ebookdownloader.js"></script>
 		
     <link rel="stylesheet" href="./css/monocore.css" />
@@ -28,30 +28,38 @@
   </head>
 
   <body>
-		<div id ="home">
-			<a href='javascript:clear()' id='clear'>Clear</a>
-			<div class='title'>Your Books</div>
-			<div id='list_books'>
+		<div id='wrapper'>
+			<div id ="home" class='transition show'>
+				<div class='toolbar'>
+					<a id='search_button' class='button' href='#'>Search</a>
+				</div>
+				<!-- <a href='javascript:clear()' id='clear'>Clear</a> Debug button to clean the whole localStorage -->
+				<div class='title'>Your Books</div>
+				<div id='list_books'>
 			
+				</div>
 			</div>
-			<div id='search_container'>
-			<div class='title'>Search</div>
-				<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search!</button>
-				<ul id="books"></ul>
+			<div id='search_container' class='transition hidden_left'>
+					<div class='toolbar'>
+						<a id='library_button' class='button' href='#'>Library</a>
+					</div>
+				<div class='title'>Search</div>
+					<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search!</button>
+					<ul id="books"></ul>
 			</div>
-		</div>
-		<div id='container' style='display:none'>
-			<div id="readerBg">
-			      <div class="board"></div>
-			      <div class="jacket"></div>
-			      <div class="dummyPage"></div>
-			      <div class="dummyPage"></div>
-			      <div class="dummyPage"></div>
-			      <div class="dummyPage"></div>
-			      <div class="dummyPage"></div>
-			    </div>
-			<div id='close' class='full_circle'></div>
-    	<div id="reader">
+			<div id='container' style='display:none'>
+				<div id="readerBg">
+				  <div class="board"></div>
+		      <div class="jacket"></div>
+		      <div class="dummyPage"></div>
+		      <div class="dummyPage"></div>
+		      <div class="dummyPage"></div>
+		      <div class="dummyPage"></div>
+		      <div class="dummyPage"></div>
+				</div>
+				<div id='close' class='full_circle'></div>
+	    	<div id="reader">
+				</div>
 			</div>
 		</div>
 		<div id="overlay">
