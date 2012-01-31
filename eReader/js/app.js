@@ -12,13 +12,16 @@ window.onload = function() {
 		hideReader();
 	};
 	printBooks();
+	alertBox = new alertWindow();
 }
 
 function clear() {
 	localStorage.clear();
+	printBooks();
 }
 
 var printBooks = function() {
+	document.getElementById("list_books").innerHTML = "";
 	if(localStorage.books==undefined) {
 		return;
 	}
@@ -28,7 +31,7 @@ var printBooks = function() {
 		var element = results[i];
 		var book = document.createElement("li");
 		var bookLink = document.createElement("a");
-		bookLink.setAttribute("href","javascript:readBook('"+element["id"]+"')");
+		bookLink.setAttribute("href","javascript:readBook(\""+element["id"]+"\")");
 		bookLink.appendChild(document.createTextNode(element["title"]));
 		book.appendChild(bookLink);
 		book.setAttribute("book_id",element["id"]);
@@ -140,18 +143,24 @@ function findEPub(index) {
 	var downloader = new owd.eBookDownloader();
 	
 	downloader.download(ePubImages, function(metadata) { 
-			alert('Book with images ' + metadata.title + ' downloaded');
+			alertBox.dismiss();
+			printBooks();
 		},
 		function(msg) {
 			console.log("There is no ebook with images availabe, trying with the plain text epub");
 			downloader.download(ePub, function(metadata){
-				alert('Book ' + metadata.title + ' downloaded');
+				//alert('Book ' + metadata.title + ' downloaded');
+				alertBox.dismiss();
+				printBooks();
 			}, 
 			function(msg) {
+				alertBox.dismiss();
 				alert('Sorry, we cannot find any book :\'(');
 			});
 		}
 	);
+	alertBox.show("Downloading book", true);
+	
 	
 }
 
@@ -208,5 +217,39 @@ function parseGoogleSearch(data) {
 	
 	
 }
+
+var alertWindow = (function(){
+	var overlay = document.getElementById('overlay');
+	var overlayContent = document.getElementById('overlayContent');
+	var overlayLoading = document.getElementById('overlayLoading');
+	
+	function setMessage(message) {
+		overlayContent.innerHTML = message;
+	}
+	
+	function setVisible(visible) {
+		showEl(overlay, visible);
+	}
+	
+	function showSpinner(visible) {
+		showEl(overlayLoading, visible);
+	}
+	
+	function showEl(el, visible) {
+		el.style.visibility = visible ? "visible" : "hidden";
+	}
+	
+	return {
+		show: function(message, spinner) {
+			setMessage(message);
+			setVisible(true);
+			showSpinner(spinner);
+		},
+		dismiss: function() {
+			setVisible(false);
+			showSpinner(false);
+		}
+	};
+});
 
 
