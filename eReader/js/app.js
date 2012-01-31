@@ -4,8 +4,9 @@
 window.onload = function() {
 	current_book = "";
 	var books = [];
-	document.getElementById('search_button').addEventListener('click', search, false);
-	document.getElementById('library_button').addEventListener('click', library, false);
+	document.getElementById('search_button').addEventListener('click', goto_search, false);
+	document.getElementById('library_button').addEventListener('click', goto_library, false);
+	document.getElementById('click').addEventListener('click', search, false);
 	readerElement = document.getElementById('reader');
 	container = document.getElementById('container');
 	close = document.getElementById('close');
@@ -16,9 +17,14 @@ window.onload = function() {
 	alertBox = new alertWindow();
 }
 
-function library() {
+function goto_library() {
 	document.getElementById('search_container').setAttribute('class','transition hidden_left');
 	document.getElementById('home').setAttribute('class','transition show');
+}
+
+function goto_search() {
+	document.getElementById('search_container').setAttribute('class','transition show');
+	document.getElementById('home').setAttribute('class','transition hidden_right');
 }
 
 function clear() {
@@ -124,20 +130,19 @@ function readBook(id) {
 }
 
 function search() {
-	document.getElementById('search_container').setAttribute('class','transition show');
-	document.getElementById('home').setAttribute('class','transition hidden_right');
-	/*
 	var name = document.getElementById('search').value;
 	document.getElementById('click').disabled = true;
-	document.getElementById('books').innerHTML = 'Searching for ' + name;
-	document.getElementById('reader').innerHTML = '<ul id="books"></ul>';
-	
+	document.getElementById('books_container').innerHTML = 'Searching for ' + name;
+	document.getElementById('books_container').innerHTML += '<ul id="books"></ul>';
 	var head= document.getElementsByTagName('head')[0];
 	var script= document.createElement('script');
 	script.type= 'text/javascript';
 	script.src= "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20gutenberg%20where%20book%3D'" + name + "'%3B&format=json&diagnostics=false&env=store%3A%2F%2FNxDtaTrVncJG3ucjzRbGsp&callback=parseGoogleSearch";
 	head.appendChild(script);
-	*/
+}
+
+function clearSearchResults() {
+	books = document.getElementById("books").innerHTML = "";
 }
 
 function findEPub(index) {
@@ -157,6 +162,7 @@ function findEPub(index) {
 	downloader.download(ePubImages, function(metadata) { 
 			alertBox.dismiss();
 			printBooks();
+			goto_library();
 		},
 		function(msg) {
 			console.log("There is no ebook with images availabe, trying with the plain text epub");
@@ -164,6 +170,7 @@ function findEPub(index) {
 				//alert('Book ' + metadata.title + ' downloaded');
 				alertBox.dismiss();
 				printBooks();
+				goto_library();
 			}, 
 			function(msg) {
 				alertBox.dismiss();
@@ -207,7 +214,7 @@ function checkUrl(url, callback) {
 function parseGoogleSearch(data) {
 	document.getElementById('click').disabled = false;
 	if(data.query.results.books == null) {
-		document.getElementById('books').innerHTML = "Sorry could not find it, search again";
+		document.getElementById('books_container').innerHTML = "Sorry could not find it, search again";
 		return;
 	}
 	
@@ -219,12 +226,17 @@ function parseGoogleSearch(data) {
 		books.push(data.query.results.books.book);
 	}
 	
-	var ul = document.getElementById('books');
+	var ul = document.createElement('ul');
+	ul.id = "books";
 	for(var i in books) {
 		if(books[i].title.indexOf('-') != -1) {
 			books[i].title = books[i].title.substring(0, books[i].title.lastIndexOf('-') - 1);
 		}
 		ul.innerHTML += "<li><a href='#' onClick='javascript:findEPub(\"" + i + "\")'>" + books[i].title + "</a></li>";
+		var books_container = document.getElementById("books_container");
+		books_container.innerHTML="";
+		books_container.appendChild(ul);
+		 
 	} 
 	
 	
