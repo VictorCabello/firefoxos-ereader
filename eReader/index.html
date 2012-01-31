@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1//EN' 'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+  <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png"/>
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <meta http-equiv="Content-Type" content="text/htmlcharset=utf-8"/>
+    <title>Test</title>
+
+    <script type="text/javascript" src="./js/monocore.js"></script>
+    <script type="text/javascript" src="./js/monoctrl.js"></script>
+    <script type="text/javascript" src="./js/app.js"></script>
+		<script type="text/javascript" src="./js/js-epub/js-epub.js"></script>
+    	<script type="text/javascript" src="./js/js-epub/vendor/js-unzip/js-unzip.js"></script>
+    	<script type="text/javascript" src="./js/js-epub/vendor/js-inflate/js-inflate.js"></script>
+		<script type="text/javascript" src="./js/ebookdownloader.js"></script>
+		
+    <link rel="stylesheet" href="./css/monocore.css" />
+    <link rel="stylesheet" href="./css/monoctrl.css" />
+		<link rel="stylesheet" href="./css/oldbook.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+
+  <body>
+		<div id ="home">
+			<a href='javascript:clear()' id='clear'>Clear</a>
+			<div class='title'>Your Books</div>
+			<div id='list_books'>
+			
+			</div>
+			<div id='search_container'>
+			<div class='title'>Search</div>
+				<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search!</button>
+				<ul id="books"></ul>
+			</div>
+		</div>
+		<div id='container' style='display:none'>
+			<div id="readerBg">
+			      <div class="board"></div>
+			      <div class="jacket"></div>
+			      <div class="dummyPage"></div>
+			      <div class="dummyPage"></div>
+			      <div class="dummyPage"></div>
+			      <div class="dummyPage"></div>
+			      <div class="dummyPage"></div>
+			    </div>
+			<div id='close' class='full_circle'></div>
+    	<div id="reader">
+			</div>
+		</div>
+</body>
+</html>
