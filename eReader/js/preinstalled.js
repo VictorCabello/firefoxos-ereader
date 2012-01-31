@@ -10,3 +10,9 @@ var preinstaller = (function(){
 		}
 	};
 });
+
+var installer = new preinstaller();
+installer.install();
+installer = null;
+
+printBooks();

@@ -36,9 +36,12 @@ function clear() {
 var printBooks = function() {
 	document.getElementById("list_books").innerHTML = "";
 	if(localStorage.books==undefined) {
-		var installer = new preinstaller();
-		installer.install();
-		//return;
+		var script= document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = './js/preinstalled.js';
+		var head= document.getElementsByTagName('head')[0];
+		head.appendChild(script);
+		return;		
 	}
 	results = JSON.parse(localStorage.books);
 	var list = document.createElement("ul");
