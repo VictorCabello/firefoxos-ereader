@@ -15,6 +15,10 @@
     <script type="text/javascript" src="./js/monocore.js"></script>
     <script type="text/javascript" src="./js/monoctrl.js"></script>
     <script type="text/javascript" src="./js/app.js"></script>
+		<script type="text/javascript" src="./js/js-epub/js-epub.js"></script>
+    	<script type="text/javascript" src="./js/js-epub/vendor/js-unzip/js-unzip.js"></script>
+    	<script type="text/javascript" src="./js/js-epub/vendor/js-inflate/js-inflate.js"></script>
+		<script type="text/javascript" src="./js/ebookdownloader.js"></script>
 		
     <link rel="stylesheet" href="./css/monocore.css" />
     <link rel="stylesheet" href="./css/monoctrl.css" />
@@ -24,9 +28,15 @@
 
   <body>
 		<div id ="home">
+			<a href='javascript:clear()' id='clear'>Clear</a>
 			<div class='title'>Your Books</div>
 			<div id='list_books'>
 			
+			</div>
+			<div id='search_container'>
+			<div class='title'>Search</div>
+				<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search!</button>
+				<ul id="books"></ul>
 			</div>
 		</div>
 		<div id='container' style='display:none'>
