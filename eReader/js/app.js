@@ -25,6 +25,7 @@ function goto_library() {
 function goto_search() {
 	document.getElementById('search_container').setAttribute('class','transition show');
 	document.getElementById('home').setAttribute('class','transition hidden_right');
+	clearSearchResults();
 }
 
 function clear() {
@@ -142,7 +143,8 @@ function search() {
 }
 
 function clearSearchResults() {
-	books = document.getElementById("books").innerHTML = "";
+	books = document.getElementById("books_container").innerHTML = "";
+	document.getElementById("search").value="";
 }
 
 function findEPub(index) {

@@ -68,6 +68,7 @@ ul {
  background-color: #aaa;
  height: 50px;
  -moz-border-radius:25px;
+padding-left:8px;
  width: 50px;
 	position:absolute;
 	z-index:101;
