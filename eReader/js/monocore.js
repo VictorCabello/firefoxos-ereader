@@ -1,1 +1,5159 @@
-Monocle={VERSION:"2.1.0"};Monocle.pieceLoaded=function(a){if(typeof onMonoclePiece=="function"){onMonoclePiece(a)}};Monocle.defer=function(a,b){if(a&&typeof a=="function"){return setTimeout(a,b||0)}};Monocle.Dimensions={};Monocle.Controls={};Monocle.Flippers={};Monocle.Panels={};Monocle.pieceLoaded("core/monocle");Monocle.Env=function(){var API={constructor:Monocle.Env};var k=API.constants=API.constructor;var p=API.properties={resultCallback:null};var css=Monocle.Browser.css;var activeTestName=null;var frameLoadCallback=null;var testFrame=null;var testFrameCntr=null;var testFrameLoadedWithStandard=false;var testFrameSize=100;var surveyCallback=null;function survey(cb){surveyCallback=cb;runNextTest()}function runNextTest(){var test=envTests.shift();if(!test){return completed()}activeTestName=test[0];try{test[1]()}catch(e){result(e)}}function result(val){API[activeTestName]=val;if(p.resultCallback){p.resultCallback(activeTestName,val)}runNextTest();return val}function completed(){Monocle.defer(removeTestFrame);if(typeof surveyCallback=="function"){surveyCallback(API)}}function testForFunction(str){return function(){result(typeof eval(str)=="function")}}function testNotYetImplemented(rslt){return function(){result(rslt)}}function loadTestFrame(cb,src){if(!testFrame){testFrame=createTestFrame()}frameLoadCallback=cb;if(typeof src=="undefined"){if(testFrameLoadedWithStandard){frameLoadCallback(testFrame)}else{testFrameLoadedWithStandard=true;src=4}}if(typeof src=="number"){var pgs=[];for(var i=1,ii=src;i<=ii;++i){pgs.push("<div>Page "+i+"</div>")}var divStyle=["display:inline-block","line-height:"+testFrameSize+"px","width:"+testFrameSize+"px"].join(";");src='javascript:\'<!DOCTYPE html><html><head><meta name="time" content="'+(new Date()).getTime()+'" /><style>div{'+divStyle+"}</style></head><body>"+pgs.join("")+"</body></html>'"}testFrame.src=src}function createTestFrame(){testFrameCntr=document.createElement("div");testFrameCntr.style.cssText=["width:"+testFrameSize+"px","height:"+testFrameSize+"px","overflow:hidden","position:absolute","visibility:hidden"].join(";");document.body.appendChild(testFrameCntr);var fr=document.createElement("iframe");testFrameCntr.appendChild(fr);fr.setAttribute("scrolling","no");fr.style.cssText=["width:100%","height:100%","border:none","background:#900"].join(";");fr.addEventListener("load",function(){if(!fr.contentDocument||!fr.contentDocument.body){return}var bd=fr.contentDocument.body;bd.style.cssText=(["margin:0","padding:0","position:absolute","height:100%","width:100%","-webkit-column-width:"+testFrameSize+"px","-webkit-column-gap:0","-moz-column-width:"+testFrameSize+"px","-moz-column-gap:0","-o-column-width:"+testFrameSize+"px","-o-column-gap:0","column-width:"+testFrameSize+"px","column-gap:0"].join(";"));if(bd.scrollHeight>testFrameSize){bd.style.cssText+=["min-width:200%","overflow:hidden"].join(";");if(bd.scrollHeight<=testFrameSize){bd.className="column-force"}else{bd.className="column-failed "+bd.scrollHeight}}frameLoadCallback(fr)},false);return fr}function removeTestFrame(){if(testFrameCntr&&testFrameCntr.parentNode){testFrameCntr.parentNode.removeChild(testFrameCntr)}}function columnedWidth(fr){var bd=fr.contentDocument.body;var de=fr.contentDocument.documentElement;return Math.max(bd.scrollWidth,de.scrollWidth)}var envTests=[["supportsW3CEvents",testForFunction("window.addEventListener")],["supportsCustomEvents",testForFunction("document.createEvent")],["supportsColumns",function(){result(css.supportsPropertyWithAnyPrefix("column-width"))}],["supportsTransform",function(){result(css.supportsProperty(["transformProperty","WebkitTransform","MozTransform","OTransform","msTransform"]))}],["supportsXPath",testForFunction("document.evaluate")],["supportsQuerySelector",testForFunction("document.querySelector")],["supportsTransform3d",function(){result(css.supportsMediaQueryProperty("transform-3d")&&css.supportsProperty(["perspectiveProperty","WebkitPerspective","MozPerspective","OPerspective","msPerspective"]))}],["touch",function(){result(("ontouchstart" in window)||css.supportsMediaQueryProperty("touch-enabled"))}],["embedded",function(){result(top!=self)}],["brokenIframeTouchModel",function(){result(Monocle.Browser.iOSVersionBelow("4.2"))}],["selectIgnoresZOrder",function(){result(Monocle.Browser.iOSVersionBelow("4.2"))}],["floatsIgnoreColumns",testNotYetImplemented(false)],["widthsIgnoreTranslate",function(){loadTestFrame(function(fr){var firstWidth=columnedWidth(fr);var s=fr.contentDocument.body.style;var props=css.toDOMProps("transform");for(var i=0,ii=props.length;i<ii;++i){s[props[i]]="translateX(-600px)"}var secondWidth=columnedWidth(fr);for(i=0,ii=props.length;i<ii;++i){s[props[i]]="none"}result(secondWidth==firstWidth)})}],["relativeIframeExpands",function(){result(navigator.userAgent.indexOf("Android 2")>=0)}],["scrollToApplyStyle",function(){result(Monocle.Browser.iOSVersionBelow("4"))}],["forceColumns",function(){loadTestFrame(function(fr){var bd=fr.contentDocument.body;result(bd.className?true:false)})}],["findNodesByScrolling",function(){result(typeof document.body.getBoundingClientRect!=="function")}],["sheafIsScroller",function(){loadTestFrame(function(fr){result(fr.parentNode.scrollWidth>testFrameSize)})}],["translateIframeIn3d",function(){result(Monocle.Browser.is.MobileSafari&&!Monocle.Browser.iOSVersionBelow("5"))}]];function isCompatible(){return(API.supportsW3CEvents&&API.supportsCustomEvents&&API.supportsTransform)}API.survey=survey;API.isCompatible=isCompatible;return API};Monocle.pieceLoaded("compat/env");Monocle.CSS=function(){var b={constructor:Monocle.CSS};var d=b.constants=b.constructor;var a=b.properties={guineapig:document.createElement("div")};function g(o){var m=[o];var n=d.engines.indexOf(Monocle.Browser.engine);if(n){var k=d.prefixes[n];if(k){m.push(k+o)}}return m}function i(p,o){var n=g(p);for(var k=0,m=n.length;k<m;++k){n[k]+=": "+o+";"}return n.join("")}function c(q){var o=q.split("-");for(var m=o.length;m>0;--m){o[m]=f(o[m])}var n=[o.join("")];var p=d.engines.indexOf(Monocle.Browser.engine);if(p){var k=d.domprefixes[p];if(k){o[0]=f(o[0]);n.push(k+o.join(""))}}return n}function e(m){for(var k in m){if(a.guineapig.style[m[k]]!==undefined){return true}}return false}function l(k){return e(c(k))}function h(o){var m="monocle_guineapig";a.guineapig.id=m;var n=document.createElement("style");n.textContent=o+"{#"+m+"{height:3px}}";(document.head||document.getElementsByTagName("head")[0]).appendChild(n);document.documentElement.appendChild(a.guineapig);var k=a.guineapig.offsetHeight===3;n.parentNode.removeChild(n);a.guineapig.parentNode.removeChild(a.guineapig);return k}function j(k){return h("@media ("+d.prefixes.join(k+"),(")+"monocle__)")}function f(k){return k?k.charAt(0).toUpperCase()+k.substr(1):""}b.toCSSProps=g;b.toCSSDeclaration=i;b.toDOMProps=c;b.supportsProperty=e;b.supportsPropertyWithAnyPrefix=l;b.supportsMediaQuery=h;b.supportsMediaQueryProperty=j;return b};Monocle.CSS.engines=["W3C","WebKit","Gecko","Opera","IE","Konqueror"];Monocle.CSS.prefixes=["","-webkit-","-moz-","-o-","-ms-","-khtml-"];Monocle.CSS.domprefixes=["","Webkit","Moz","O","ms","Khtml"];Monocle.pieceLoaded("compat/css");if(typeof window.console=="undefined"){window.console={messages:[],log:function(a){this.messages.push(a)}}}window.console.compatDir=function(a){var b=function(d){var c=[];for(x in d){c.push(x+": "+d[x])}return c.join("; ")};window.console.log(b(a))};Monocle.pieceLoaded("compat/stubs");Monocle.Browser={};Monocle.Browser.is={IE:!!(window.attachEvent&&navigator.userAgent.indexOf("Opera")===-1),Opera:navigator.userAgent.indexOf("Opera")>-1,WebKit:navigator.userAgent.indexOf("AppleWebKit/")>-1,Gecko:navigator.userAgent.indexOf("Gecko")>-1&&navigator.userAgent.indexOf("KHTML")===-1,MobileSafari:!!navigator.userAgent.match(/AppleWebKit.*Mobile/)};if(Monocle.Browser.is.IE){Monocle.Browser.engine="IE"}else{if(Monocle.Browser.is.Opera){Monocle.Browser.engine="Opera"}else{if(Monocle.Browser.is.WebKit){Monocle.Browser.engine="WebKit"}else{if(Monocle.Browser.is.Gecko){Monocle.Browser.engine="Gecko"}else{Monocle.Browser.engine="W3C"}}}}Monocle.Browser.on={iPhone:navigator.userAgent.indexOf("iPhone")!=-1,iPad:navigator.userAgent.indexOf("iPad")!=-1,BlackBerry:navigator.userAgent.indexOf("BlackBerry")!=-1,Android:navigator.userAgent.indexOf("Android")!=-1,MacOSX:navigator.userAgent.indexOf("Mac OS X")!=-1&&!Monocle.Browser.is.MobileSafari,Kindle3:navigator.userAgent.match(/Kindle\/3/)};if(Monocle.Browser.is.MobileSafari){(function(){var a=navigator.userAgent.match(/ OS ([\d_]+)/);if(a){Monocle.Browser.iOSVersion=a[1].replace(/_/g,".")}else{console.warn("Unknown MobileSafari user agent: "+navigator.userAgent)}})()}Monocle.Browser.iOSVersionBelow=function(a){return !!Monocle.Browser.iOSVersion&&Monocle.Browser.iOSVersion<a};Monocle.Browser.css=new Monocle.CSS();Monocle.Browser.survey=function(a){if(!Monocle.Browser.env){Monocle.Browser.env=new Monocle.Env();Monocle.Browser.env.survey(a)}else{if(typeof a=="function"){a()}}};Monocle.pieceLoaded("compat/browser");Monocle.Factory=function(e,j,i,a){var q={constructor:Monocle.Factory};var t=q.constants=q.constructor;var o=q.properties={element:e,label:j,index:i,reader:a,prefix:a.properties.classPrefix||""};function b(){if(!o.label){return}var k=o.reader.properties.graph;k[o.label]=k[o.label]||[];if(typeof o.index=="undefined"&&k[o.label][o.index]){throw ("Element already exists in graph: "+o.label+"["+o.index+"]")}else{o.index=o.index||k[o.label].length}k[o.label][o.index]=o.element;l(o.label)}function n(p,k){if(!o.reader.properties.graph[p]){return null}return o.reader.properties.graph[p][k||0]}function h(k,v,p){return k.dom=new Monocle.Factory(k,v,p,o.reader)}function f(y,B,w,k){var A,p;if(arguments.length==1){B=null,A=0;p={}}else{if(arguments.length==2){A=0;p={}}else{if(arguments.length==4){A=arguments[2];p=arguments[3]}else{if(arguments.length==3){var z=arguments[arguments.length-1];if(typeof z=="number"){A=z;p={}}else{A=0;p=z}}}}}var v=document.createElement(y);h(v,B,A);if(p["class"]){v.className+=" "+o.prefix+p["class"]}if(p.html){v.innerHTML=p.html}if(p.text){v.appendChild(document.createTextNode(p.text))}return v}function u(w,y,v,k){var p=f.apply(this,arguments);o.element.appendChild(p);return p}function g(){return[o.label,o.index,o.reader]}function d(k){return Monocle.Styles.applyRules(o.element,k)}function r(p,k){return Monocle.Styles.affix(o.element,p,k)}function c(p){p=o.prefix+p;var k=o.element.className;if(!k){return false}if(k==p){return true}return new RegExp("(^|\\s)"+p+"(\\s|$)").test(k)}function l(k){if(c(k)){return}var p=o.element.className?" ":"";return o.element.className+=p+o.prefix+k}function m(p){var w=new RegExp("(^|\\s+)"+o.prefix+p+"(\\s+|$)");var v=/^\s+|\s+$/g;var k=o.element.className;o.element.className=k.replace(w," ").replace(v,"");return o.element.className}q.find=n;q.claim=h;q.make=f;q.append=u;q.address=g;q.setStyles=d;q.setBetaStyle=r;q.hasClass=c;q.addClass=l;q.removeClass=m;b();return q};Monocle.pieceLoaded("core/factory");Monocle.Events={};Monocle.Events.dispatch=function(c,g,d,b){if(!document.createEvent){return true}var a=document.createEvent("Events");a.initEvent(g,false,b||false);a.m=d;try{return c.dispatchEvent(a)}catch(f){console.warn("Failed to dispatch event: "+g);return false}};Monocle.Events.listen=function(c,d,b,a){return c.addEventListener(d,b,a||false)};Monocle.Events.deafen=function(c,f,b,a){if(c.removeEventListener){return c.removeEventListener(f,b,a||false)}else{if(c.detachEvent){try{return c.detachEvent("on"+f,b)}catch(d){}}}};Monocle.Events.listenForContact=function(g,d,b){var e={};var f=function(h,i){h.m={pageX:i.pageX,pageY:i.pageY};var j=h.target||h.srcElement;while(j.nodeType!=1&&j.parentNode){j=j.parentNode}var k=c(h,j);h.m.offsetX=k[0];h.m.offsetY=k[1];if(h.currentTarget){k=c(h,h.currentTarget);h.m.registrantX=k[0];h.m.registrantY=k[1]}return h};var c=function(h,j){var i;if(j.getBoundingClientRect){var l=j.getBoundingClientRect();var k=document.body.getBoundingClientRect();i={left:l.left-k.left,top:l.top-k.top}}else{i={left:j.offsetLeft,top:j.offsetTop};while(j=j.parentNode){if(j.offsetLeft||j.offsetTop){i.left+=j.offsetLeft;i.top+=j.offsetTop}}}return[h.m.pageX-i.left,h.m.pageY-i.top]};var a=(b&&b.useCapture)||false;if(!Monocle.Browser.env.touch){if(d.start){e.mousedown=function(h){if(h.button!=0){return}d.start(f(h,h))};Monocle.Events.listen(g,"mousedown",e.mousedown,a)}if(d.move){e.mousemove=function(h){d.move(f(h,h))};Monocle.Events.listen(g,"mousemove",e.mousemove,a)}if(d.end){e.mouseup=function(h){d.end(f(h,h))};Monocle.Events.listen(g,"mouseup",e.mouseup,a)}if(d.cancel){e.mouseout=function(h){obj=h.relatedTarget||h.fromElement;while(obj&&(obj=obj.parentNode)){if(obj==g){return}}d.cancel(f(h,h))};Monocle.Events.listen(g,"mouseout",e.mouseout,a)}}else{if(d.start){e.start=function(h){if(h.touches.length>1){return}d.start(f(h,h.targetTouches[0]))}}if(d.move){e.move=function(h){if(h.touches.length>1){return}d.move(f(h,h.targetTouches[0]))}}if(d.end){e.end=function(h){d.end(f(h,h.changedTouches[0]));h.preventDefault()}}if(d.cancel){e.cancel=function(h){d.cancel(f(h,h.changedTouches[0]))}}if(Monocle.Browser.env.brokenIframeTouchModel){Monocle.Events.tMonitor=Monocle.Events.tMonitor||new Monocle.Events.TouchMonitor();Monocle.Events.tMonitor.listen(g,e,b)}else{for(etype in e){Monocle.Events.listen(g,"touch"+etype,e[etype],a)}}}return e};Monocle.Events.deafenForContact=function(b,a){var c="";if(Monocle.Browser.env.touch){c=Monocle.Browser.env.brokenIframeTouchModel?"contact":"touch"}for(evtType in a){Monocle.Events.deafen(b,c+evtType,a[evtType])}};Monocle.Events.listenForTap=function(f,e,c){var b;if(Monocle.Browser.on.Kindle3){Monocle.Events.listen(f,"click",function(){})}var a=function(){b=null;if(c&&f.dom){f.dom.removeClass(c)}};var d=function(g){if(g.type.match(/^mouse/)){return}if(Monocle.Browser.is.MobileSafari&&Monocle.Browser.iOSVersion<"3.2"){return}if(g.m.registrantX<0||g.m.registrantX>f.offsetWidth||g.m.registrantY<0||g.m.registrantY>f.offsetHeight){a()}};return Monocle.Events.listenForContact(f,{start:function(g){b=[g.m.pageX,g.m.pageY];if(c&&f.dom){f.dom.addClass(c)}},move:d,end:function(g){d(g);if(b){g.m.startOffset=b;e(g)}a()},cancel:a},{useCapture:false})};Monocle.Events.deafenForTap=Monocle.Events.deafenForContact;Monocle.Events.TouchMonitor=function(){if(Monocle.Events==this){return new Monocle.Events.TouchMonitor()}var c={constructor:Monocle.Events.TouchMonitor};var h=c.constants=c.constructor;var b=c.properties={touching:null,edataPrev:null,originator:null,brokenModel_4_1:navigator.userAgent.match(/ OS 4_1/)};function n(k){if(k.contentDocument){g(k.contentDocument);k.contentDocument.isTouchFrame=true}if(b.brokenModel_4_1){g(k)}}function f(r,p,k){for(etype in p){Monocle.Events.listen(r,"contact"+etype,p[etype],k)}g(r,k)}function g(p,k){if(p.monocleTouchProxy){return}p.monocleTouchProxy=true;var r=function(t){a(p,t)};Monocle.Events.listen(p,"touchstart",r,k);Monocle.Events.listen(p,"touchmove",r,k);Monocle.Events.listen(p,"touchend",r,k);Monocle.Events.listen(p,"touchcancel",r,k)}function a(p,k){var t={start:k.type=="touchstart",move:k.type=="touchmove",end:k.type=="touchend"||k.type=="touchcancel",time:new Date().getTime(),frame:p.isTouchFrame};if(!b.touching){b.originator=p}var r=p;var u=k.touches[0]||k.changedTouches[0];r=document.elementFromPoint(u.screenX,u.screenY);if(r){d(p,r,k,t)}}function d(p,t,k,r){if(b.brokenModel_4_1&&!r.frame&&!b.touching&&r.start&&b.edataPrev&&b.edataPrev.end&&(r.time-b.edataPrev.time)<30){k.preventDefault();return}if(!b.touching&&!r.end){return q(k,t,r)}if(r.move&&b.touching){return i(k,r)}if(b.brokenModel_4_1){if(b.touching&&!r.frame){return e(k,r)}}else{if(r.end&&b.touching){return e(k,r)}}if(b.brokenModel_4_1&&b.originator!=p&&r.frame&&r.end){k.preventDefault();return}if(r.frame&&r.end&&b.touching){return e(k,r)}}function q(k,r,p){b.touching=r;b.edataPrev=p;return j(b.touching,"start",k)}function i(k,p){m();b.edataPrev=p;return j(b.touching,"move",k)}function l(p,r){var k=j(b.touching,"end",p);b.edataPrev=r;b.touching=null;return k}function e(k,r){m();var p=o(b.touching,"end",k);b.edataPrev=r;b.provisionalEnd=setTimeout(function(){if(b.touching){b.touching.dispatchEvent(p);b.touching=null}},30)}function m(){if(b.provisionalEnd){clearTimeout(b.provisionalEnd);b.provisionalEnd=null}}function o(w,u,k){var r=function(z){return document.createTouch(document.defaultView,w,z.identifier,z.screenX,z.screenY,z.screenX,z.screenY)};var y=function(A){for(var z=0;z<v.all.length;++z){if(v.all[z].identifier==A){return v.all[z]}}};var v={all:[],target:[],changed:[]};for(var p=0;p<k.touches.length;++p){v.all.push(r(k.touches[p]))}for(var p=0;p<k.targetTouches.length;++p){v.target.push(y(k.targetTouches[p].identifier)||r(k.targetTouches[p]))}for(var p=0;p<k.changedTouches.length;++p){v.changed.push(y(k.changedTouches[p].identifier)||r(k.changedTouches[p]))}var t=document.createEvent("TouchEvent");t.initTouchEvent("contact"+u,true,true,document.defaultView,k.detail,k.screenX,k.screenY,k.screenX,k.screenY,k.ctrlKey,k.altKey,k.shiftKey,k.metaKey,document.createTouchList.apply(document,v.all),document.createTouchList.apply(document,v.target),document.createTouchList.apply(document,v.changed),k.scale,k.rotation);return t}function j(u,t,p){var r=o(u,t,p);var k=u.dispatchEvent(r);if(!k){p.preventDefault()}return k}c.listen=f;c.listenOnIframe=n;return c};Monocle.Events.listenOnIframe=function(a){if(!Monocle.Browser.env.brokenIframeTouchModel){return}Monocle.Events.tMonitor=Monocle.Events.tMonitor||new Monocle.Events.TouchMonitor();Monocle.Events.tMonitor.listenOnIframe(a)};Monocle.pieceLoaded("core/events");Monocle.Styles={rulesToString:function(b){if(typeof b!="string"){var a=[];for(var c in b){a.push(c+": "+b[c]+";")}b=a.join(" ")}return b},applyRules:function(a,b){b=Monocle.Styles.rulesToString(b);a.style.cssText+=";"+b;return a.style.cssText},affix:function(b,d,c){var e=b.style?b.style:b;var a=Monocle.Browser.css.toDOMProps(d);while(a.length){e[a.shift()]=c}},setX:function(c,a){var b=c.style;if(typeof a=="number"){a+="px"}if(Monocle.Browser.env.supportsTransform3d){b.webkitTransform="translate3d("+a+", 0, 0)"}else{b.webkitTransform="translateX("+a+")"}b.MozTransform=b.OTransform=b.transform="translateX("+a+")";return a},setY:function(b,c){var a=b.style;if(typeof c=="number"){c+="px"}if(Monocle.Browser.env.supportsTransform3d){a.webkitTransform="translate3d(0, "+c+", 0)"}else{a.webkitTransform="translateY("+c+")"}a.MozTransform=a.OTransform=a.transform="translateY("+c+")";return c}};Monocle.Styles.container={position:"absolute",top:"0",left:"0",bottom:"0",right:"0"};Monocle.Styles.page={position:"absolute","z-index":"1","-webkit-user-select":"none","-moz-user-select":"none","user-select":"none","-webkit-transform":"translate3d(0,0,0)",visibility:"visible"};Monocle.Styles.sheaf={position:"absolute",overflow:"hidden"};Monocle.Styles.component={width:"100%",height:"100%",border:"none","-webkit-user-select":"none","-moz-user-select":"none","user-select":"none"};Monocle.Styles.control={"z-index":"100",cursor:"pointer"};Monocle.Styles.overlay={position:"absolute",display:"none",width:"100%",height:"100%","z-index":"1000"};Monocle.pieceLoaded("core/styles");Monocle.Reader=function(B,I,t,r){if(Monocle==this){return new Monocle.Reader(B,I,t,r)}var A={constructor:Monocle.Reader};var O=A.constants=A.constructor;var K=A.properties={initialized:false,book:null,graph:{},pageStylesheets:[],systemId:(t?t.systemId:null)||O.DEFAULT_SYSTEM_ID,classPrefix:O.DEFAULT_CLASS_PREFIX,controls:[],resizeTimer:null};var d;function f(){t=t||{};Monocle.Browser.survey(i)}function i(){var p=B;if(typeof p=="string"){p=document.getElementById(p)}d=A.dom=p.dom=new Monocle.Factory(p,"box",0,A);if(!Monocle.Browser.env.isCompatible()){if(j("monocle:incompatible",{},true)){p.innerHTML="Your browser is not compatible with Monocle."}return}j("monocle:initializing");var k;if(I){k=new Monocle.Book(I)}else{k=Monocle.Book.fromNodes([p.cloneNode(true)])}p.innerHTML="";l();C(t.flipper);q();N(t.stylesheet);e(t.primeURL,function(){h();E("monocle:componentmodify",H);K.flipper.listenForInteraction(t.panels);y(k,t.place,function(){K.initialized=true;if(r){r(A)}j("monocle:loaded")})})}function l(){var p;var U=d.find("box");if(document.defaultView){var k=document.defaultView.getComputedStyle(U,null);p=k.getPropertyValue("position")}else{if(U.currentStyle){p=U.currentStyle.position}}if(["absolute","relative"].indexOf(p)==-1){U.style.position="relative"}}function C(k){if(!k){if(!Monocle.Browser.env.supportsColumns){k=Monocle.Flippers.Legacy}else{if(Monocle.Browser.on.Kindle3){k=Monocle.Flippers.Instant}}k=k||Monocle.Flippers.Slider}if(!k){throw ("Flipper not found.")}K.flipper=new k(A,null,K.readerOptions)}function q(){var U=d.append("div","container");for(var k=0;k<K.flipper.pageCount;++k){var p=U.dom.append("div","page",k);p.style.visibility="hidden";p.m={reader:A,pageIndex:k,place:null};p.m.sheafDiv=p.dom.append("div","sheaf",k);p.m.activeFrame=p.m.sheafDiv.dom.append("iframe","component",k);p.m.activeFrame.m={pageDiv:p};p.m.activeFrame.setAttribute("frameBorder",0);p.m.activeFrame.setAttribute("scrolling","no");K.flipper.addPage(p);Monocle.Events.listenOnIframe(p.m.activeFrame)}d.append("div","overlay");j("monocle:loading")}function N(k){var p=O.DEFAULT_STYLE_RULES;if(Monocle.Browser.env.floatsIgnoreColumns){p+="html#RS\\:monocle * { float: none !important; }"}K.defaultStyles=P(p,false);if(k){K.initialStyles=P(k,false)}}function e(U,V){U=U||"about:blank";var p=0;var k=function(W){var X=W.target||W.srcElement;Monocle.Events.deafen(X,"load",k);j("monocle:frameprimed",{frame:X,pageIndex:p});if((p+=1)==K.flipper.pageCount){Monocle.defer(V)}};m(function(W){Monocle.Events.listen(W.m.activeFrame,"load",k);W.m.activeFrame.src=U})}function h(){d.find("container").dom.setStyles(Monocle.Styles.container);m(function(U,p){U.dom.setStyles(Monocle.Styles.page);d.find("sheaf",p).dom.setStyles(Monocle.Styles.sheaf);var k=d.find("component",p);k.dom.setStyles(Monocle.Styles.component)});c();d.find("overlay").dom.setStyles(Monocle.Styles.overlay);j("monocle:styles")}function z(){if(!Monocle.Browser.env.relativeIframeExpands){return}for(var p=0,k;k=d.find("component",p);++p){k.style.display="none"}}function c(){if(!Monocle.Browser.env.relativeIframeExpands){return}for(var p=0,k;k=d.find("component",p);++p){k.style.width=k.parentNode.offsetWidth+"px";k.style.display="block"}}function y(k,p,W){K.book=k;var V=0;if(typeof W=="function"){var U=function(X){j("monocle:firstcomponentchange",X.m);if((V+=1)==K.flipper.pageCount){M("monocle:componentchange",U);W()}};E("monocle:componentchange",U)}K.flipper.moveTo(p||{page:1})}function u(){return K.book}function Q(){if(!K.initialized){console.warn("Attempt to resize book before initialization.")}z();if(!j("monocle:resizing",{},true)){return}clearTimeout(K.resizeTimer);K.resizeTimer=setTimeout(function(){c();o(true);j("monocle:resize")},O.durations.RESIZE_DELAY)}function o(U){if(!K.book){return}j("monocle:recalculating");var k,p;if(U!==false){var k=a();var p={percent:k?k.percentageThrough():0}}m(function(V){V.m.activeFrame.m.component.updateDimensions(V)});Monocle.defer(function(){if(p){K.flipper.moveTo(p)}j("monocle:recalculated")})}function n(p){var k=a(p);return k?(k.pageNumber()||1):1}function a(k){if(!K.initialized){console.warn("Attempt to access place before initialization.")}return K.flipper.getPlace(k)}function b(k,U){if(!K.initialized){console.warn("Attempt to move place before initialization.")}var p=U;if(!k.direction){j("monocle:jumping",{locus:k});p=function(){j("monocle:jump",{locus:k});if(U){U()}}}K.flipper.moveTo(k,p)}function v(p){var k=K.book.locusOfChapter(p);if(k){b(k);return true}else{j("monocle:notfound",{href:p});return false}}function T(Z,k,U){for(var W=0;W<K.controls.length;++W){if(K.controls[W].control==Z){console.warn("Already added control: "+Z);return}}U=U||{};var X={control:Z,elements:[],controlType:k};K.controls.push(X);var V;var Y=d.find("container"),p=d.find("overlay");if(!k||k=="standard"){V=Z.createControlElements(Y);Y.appendChild(V);X.elements.push(V)}else{if(k=="page"){m(function(ac,aa){var ab=Z.createControlElements(ac);ac.appendChild(ab);X.elements.push(ab)})}else{if(k=="modal"||k=="popover"||k=="hud"){V=Z.createControlElements(p);p.appendChild(V);X.elements.push(V);X.usesOverlay=true}else{if(k=="invisible"){if(typeof(Z.createControlElements)=="function"&&(V=Z.createControlElements(Y))){Y.appendChild(V);X.elements.push(V)}}else{console.warn("Unknown control type: "+k)}}}}for(var W=0;W<X.elements.length;++W){Monocle.Styles.applyRules(X.elements[W],Monocle.Styles.control)}if(U.hidden){g(Z)}else{L(Z)}if(typeof Z.assignToReader=="function"){Z.assignToReader(A)}return Z}function S(p){for(var k=0;k<K.controls.length;++k){if(K.controls[k].control==p){return K.controls[k]}}}function g(V){var k=S(V);if(!k){console.warn("No data for control: "+V);return}if(k.hidden){return}for(var U=0;U<k.elements.length;++U){k.elements[U].style.display="none"}if(k.usesOverlay){var p=d.find("overlay");p.style.display="none";Monocle.Events.deafenForContact(p,p.listeners)}k.hidden=true;if(V.properties){V.properties.hidden=true}j("controlhide",V,false)}function L(W){var k=S(W);if(!k){console.warn("No data for control: "+W);return false}if(G(W)){return false}var p=d.find("overlay");if(k.usesOverlay&&k.controlType!="hud"){for(var U=0,V=K.controls.length;U<V;++U){if(K.controls[U].usesOverlay&&!K.controls[U].hidden){return false}}p.style.display="block"}for(var U=0;U<k.elements.length;++U){k.elements[U].style.display="block"}if(k.controlType=="popover"){var X=function(Y){var Z=Y.target;do{if(Z==k.elements[0]){return true}}while(Z&&(Z=Z.parentNode));return false};p.listeners=Monocle.Events.listenForContact(p,{start:function(Y){if(!X(Y)){g(W)}},move:function(Y){if(!X(Y)){Y.preventDefault()}}})}k.hidden=false;if(W.properties){W.properties.hidden=false}j("controlshow",W,false);return true}function G(p){var k=S(p);return k.hidden==false}function j(U,p,k){return Monocle.Events.dispatch(d.find("box"),U,p,k)}function E(U,p,k){Monocle.Events.listen(d.find("box"),U,p,k)}function M(p,k){Monocle.Events.deafen(d.find("box"),p,k)}function P(k,p){return F(function(){K.pageStylesheets.push(k);var U=K.pageStylesheets.length-1;for(var V=0;V<K.flipper.pageCount;++V){var W=d.find("component",V).contentDocument;w(W,U)}return U},p)}function J(k,p,U){return F(function(){K.pageStylesheets[k]=p;if(typeof p.join=="function"){p=p.join("\n")}for(var W=0;W<K.flipper.pageCount;++W){var X=d.find("component",W).contentDocument;var V=X.getElementById("monStylesheet"+k);if(!V){console.warn("No such stylesheet: "+k);return}if(V.styleSheet){V.styleSheet.cssText=p}else{V.replaceChild(X.createTextNode(p),V.firstChild)}}},U)}function D(k,p){return F(function(){K.pageStylesheets[k]=null;for(var V=0;V<K.flipper.pageCount;++V){var W=d.find("component",V).contentDocument;var U=W.getElementById("monStylesheet"+k);U.parentNode.removeChild(U)}},p)}function H(k){var U=k.m.document;U.documentElement.id=K.systemId;for(var p=0;p<K.pageStylesheets.length;++p){if(K.pageStylesheets[p]){w(U,p)}}}function F(U,p){p=(p===false)?false:true;if(p){j("monocle:stylesheetchanging",{})}var k=U();if(p){o(true);Monocle.defer(function(){j("monocle:stylesheetchange",{})})}else{o(false)}return k}function w(W,p){var V=K.pageStylesheets[p];if(!V){return}var U=W.getElementsByTagName("head")[0];if(!U){U=W.createElement("head");W.documentElement.appendChild(U)}if(typeof V.join=="function"){V=V.join("\n")}var k=W.createElement("style");k.type="text/css";k.id="monStylesheet"+p;if(k.styleSheet){k.styleSheet.cssText=V}else{k.appendChild(W.createTextNode(V))}U.appendChild(k);return k}function R(){return K.flipper.visiblePages?K.flipper.visiblePages():[d.find("page")]}function m(V){for(var k=0,p=K.flipper.pageCount;k<p;++k){var U=d.find("page",k);V(U,k)}}A.getBook=u;A.getPlace=a;A.moveTo=b;A.skipToChapter=v;A.resized=Q;A.addControl=T;A.hideControl=g;A.showControl=L;A.showingControl=G;A.dispatchEvent=j;A.listen=E;A.deafen=M;A.addPageStyles=P;A.updatePageStyles=J;A.removePageStyles=D;A.visiblePages=R;f();return A};Monocle.Reader.durations={RESIZE_DELAY:100};Monocle.Reader.abortMessage={CLASSNAME:"monocleAbortMessage",TEXT:"Your browser does not support this technology."};Monocle.Reader.DEFAULT_SYSTEM_ID="RS:monocle";Monocle.Reader.DEFAULT_CLASS_PREFIX="monelem_";Monocle.Reader.DEFAULT_STYLE_RULES=["html#RS\\:monocle * {-webkit-font-smoothing: subpixel-antialiased;text-rendering: auto !important;word-wrap: break-word !important;overflow: visible !important;}","html#RS\\:monocle body {-webkit-text-size-adjust: none;}","html#RS\\:monocle body * {max-width: 100% !important;}","html#RS\\:monocle img, html#RS\\:monocle video, html#RS\\:monocle object {max-height: 95% !important;height: auto !important;}"];Monocle.pieceLoaded("core/reader");Monocle.Book=function(a){if(Monocle==this){return new Monocle.Book(a)}var d={constructor:Monocle.Book};var e=d.constants=d.constructor;var b=d.properties={dataSource:a,components:[],chapters:{}};function f(){b.componentIds=a.getComponents();b.contents=a.getContents();b.lastCIndex=b.componentIds.length-1}function n(r,t){t.load=false;var u=r.m.activeFrame?r.m.activeFrame.m.component:null;var q=null;var o=b.componentIds.indexOf(t.componentId);if(o<0&&!u){t.load=true;t.componentId=b.componentIds[0];return t}else{if(o<0&&t.componentId&&u.properties.id!=t.componentId){r.m.reader.dispatchEvent("monocle:notfound",{href:t.componentId});return null}else{if(o<0){q=u;t.componentId=r.m.activeFrame.m.component.properties.id;o=b.componentIds.indexOf(t.componentId)}else{if(!b.components[o]||b.components[o]!=u){t.load=true;return t}else{q=u}}}}var k={load:false,componentId:t.componentId,page:1};lastPageNum=q.lastPageNumber();if(typeof(t.page)=="number"){k.page=t.page}else{if(typeof(t.pagesBack)=="number"){k.page=lastPageNum+t.pagesBack}else{if(typeof(t.percent)=="number"){var p=new Monocle.Place();p.setPlace(q,1);k.page=p.pageAtPercentageThrough(t.percent)}else{if(typeof(t.direction)=="number"){if(!r.m.place){console.warn("Can't move in a direction if pageDiv has no place.")}k.page=r.m.place.pageNumber();k.page+=t.direction}else{if(typeof(t.anchor)=="string"){k.page=q.pageForChapter(t.anchor,r)}else{if(typeof(t.xpath)=="string"){k.page=q.pageForXPath(t.xpath,r)}else{if(typeof(t.selector)=="string"){k.page=q.pageForSelector(t.selector,r)}else{if(typeof(t.position)=="string"){if(t.position=="start"){k.page=1}else{if(t.position=="end"){k.page=lastPageNum["new"]}}}else{console.warn("Unrecognised locus: "+t)}}}}}}}}if(k.page<1){if(o==0){k.page=1;k.boundarystart=true}else{k.load=true;k.componentId=b.componentIds[o-1];k.pagesBack=k.page;k.page=null}}else{if(k.page>lastPageNum){if(o==b.lastCIndex){k.page=lastPageNum;k.boundaryend=true}else{k.load=true;k.componentId=b.componentIds[o+1];k.page-=lastPageNum}}}return k}function c(p,q){q=n(p,q);if(q&&!q.load){var k={locus:q,page:p};if(q.boundarystart){p.m.reader.dispatchEvent("monocle:boundarystart",k)}else{if(q.boundaryend){p.m.reader.dispatchEvent("monocle:boundaryend",k)}else{var o=b.components[b.componentIds.indexOf(q.componentId)];p.m.place=p.m.place||new Monocle.Place();p.m.place.setPlace(o,q.page);var k={page:p,locus:q,pageNumber:p.m.place.pageNumber(),componentId:q.componentId};p.m.reader.dispatchEvent("monocle:pagechange",k)}}}return q}function i(p,r,u,q){var t=b.componentIds.indexOf(r.componentId);if(!r.load||t<0){r=n(p,r)}if(!r){return}if(!r.load){u(r);return}var w=function(){r=c(p,r);if(!r){return}else{if(r.load){i(p,r,u,q)}else{u(r)}}};var o=function(){q?q(w):w()};var v=function(y){y.applyTo(p,o)};var k=function(y){q?q(function(){v(y)}):v(y)};h(t,k,p)}function m(k,o,r,p,q){o=c(k,o);if(!o){if(q){q()}}else{if(o.load){i(k,o,r,p)}else{r(o)}}}function h(t,v,r){if(b.components[t]){return v(b.components[t])}var k=b.componentIds[t];if(r){var p={page:r,component:k,index:t};r.m.reader.dispatchEvent("monocle:componentloading",p)}var q=function(){console.warn("Failed to load component: "+k);r.m.reader.dispatchEvent("monocle:componentfailed",p);try{var w=r.m.activeFrame.m.component;p.cmptId=w.properties.id;v(w)}catch(y){console.warn("Failed to fall back to previous component.")}};var u=function(w){if(w===false){return q()}if(r){p.source=w;r.m.reader.dispatchEvent("monocle:componentloaded",p);html=p.html}b.components[t]=new Monocle.Component(d,k,t,l(k),w);v(b.components[t])};var o=b.dataSource.getComponent(k,u);if(o&&!b.components[t]){u(o)}else{if(o===false){return q()}}}function l(o){if(b.chapters[o]){return b.chapters[o]}b.chapters[o]=[];var r=new RegExp("^"+o+"(#(.+)|$)");var q;var k=function(u){if(q=u.src.match(r)){b.chapters[o].push({title:u.title,fragment:q[2]||null})}if(u.children){for(var t=0;t<u.children.length;++t){k(u.children[t])}}};for(var p=0;p<b.contents.length;++p){k(b.contents[p])}return b.chapters[o]}function j(r){var q=new RegExp("^(.+?)(#(.*))?$");var p=r.match(q);if(!p){return null}var k=g(p[1]);if(!k){return null}var o={componentId:k};p[3]?o.anchor=p[3]:o.position="start";return o}function g(k){return b.componentIds.indexOf(k)>=0?k:null}d.getMetaData=a.getMetaData;d.pageNumberAt=n;d.setPageAt=c;d.loadPageAt=i;d.setOrLoadPageAt=m;d.chaptersForComponent=l;d.locusOfChapter=j;f();return d};Monocle.Book.fromNodes=function(a){var b={getComponents:function(){return["anonymous"]},getContents:function(){return[]},getComponent:function(c){return{nodes:a}},getMetaData:function(c){}};return new Monocle.Book(b)};Monocle.pieceLoaded("core/book");Monocle.Place=function(){var c={constructor:Monocle.Place};var i=c.constants=c.constructor;var b=c.properties={component:null,percent:null};function t(k,p){b.component=k;b.percent=p/k.lastPageNumber();b.chapter=null}function q(k,p){b.component=k;b.percent=p;b.chapter=null}function o(){return b.component.properties.id}function l(){return b.percent-1/b.component.lastPageNumber()}function d(){return b.percent}function n(k){return Math.max(Math.round(b.component.lastPageNumber()*k),1)}function r(){return n(b.percent)}function h(){if(b.chapter){return b.chapter}return b.chapter=b.component.chapterForPage(r())}function g(){var k=h();return k?k.title:null}function f(){var p=o();var k=h();if(k&&k.fragment){p+="#"+k.fragment}return p}function a(k){k=k||{};var p={page:r(),componentId:o()};if(k.direction){p.page+=k.direction}else{p.percent=d()}return p}function j(){componentIds=b.component.properties.book.properties.componentIds;componentSize=1/componentIds.length;var k=componentIds.indexOf(o())*componentSize;k+=componentSize*b.percent;return k}function m(){return b.component.properties.index==0&&r()==1}function e(){return(b.component.properties.index==b.component.properties.book.properties.lastCIndex&&r()==b.component.lastPageNumber())}c.setPlace=t;c.setPercentageThrough=q;c.componentId=o;c.percentAtTopOfPage=l;c.percentAtBottomOfPage=d;c.percentageThrough=d;c.pageAtPercentageThrough=n;c.pageNumber=r;c.chapterInfo=h;c.chapterTitle=g;c.chapterSrc=f;c.getLocus=a;c.percentageOfBook=j;c.onFirstPageOfBook=m;c.onLastPageOfBook=e;return c};Monocle.Place.FromPageNumber=function(c,b){var a=new Monocle.Place();a.setPlace(c,b);return a};Monocle.Place.FromPercentageThrough=function(b,c){var a=new Monocle.Place();a.setPercentageThrough(b,c);return a};Monocle.Place.percentOfBookToLocus=function(a,c){var d=a.getBook().properties.componentIds;var b=1/d.length;return{componentId:d[Math.floor(c/b)],percent:(c%b)/b}};Monocle.pieceLoaded("core/place");Monocle.Component=function(l,r,h,f,v){var t={constructor:Monocle.Component};var y=t.constants=t.constructor;var q=t.properties={book:l,id:r,index:h,chapters:f,source:v};function A(p,C){var k={page:p,source:q.source};p.m.reader.dispatchEvent("monocle:componentchanging",k);return d(p,function(){m(p,p.m.activeFrame,function(){C(p,t)})})}function d(k,C){var p=k.m.activeFrame;p.m.component=t;p.style.visibility="hidden";if(q.source.html||(typeof q.source=="string")){return o(q.source.html||q.source,p,C)}else{if(q.source.javascript){return z(q.source.javascript,p,C)}else{if(q.source.url){return a(q.source.url,p,C)}else{if(q.source.nodes){return j(q.source.nodes,p,C)}else{if(q.source.doc){return e(q.source.doc,p,C)}}}}}}function o(C,p,D){C=C.replace(/\n/g,"\\n").replace(/\r/,"\\r");C=C.replace(/\'/g,"\\'");if(Monocle.Browser.is.Gecko){var k="<!DOCTYPE[^>]*>";C=C.replace(new RegExp(k,"m"),"")}z(C,p,D)}function z(p,k,C){p="javascript:'"+p+"';";k.onload=function(){k.onload=null;Monocle.defer(C)};k.src=p}function a(k,C,D){console.log("Loading frame from URL: "+k);if(!k.match(/^\//)){var p=document.createElement("a");p.setAttribute("href",k);k=p.href;delete (p)}C.onload=function(){C.onload=null;Monocle.defer(D)};C.contentWindow.location.replace(k)}function j(k,p,I){var H=p.contentDocument;H.documentElement.innerHTML="";var F=H.createElement("head");var C=H.createElement("body");for(var E=0;E<k.length;++E){var D=H.importNode(k[E],true);C.appendChild(D)}var G=H.getElementsByTagName("head")[0];if(G){H.documentElement.replaceChild(F,G)}else{H.documentElement.appendChild(F)}if(H.body){H.documentElement.replaceChild(C,H.body)}else{H.documentElement.appendChild(C)}if(I){I()}}function e(E,C,I){var H=C.contentDocument;var D=E.getElementsByTagName("base");if(D[0]){var G=H.getElementsByTagName("head")[0];if(!G){try{G=H.createElement("head");if(H.body){H.insertBefore(G,H.body)}else{H.appendChild(G)}}catch(F){G=H.body}}var k=H.getElementsByTagName("base");var p=k[0]?k[0]:H.createElement("base");p.setAttribute("href",D[0].getAttribute("href"));G.appendChild(p)}H.replaceChild(H.importNode(E.documentElement,true),H.documentElement);Monocle.defer(I)}function m(p,D,E){Monocle.Events.listenOnIframe(D);var C=D.contentDocument;var k={page:p,document:C,component:t};p.m.reader.dispatchEvent("monocle:componentmodify",k);i(p,function(){D.style.visibility="visible";B(p);p.m.reader.dispatchEvent("monocle:componentchange",k);E()})}function i(k,p){k.m.dimensions.update(function(C){q.pageLength=C;if(typeof p=="function"){p()}})}function B(k){if(q.chapters[0]&&typeof q.chapters[0].percent=="number"){return}var E=k.m.activeFrame.contentDocument;for(var p=0;p<q.chapters.length;++p){var D=q.chapters[p];D.percent=0;if(D.fragment){var C=E.getElementById(D.fragment);D.percent=k.m.dimensions.percentageThroughOfNode(C)}}return q.chapters}function g(p){var D=null;var C=(p-1)/q.pageLength;for(var k=0;k<q.chapters.length;++k){if(C>=q.chapters[k].percent){D=q.chapters[k]}else{return D}}return D}function c(p,k){if(!p){return 1}for(var C=0;C<q.chapters.length;++C){if(q.chapters[C].fragment==p){return n(q.chapters[C].percent)}}var F=k.m.activeFrame.contentDocument;var E=F.getElementById(p);var D=k.m.dimensions.percentageThroughOfNode(E);return n(D)}function b(k,p){var E=p.m.activeFrame.contentDocument;var D=0;if(Monocle.Browser.env.supportsXPath){var C=E.evaluate(k,E,null,9,null).singleNodeValue;if(C){D=p.m.dimensions.percentageThroughOfNode(C)}}else{console.warn("XPath not supported in this client.")}return n(D)}function w(k,p){var E=p.m.activeFrame.contentDocument;var D=0;if(Monocle.Browser.env.supportsQuerySelector){var C=E.querySelector(k);if(C){D=p.m.dimensions.percentageThroughOfNode(C)}}else{console.warn("querySelector not supported in this client.")}return n(D)}function n(k){return Math.floor(k*q.pageLength)+1}function u(){return q.pageLength}t.applyTo=A;t.updateDimensions=i;t.chapterForPage=g;t.pageForChapter=c;t.pageForXPath=b;t.pageForSelector=w;t.lastPageNumber=u;return t};Monocle.pieceLoaded("core/component");Monocle.Controls.Panel=function(){var c={constructor:Monocle.Controls.Panel};var h=c.constants=c.constructor;var b=c.properties={evtCallbacks:{}};function e(k){b.div=k.dom.make("div",h.CLS.panel);b.div.dom.setStyles(h.DEFAULT_STYLES);Monocle.Events.listenForContact(b.div,{start:a,move:f,end:g,cancel:n},{useCapture:false});return b.div}function d(k){b.evtCallbacks=k}function l(){b.evtCallbacks={}}function a(k){b.contact=true;k.m.offsetX+=b.div.offsetLeft;k.m.offsetY+=b.div.offsetTop;j();i("start",k)}function f(k){if(!b.contact){return}i("move",k)}function g(k){if(!b.contact){return}Monocle.Events.deafenForContact(b.div,b.listeners);m();b.contact=false;i("end",k)}function n(k){if(!b.contact){return}Monocle.Events.deafenForContact(b.div,b.listeners);m();b.contact=false;i("cancel",k)}function i(o,k){if(b.evtCallbacks[o]){b.evtCallbacks[o](c,k.m.offsetX,k.m.offsetY)}k.preventDefault()}function j(){if(b.expanded){return}b.div.dom.addClass(h.CLS.expanded);b.expanded=true}function m(k){if(!b.expanded){return}b.div.dom.removeClass(h.CLS.expanded);b.expanded=false}c.createControlElements=e;c.listenTo=d;c.deafen=l;c.expand=j;c.contract=m;return c};Monocle.Controls.Panel.CLS={panel:"panel",expanded:"controls_panel_expanded"};Monocle.Controls.Panel.DEFAULT_STYLES={position:"absolute",height:"100%"};Monocle.pieceLoaded("controls/panel");Monocle.Panels.TwoPane=function(d,f){var c={constructor:Monocle.Panels.TwoPane};var b=c.constants=c.constructor;var e=c.properties={};function a(){e.panels={forwards:new Monocle.Controls.Panel(),backwards:new Monocle.Controls.Panel()};for(dir in e.panels){d.properties.reader.addControl(e.panels[dir]);e.panels[dir].listenTo(f);e.panels[dir].properties.direction=d.constants[dir.toUpperCase()];var g={width:b.WIDTH};g[(dir=="forwards"?"right":"left")]=0;e.panels[dir].properties.div.dom.setStyles(g)}}a();return c};Monocle.Panels.TwoPane.WIDTH="50%";Monocle.pieceLoaded("panels/twopane");Monocle.Panels.IMode=function(e,a){var d={constructor:Monocle.Panels.IMode};var f=d.constants=d.constructor;var c=d.properties={};function i(){c.flipper=e;c.reader=e.properties.reader;c.panels={forwards:new Monocle.Controls.Panel(),backwards:new Monocle.Controls.Panel()};c.divs={};for(dir in c.panels){c.reader.addControl(c.panels[dir]);c.divs[dir]=c.panels[dir].properties.div;c.panels[dir].listenTo(a);c.panels[dir].properties.direction=e.constants[dir.toUpperCase()];c.divs[dir].style.width="33%";c.divs[dir].style[dir=="forwards"?"right":"left"]=0}c.panels.central=new Monocle.Controls.Panel();c.reader.addControl(c.panels.central);c.divs.central=c.panels.central.properties.div;c.divs.central.dom.setStyles({left:"33%",width:"34%"});l({end:h});for(dir in c.panels){c.divs[dir].dom.addClass("panels_imode_panel");c.divs[dir].dom.addClass("panels_imode_"+dir+"Panel")}c.toggleIcon={createControlElements:function(k){var o=k.dom.make("div","panels_imode_toggleIcon");Monocle.Events.listenForTap(o,g);return o}};c.reader.addControl(c.toggleIcon,null,{hidden:true})}function l(k){c.menuCallbacks=k;c.panels.central.listenTo(c.menuCallbacks)}function j(){c.interactive?g():h()}function h(){if(c.interactive){return}c.panels.central.contract();var o=c.reader.visiblePages()[0];var q=o.m.sheafDiv;var p=q.offsetLeft;var k=o.offsetWidth-(q.offsetLeft+q.offsetWidth);p=Math.floor(((p-2)/o.offsetWidth)*10000/100)+"%";k=Math.floor(((k-2)/o.offsetWidth)*10000/100)+"%";b(function(){c.divs.forwards.style.width=k;c.divs.backwards.style.width=p;Monocle.Styles.affix(c.divs.central,"transform","translateY(-100%)")});c.reader.showControl(c.toggleIcon);c.interactive=true;if(e.interactiveMode){e.interactiveMode(true)}}function g(){if(!c.interactive){return}c.panels.central.contract();m();b(function(){c.divs.forwards.style.width="33%";c.divs.backwards.style.width="33%";Monocle.Styles.affix(c.divs.central,"transform","translateY(0)")});c.reader.hideControl(c.toggleIcon);c.interactive=false;if(e.interactiveMode){e.interactiveMode(false)}}function b(o){var k=Monocle.Panels.IMode.CAMEO_DURATION+"ms ease-in";Monocle.Styles.affix(c.divs.forwards,"transition","width "+k);Monocle.Styles.affix(c.divs.backwards,"transition","width "+k);Monocle.Styles.affix(c.divs.central,"transition","-webkit-transform "+k);for(var p in c.panels){c.panels[p].deafen()}for(var q in c.divs){c.divs[q].style.opacity=1}if(typeof WebkitTransitionEvent!="undefined"){c.cameoListener=Monocle.Events.listen(c.divs.central,"webkitTransitionEnd",n)}else{setTimeout(n,f.CAMEO_DURATION)}o()}function n(){setTimeout(function(){var k="opacity linear "+Monocle.Panels.IMode.LINGER_DURATION+"ms";Monocle.Styles.affix(c.divs.forwards,"transition",k);Monocle.Styles.affix(c.divs.backwards,"transition",k);Monocle.Styles.affix(c.divs.central,"transition",k);for(var o in c.divs){c.divs[o].style.opacity=0}c.panels.forwards.listenTo(a);c.panels.backwards.listenTo(a);c.panels.central.listenTo(c.menuCallbacks)},Monocle.Panels.IMode.LINGER_DURATION);if(c.cameoListener){Monocle.Events.deafen(c.divs.central,"webkitTransitionEnd",n)}}function m(){for(var o=0,k;k=c.reader.dom.find("component",o);++o){var p=k.contentWindow.getSelection()||k.contentDocument.selection;if(p.removeAllRanges){p.removeAllRanges()}if(p.empty){p.empty()}k.contentDocument.body.scrollLeft=0;k.contentDocument.body.scrollTop=0}}d.toggle=j;d.modeOn=h;d.modeOff=g;d.menuCallbacks=l;i();return d};Monocle.Panels.IMode.CAMEO_DURATION=250;Monocle.Panels.IMode.LINGER_DURATION=250;Monocle.pieceLoaded("panels/imode");Monocle.Panels.eInk=function(d,g){var c={constructor:Monocle.Panels.eInk};var b=c.constants=c.constructor;var f=c.properties={flipper:d};function a(){f.panel=new Monocle.Controls.Panel();f.reader=f.flipper.properties.reader;f.reader.addControl(f.panel);f.panel.listenTo({end:function(j,i){if(i<f.panel.properties.div.offsetWidth/2){f.panel.properties.direction=d.constants.BACKWARDS}else{f.panel.properties.direction=d.constants.FORWARDS}g.end(j,i)}});var h=f.panel.properties.div.style;f.reader.listen("monocle:componentchanging",function(){h.opacity=1;Monocle.defer(function(){h.opacity=0},40)});h.width="100%";h.background="#000";h.opacity=0;if(b.LISTEN_FOR_KEYS){Monocle.Events.listen(window.top.document,"keyup",e)}}function e(h){var j=h.charCode||h.keyCode;var i=null;if(j==b.KEYS.PAGEUP){i=d.constants.BACKWARDS}else{if(j==b.KEYS.PAGEDOWN){i=d.constants.FORWARDS}}if(i){d.moveTo({direction:i});h.preventDefault()}}a();return c};Monocle.Panels.eInk.LISTEN_FOR_KEYS=true;Monocle.Panels.eInk.KEYS={PAGEUP:33,PAGEDOWN:34};Monocle.Panels.Marginal=function(flipper,evtCallbacks){var API={constructor:Monocle.Panels.Marginal};var k=API.constants=API.constructor;var p=API.properties={};function initialize(){p.panels={forwards:new Monocle.Controls.Panel(),backwards:new Monocle.Controls.Panel()};for(dir in p.panels){flipper.properties.reader.addControl(p.panels[dir]);p.panels[dir].listenTo(evtCallbacks);p.panels[dir].properties.direction=flipper.constants[dir.toUpperCase()];with(p.panels[dir].properties.div.style){dir=="forwards"?right=0:left=0}}setWidths();if(flipper.interactiveMode){flipper.interactiveMode(true)}}function setWidths(){var page=flipper.properties.reader.dom.find("page");var sheaf=page.m.sheafDiv;var bw=sheaf.offsetLeft;var fw=page.offsetWidth-(sheaf.offsetLeft+sheaf.offsetWidth);bw=Math.floor(((bw-2)/page.offsetWidth)*10000/100)+"%";fw=Math.floor(((fw-2)/page.offsetWidth)*10000/100)+"%";p.panels.forwards.properties.div.style.width=fw;p.panels.backwards.properties.div.style.width=bw}API.setWidths=setWidths;initialize();return API};Monocle.pieceLoaded("panels/marginal");Monocle.Dimensions.Vert=function(d){var c={constructor:Monocle.Dimensions.Vert};var f=c.constants=c.constructor;var b=c.properties={page:d,reader:d.m.reader};function h(){b.reader.listen("monocle:componentchange",e)}function g(k){b.bodyHeight=i();b.pageHeight=l();b.length=Math.ceil(b.bodyHeight/b.pageHeight);k(b.length)}function i(){return b.page.m.activeFrame.contentDocument.body.scrollHeight}function l(){return b.page.m.activeFrame.offsetHeight-f.GUTTER}function a(o){if(!o){return 0}var n=b.page.m.activeFrame.contentDocument;var p=0;if(o.getBoundingClientRect){p=o.getBoundingClientRect().top;p-=n.body.getBoundingClientRect().top}else{var k=n.body.scrollTop;o.scrollIntoView();p=n.body.scrollTop;n.body.scrollLeft=0;n.body.scrollTop=k}var m=p/b.bodyHeight;return m}function e(m){if(m.m.page!=b.page){return}var o=b.page.m.sheafDiv;var k=b.page.m.activeFrame;o.dom.setStyles(f.SHEAF_STYLES);k.dom.setStyles(f.COMPONENT_STYLES);var n=m.m.document;n.documentElement.style.overflow="hidden";n.body.style.marginRight="10px !important";k.contentWindow.scrollTo(0,0)}function j(k){return b.pageHeight*(k.page-1)}c.update=g;c.percentageThroughOfNode=a;c.locusToOffset=j;h();return c};Monocle.Dimensions.Vert.GUTTER=10;Monocle.pieceLoaded("dimensions/vert");Monocle.Flippers.Legacy=function(a){var m={constructor:Monocle.Flippers.Legacy};var q=m.constants=m.constructor;var j=m.properties={pageCount:1,divs:{}};function b(){j.reader=a}function c(k){k.m.dimensions=new Monocle.Dimensions.Vert(k)}function t(){return e().m.place}function h(k,w){var p=o;if(typeof w=="function"){p=function(y){o(y);w(y)}}j.reader.getBook().setOrLoadPageAt(e(),k,p)}function v(k){if(typeof k!="function"){k=q.DEFAULT_PANELS_CLASS;if(!k){console.warn("Invalid panel class.")}}j.panels=new k(m,{end:g})}function e(){return j.reader.dom.find("page")}function g(p){var w=p.properties.direction;var k=t();if((w<0&&k.onFirstPageOfBook())||(w>0&&k.onLastPageOfBook())){return}h({page:t().pageNumber()+w})}function o(y){var w=j.reader.dom.find("component");var A=w.contentWindow;var k=r(A);var B=e().m.dimensions;var z=B.properties.pageHeight;var p=B.locusToOffset(y);if(Math.abs(p-k)>z){return A.scrollTo(0,p)}d(A,k<p?k+z:k);Monocle.defer(function(){l(A,k,p,300,f)},150)}function r(k){if(k.pageYOffset){return k.pageYOffset}if(k.document.documentElement&&k.document.documentElement.scrollTop){return k.document.documentElement.scrollTop}if(k.document.body.scrollTop){return k.document.body.scrollTop}return 0}function l(B,y,w,A,C){clearTimeout(B.smoothScrollInterval);var p=(new Date()).getTime();var D=40;var z=(w-y)*(D/A);var k=function(){var E=y+z;if((new Date()).getTime()-p>A||Math.abs(y-w)<Math.abs((y+z)-w)){clearTimeout(B.smoothScrollInterval);B.scrollTo(0,w);if(C){C()}}else{B.scrollTo(0,E);y=E}};B.smoothScrollInterval=setInterval(k,D)}function f(){i(e().m.activeFrame.contentWindow);j.reader.dispatchEvent("monocle:turn")}function d(p,w){if(j.hideTO){clearTimeout(j.hideTO)}var k=p.document;if(!k.body.indicator){k.body.indicator=n(k);k.body.appendChild(k.body.indicator)}k.body.indicator.line.style.display="block";k.body.indicator.style.opacity=1;u(w)}function i(p){var k=p.document;j.hideTO=Monocle.defer(function(){if(!k.body.indicator){k.body.indicator=n(k);k.body.appendChild(k.body.indicator)}var w=e().m.dimensions;u(w.locusToOffset(t().getLocus())+w.properties.pageHeight);k.body.indicator.line.style.display="none";k.body.indicator.style.opacity=0.5},600)}function n(p){var k=p.createElement("div");p.body.appendChild(k);Monocle.Styles.applyRules(k,q.STYLES.iBox);k.arrow=p.createElement("div");k.appendChild(k.arrow);Monocle.Styles.applyRules(k.arrow,q.STYLES.arrow);k.line=p.createElement("div");k.appendChild(k.line);Monocle.Styles.applyRules(k.line,q.STYLES.line);return k}function u(A){var z=e();var w=z.m.activeFrame.contentDocument;var k=z.m.dimensions.properties.bodyHeight;k-=w.body.indicator.offsetHeight;if(A>k){A=k}w.body.indicator.style.top=A+"px"}m.pageCount=j.pageCount;m.addPage=c;m.getPlace=t;m.moveTo=h;m.listenForInteraction=v;b();return m};Monocle.Flippers.Legacy.FORWARDS=1;Monocle.Flippers.Legacy.BACKWARDS=-1;Monocle.Flippers.Legacy.DEFAULT_PANELS_CLASS=Monocle.Panels.TwoPane;Monocle.Flippers.Legacy.STYLES={iBox:{position:"absolute",right:0,left:0,height:"10px"},arrow:{position:"absolute",right:0,height:"10px",width:"10px",background:"#333","border-radius":"6px"},line:{width:"100%","border-top":"2px dotted #333","margin-top":"5px"}};Monocle.pieceLoaded("flippers/legacy");Monocle.Dimensions.Columns=function(e){var c={constructor:Monocle.Dimensions.Columns};var g=c.constants=c.constructor;var b=c.properties={page:e,reader:e.m.reader,length:0,width:0};function h(k){n();Monocle.defer(function(){b.length=l();if(Monocle.DEBUG){console.log("page["+b.page.m.pageIndex+"] -> "+b.length+" ("+b.page.m.activeFrame.m.component.properties.id+")")}k(b.length)})}function n(){var q=f();var k=d();b.width=q.width;var p=Monocle.Styles.rulesToString(g.STYLE.columned);p+=Monocle.Browser.css.toCSSDeclaration("column-width",b.width+"px");p+=Monocle.Browser.css.toCSSDeclaration("column-gap",0);p+=Monocle.Browser.css.toCSSDeclaration("transform","translateX(0)");if(Monocle.Browser.env.forceColumns&&k.scrollHeight>q.height){p+=Monocle.Styles.rulesToString(g.STYLE["column-force"]);if(Monocle.DEBUG){console.warn("Force columns ("+k.scrollHeight+" > "+q.height+")")}}if(k.style.cssText!=p){b.page.m.offset=0;k.style.cssText=p;if(Monocle.Browser.env.scrollToApplyStyle){k.scrollLeft=0}}}function d(){return b.page.m.activeFrame.contentDocument.body}function m(){var p=d();var q=b.page.m.activeFrame.contentDocument.documentElement;var k=Math.max(p.scrollWidth,q.scrollWidth);if(!Monocle.Browser.env.widthsIgnoreTranslate&&b.page.m.offset){k+=b.page.m.offset}return k}function f(){var k=b.page.m.sheafDiv;return{width:k.clientWidth,height:k.clientHeight}}function l(){return Math.ceil(m()/f().width)}function j(k){return f().width*(k.page-1)}function i(k){var p=j(k);b.page.m.offset=p;o(p);return p}function o(p){var k=d();if(Monocle.Browser.env.translateIframeIn3d){k.style.cssText+="-webkit-transform: translate3d(-"+p+"px,0,0)"}else{Monocle.Styles.affix(k,"transform","translateX(-"+p+"px)")}}function a(u){if(!u){return 0}var t=b.page.m.activeFrame.contentDocument;var w=0;if(Monocle.Browser.env.findNodesByScrolling){o(0);var r=s=b.page.m.activeFrame.contentWindow;var v=[[r,r.scrollX,r.scrollY],[window,window.scrollX,window.scrollY]];if(Monocle.Browser.env.sheafIsScroller){var p=b.page.m.sheafDiv;var k=p.scrollLeft;u.scrollIntoView();w=p.scrollLeft}else{var p=r;var k=p.scrollX;u.scrollIntoView();w=p.scrollX}while(s=v.shift()){s[0].scrollTo(s[1],s[2])}o(b.page.m.offset)}else{w=u.getBoundingClientRect().left;w-=t.body.getBoundingClientRect().left}w+=1;var q=w/(b.length*b.width);return q}c.update=h;c.percentageThroughOfNode=a;c.locusToOffset=j;c.translateToLocus=i;return c};Monocle.Dimensions.Columns.STYLE={columned:{margin:"0",padding:"0",height:"100%",width:"100%",position:"absolute"},"column-force":{"min-width":"200%",overflow:"hidden"}};Monocle.pieceLoaded("dimensions/columns");Monocle.Flippers.Slider=function(j){if(Monocle.Flippers==this){return new Monocle.Flippers.Slider(j)}var z={constructor:Monocle.Flippers.Slider};var M=z.constants=z.constructor;var J=z.properties={pageCount:2,activeIndex:1,turnData:{}};function g(){J.reader=j}function o(k){k.m.dimensions=new Monocle.Dimensions.Columns(k);Monocle.Styles.setX(k,"0px")}function P(){return[G()]}function n(k){Q(true);Q(false);if(typeof k!="function"){k=M.DEFAULT_PANELS_CLASS;if(!k){console.warn("Invalid panel class.")}}var p=function(U,S,R){var T=S.properties.direction;if(U=="lift"){B(T,R)}else{if(U=="release"){v(T,R)}}};J.panels=new k(z,{start:function(S,R){p("lift",S,R)},move:function(S,R){u(S.properties.direction,R)},end:function(S,R){p("release",S,R)},cancel:function(S,R){p("release",S,R)}})}function Q(p){J.reader.dispatchEvent("monocle:interactive:"+(p?"on":"off"));if(!Monocle.Browser.env.selectIgnoresZOrder){return}if(J.interactive=p){if(J.activeIndex!=0){var k=a();if(k){y(J.reader.dom.find("page",0),k.getLocus(),function(){H();l()})}else{H()}}}}function a(k){k=k||G();return k.m?k.m.place:null}function d(k,R){var p=function(){l(function(){if(typeof R=="function"){R()}O()})};y(G(),k,p)}function y(k,p,R){C();J.reader.getBook().setOrLoadPageAt(k,p,function(S){k.m.dimensions.translateToLocus(S);if(R){R()}})}function G(){return J.reader.dom.find("page",J.activeIndex)}function K(){return J.reader.dom.find("page",(J.activeIndex+1)%2)}function H(){G().style.zIndex=1;K().style.zIndex=2;return J.activeIndex=(J.activeIndex+1)%2}function B(k,p){if(J.turnData.lifting||J.turnData.releasing){return}J.turnData.points={start:p,min:p,max:p};J.turnData.lifting=true;if(k==M.FORWARDS){if(a().onLastPageOfBook()){J.reader.dispatchEvent("monocle:boundaryend",{locus:a().getLocus({direction:k}),page:G()});m();return}h(p)}else{if(k==M.BACKWARDS){if(a().onFirstPageOfBook()){J.reader.dispatchEvent("monocle:boundarystart",{locus:a().getLocus({direction:k}),page:G()});m();return}L(p)}else{console.warn("Invalid direction: "+k)}}}function u(k,p){if(!J.turnData.points){return}if(J.turnData.lifting||J.turnData.releasing){return}A(p);N(p,null,"0")}function v(k,p){if(!J.turnData.points){return}if(J.turnData.lifting){J.turnData.releaseArgs=[k,p];return}if(J.turnData.releasing){return}A(p);J.turnData.releasing=true;r(K());if(k==M.FORWARDS){if(J.turnData.points.tap||J.turnData.points.start-p>60||J.turnData.points.min>=p){b(f)}else{D(F)}}else{if(k==M.BACKWARDS){if(J.turnData.points.tap||p-J.turnData.points.start>60||J.turnData.points.max<=p){D(c)}else{b(w)}}else{console.warn("Invalid direction: "+k)}}}function A(k){J.turnData.points.min=Math.min(J.turnData.points.min,k);J.turnData.points.max=Math.max(J.turnData.points.max,k);J.turnData.points.tap=J.turnData.points.max-J.turnData.points.min<10}function h(k){q(k)}function L(p){var R=K(),k=G();r(k);i(R,function(){H();y(R,a(K()).getLocus({direction:M.BACKWARDS}),function(){q(p);e(k)})})}function f(){var k=G(),p=K();if(J.interactive){r(k);r(p);y(k,a().getLocus({direction:M.FORWARDS}),function(){t(k,function(){l(O)})})}else{r(p);H();t(k,function(){l(O)})}}function c(){if(J.interactive){y(K(),a().getLocus(),function(){H();l(O)})}else{O()}}function F(){m()}function w(){H();t(K(),function(){l(m)})}function l(k){y(K(),a().getLocus({direction:M.FORWARDS}),k)}function q(k){J.turnData.lifting=false;var p=J.turnData.releaseArgs;if(p){J.turnData.releaseArgs=null;v(p[0],p[1])}else{if(k){N(k)}}}function O(){J.reader.dispatchEvent("monocle:turn");m()}function m(){e(G());e(K());J.turnData={}}function E(V,X,aa,Y){var W;if(!aa.duration){W=0}else{W=parseInt(aa.duration)}if(typeof(X)=="number"){X=X+"px"}if(typeof WebKitTransitionEvent!="undefined"){if(W){transition="-webkit-transform";transition+=" "+W+"ms";transition+=" "+(aa.timing||"linear");transition+=" "+(aa.delay||0)+"ms"}else{transition="none"}V.style.webkitTransition=transition;if(Monocle.Browser.env.supportsTransform3d){V.style.webkitTransform="translate3d("+X+",0,0)"}else{V.style.webkitTransform="translateX("+X+")"}}else{if(W>0){clearTimeout(V.setXTransitionInterval);var p=(new Date()).getTime();var Z=40;var T=parseInt(X);var S=I(V);var U=(T-S)*(Z/W);var k=function(){var ab=S+U;if((new Date()).getTime()-p>W||Math.abs(S-T)<=Math.abs((S+U)-T)){clearTimeout(V.setXTransitionInterval);Monocle.Styles.setX(V,T);if(V.setXTCB){V.setXTCB()}}else{Monocle.Styles.setX(V,ab);S=ab}};V.setXTransitionInterval=setInterval(k,Z)}else{Monocle.Styles.setX(V,X)}}if(V.setXTCB){Monocle.Events.deafen(V,"webkitTransitionEnd",V.setXTCB);V.setXTCB=null}V.setXTCB=function(){if(Y){Y()}};var R=I(V);if(!W||R==parseInt(X)){V.setXTCB()}else{Monocle.Events.listen(V,"webkitTransitionEnd",V.setXTCB)}}function I(p){if(typeof WebKitCSSMatrix=="object"){var k=window.getComputedStyle(p).webkitTransform;k=new WebKitCSSMatrix(k);return k.m41}else{var R=p.style.MozTransform;if(!R||R==""){return 0}return parseFloat((/translateX\((\-?.*)px\)/).exec(R)[1])||0}}function t(k,p){Monocle.defer(function(){E(k,0,{duration:0},p)})}function i(k,p){Monocle.defer(function(){E(k,0-k.offsetWidth,{duration:0},p)})}function D(p){var k={duration:M.durations.SLIDE,timing:"ease-in"};Monocle.defer(function(){E(G(),0,k,p)})}function b(p){var k={duration:M.durations.SLIDE,timing:"ease-in"};Monocle.defer(function(){E(G(),0-G().offsetWidth,k,p)})}function N(k,R,p){E(G(),Math.min(0,k-G().offsetWidth),{duration:p||M.durations.FOLLOW_CURSOR},R)}function C(){if(J.waitControl){return}J.waitControl={createControlElements:function(k){return k.dom.make("div","flippers_slider_wait")}};J.reader.addControl(J.waitControl,"page")}function r(p){var k=J.reader.dom.find("flippers_slider_wait",p.m.pageIndex);k.style.visibility="visible"}function e(p){var k=J.reader.dom.find("flippers_slider_wait",p.m.pageIndex);k.style.visibility="hidden"}z.pageCount=J.pageCount;z.addPage=o;z.getPlace=a;z.moveTo=d;z.listenForInteraction=n;z.visiblePages=P;z.interactiveMode=Q;g();return z};Monocle.Flippers.Slider.DEFAULT_PANELS_CLASS=Monocle.Panels.TwoPane;Monocle.Flippers.Slider.FORWARDS=1;Monocle.Flippers.Slider.BACKWARDS=-1;Monocle.Flippers.Slider.durations={SLIDE:220,FOLLOW_CURSOR:100};Monocle.pieceLoaded("flippers/slider");Monocle.Flippers.Scroller=function(f,h){var b={constructor:Monocle.Flippers.Scroller};var d=b.constants=b.constructor;var a=b.properties={pageCount:1,duration:200};function e(){a.reader=f;a.setPageFn=h}function g(k){k.m.dimensions=new Monocle.Dimensions.Columns(k)}function i(){return a.reader.dom.find("page")}function j(k){if(typeof k!="function"){k=d.DEFAULT_PANELS_CLASS}a.panels=new k(b,{end:function(o){l(o.properties.direction)}})}function l(k){if(a.turning){return}m({page:n().pageNumber()+k})}function n(){return i().m.place}function m(k,p){var o=c;if(typeof p=="function"){o=function(q){c(q);p(q)}}a.reader.getBook().setOrLoadPageAt(i(),k,o)}function c(u){a.turning=true;var v=i().m.dimensions.locusToOffset(u);var t=i().m.activeFrame.contentDocument.body;if(false&&typeof WebKitTransitionEvent!="undefined"){t.style.webkitTransition="-webkit-transform "+a.duration+"ms ease-out 0ms";t.style.webkitTransform="translateX(-"+v+"px)";Monocle.Events.listen(t,"webkitTransitionEnd",function(){a.turning=false;a.reader.dispatchEvent("monocle:turn")})}else{var p=0-v;var o=(new Date()).getTime();var w=40;var q=a.currX||0;var r=(p-q)*(w/a.duration);var k=function(){var y=q+r;if((new Date()).getTime()-o>a.duration||Math.abs(q-p)<=Math.abs((q+r)-p)){clearTimeout(t.animInterval);Monocle.Styles.setX(t,p);a.turning=false;a.reader.dispatchEvent("monocle:turn")}else{Monocle.Styles.setX(t,y);q=y}a.currX=y};t.animInterval=setInterval(k,w)}}b.pageCount=a.pageCount;b.addPage=g;b.getPlace=n;b.moveTo=m;b.listenForInteraction=j;e();return b};Monocle.Flippers.Scroller.speed=200;Monocle.Flippers.Scroller.rate=20;Monocle.Flippers.Scroller.FORWARDS=1;Monocle.Flippers.Scroller.BACKWARDS=-1;Monocle.Flippers.Scroller.DEFAULT_PANELS_CLASS=Monocle.Panels.TwoPane;Monocle.pieceLoaded("flippers/scroller");Monocle.Flippers.Instant=function(f){var b={constructor:Monocle.Flippers.Instant};var d=b.constants=b.constructor;var a=b.properties={pageCount:1};function e(){a.reader=f}function g(k){k.m.dimensions=new Monocle.Dimensions.Columns(k)}function l(){return h().m.place}function m(k,o){var n=c;if(typeof o=="function"){n=function(p){c(p);o(p)}}a.reader.getBook().setOrLoadPageAt(h(),k,n)}function i(k){if(typeof k!="function"){if(Monocle.Browser.on.Kindle3){k=Monocle.Panels.eInk}k=k||d.DEFAULT_PANELS_CLASS}if(!k){throw ("Panels not found.")}a.panels=new k(b,{end:j})}function h(){return a.reader.dom.find("page")}function j(k){var n=k.properties.direction;m({page:l().pageNumber()+n})}function c(k){h().m.dimensions.translateToLocus(k);Monocle.defer(function(){a.reader.dispatchEvent("monocle:turn")})}b.pageCount=a.pageCount;b.addPage=g;b.getPlace=l;b.moveTo=m;b.listenForInteraction=i;e();return b};Monocle.Flippers.Instant.FORWARDS=1;Monocle.Flippers.Instant.BACKWARDS=-1;Monocle.Flippers.Instant.DEFAULT_PANELS_CLASS=Monocle.Panels.TwoPane;Monocle.pieceLoaded("flippers/instant");Monocle.pieceLoaded("monocore");
+Monocle = {
+  VERSION: "2.3.0"
+};
+
+
+Monocle.pieceLoaded = function (piece) {
+  if (typeof onMonoclePiece == 'function') {
+    onMonoclePiece(piece);
+  }
+}
+
+
+Monocle.defer = function (fn, time) {
+  if (fn && typeof fn == "function") {
+    return setTimeout(fn, time || 0);
+  }
+}
+
+Monocle.Dimensions = {}
+Monocle.Controls = {};
+Monocle.Flippers = {};
+Monocle.Panels = {};
+
+
+Monocle.pieceLoaded("core/monocle");
+Monocle.Env = function () {
+
+  var API = { constructor: Monocle.Env }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    // Assign to a function before running survey in order to get
+    // results as they come in. The function should take two arguments:
+    // testName and value.
+    resultCallback: null
+  }
+
+  // These are private variables so they don't clutter up properties.
+  var css = Monocle.Browser.css;
+  var activeTestName = null;
+  var frameLoadCallback = null;
+  var testFrame = null;
+  var testFrameCntr = null;
+  var testFrameSize = 100;
+  var surveyCallback = null;
+
+
+  function survey(cb) {
+    surveyCallback = cb;
+    runNextTest();
+  }
+
+
+  function runNextTest() {
+    var test = envTests.shift();
+    if (!test) { return completed(); }
+    activeTestName = test[0];
+    try { test[1](); } catch (e) { result(e); }
+  }
+
+
+  // Each test should call this to say "I'm finished, run the next test."
+  //
+  function result(val) {
+    //console.log("["+activeTestName+"] "+val);
+    API[activeTestName] = val;
+    if (p.resultCallback) { p.resultCallback(activeTestName, val); }
+    runNextTest();
+    return val;
+  }
+
+
+  // Invoked after all tests have run.
+  //
+  function completed() {
+    // Remove the test frame after a slight delay (otherwise Gecko spins).
+    Monocle.defer(removeTestFrame);
+
+    if (typeof surveyCallback == "function") {
+      surveyCallback(API);
+    }
+  }
+
+
+  // A bit of sugar for simplifying a detection pattern: does this
+  // function exist?
+  //
+  // Pass a string snippet of JavaScript to be evaluated.
+  //
+  function testForFunction(str) {
+    return function () { result(typeof eval(str) == "function"); }
+  }
+
+
+  // A bit of sugar to indicate that the detection function for this test
+  // hasn't been written yet...
+  //
+  // Pass the value you want assigned for the test until it is implemented.
+  //
+  function testNotYetImplemented(rslt) {
+    return function () { result(rslt); }
+  }
+
+
+
+  // Loads (or reloads) a hidden iframe so that we can test browser features.
+  //
+  // cb is the callback that is fired when the test frame's content is loaded.
+  //
+  // src is optional, in which case it defaults to 4. If provided, it can be
+  // a number (specifying the number of pages of default content), or a string,
+  // which will be loaded as a URL.
+  //
+  function loadTestFrame(cb, src) {
+    if (!testFrame) { testFrame = createTestFrame(); }
+    frameLoadCallback = cb;
+
+    src = src || 4;
+
+    if (typeof src == "number") {
+      var pgs = [];
+      for (var i = 1, ii = src; i <= ii; ++i) {
+        pgs.push("<div>Page "+i+"</div>");
+      }
+      var divStyle = [
+        "display:inline-block",
+        "line-height:"+testFrameSize+"px",
+        "width:"+testFrameSize+"px"
+      ].join(";");
+      src = "javascript:'<!DOCTYPE html><html>"+
+        '<head><meta name="time" content="'+(new Date()).getTime()+'" />'+
+        '<style>div{'+divStyle+'}</style></head>'+
+        '<body>'+pgs.join("")+'</body>'+
+        "</html>'";
+    }
+
+    testFrame.src = src;
+  }
+
+
+  // Creates the hidden test frame and returns it.
+  //
+  function createTestFrame() {
+    testFrameCntr = document.createElement('div');
+    testFrameCntr.style.cssText = [
+      "width:"+testFrameSize+"px",
+      "height:"+testFrameSize+"px",
+      "overflow:hidden",
+      "position:absolute",
+      "visibility:hidden"
+    ].join(";");
+    document.body.appendChild(testFrameCntr);
+
+    var fr = document.createElement('iframe');
+    testFrameCntr.appendChild(fr);
+    fr.setAttribute("scrolling", "no");
+    fr.style.cssText = [
+      "width:100%",
+      "height:100%",
+      "border:none",
+      "background:#900"
+    ].join(";");
+    fr.addEventListener(
+      "load",
+      function () {
+        if (!fr.contentDocument || !fr.contentDocument.body) { return; }
+        var bd = fr.contentDocument.body;
+        bd.style.cssText = ([
+          "margin:0",
+          "padding:0",
+          "position:absolute",
+          "height:100%",
+          "width:100%",
+          "-webkit-column-width:"+testFrameSize+"px",
+          "-webkit-column-gap:0",
+          "-moz-column-width:"+testFrameSize+"px",
+          "-moz-column-gap:0",
+          "-o-column-width:"+testFrameSize+"px",
+          "-o-column-gap:0"
+        ].join(";"));
+        if (bd.scrollHeight > testFrameSize) {
+          bd.style.cssText += ["min-width:200%", "overflow:hidden"].join(";");
+          if (bd.scrollHeight <= testFrameSize) {
+            bd.className = "column-force";
+          } else {
+            bd.className = "column-failed "+bd.scrollHeight;
+          }
+        }
+        frameLoadCallback(fr);
+      },
+      false
+    );
+    return fr;
+  }
+
+
+  function removeTestFrame() {
+    if (testFrameCntr && testFrameCntr.parentNode) {
+      testFrameCntr.parentNode.removeChild(testFrameCntr);
+    }
+  }
+
+
+  function columnedWidth(fr) {
+    var bd = fr.contentDocument.body;
+    var de = fr.contentDocument.documentElement;
+    return Math.max(bd.scrollWidth, de.scrollWidth);
+  }
+
+
+  var envTests = [
+
+    // TEST FOR REQUIRED CAPABILITIES
+
+    ["supportsW3CEvents", testForFunction("window.addEventListener")],
+    ["supportsCustomEvents", testForFunction("document.createEvent")],
+    ["supportsColumns", function () {
+      result(css.supportsPropertyWithAnyPrefix('column-width'));
+    }],
+    ["supportsTransform", function () {
+      result(css.supportsProperty([
+        'transformProperty',
+        'WebkitTransform',
+        'MozTransform',
+        'OTransform',
+        'msTransform'
+      ]));
+    }],
+
+
+    // TEST FOR OPTIONAL CAPABILITIES
+
+    // Does it do CSS transitions?
+    ["supportsTransition", function () {
+      result(css.supportsPropertyWithAnyPrefix('transition'))
+    }],
+
+    // Can we find nodes in a document with an XPath?
+    //
+    ["supportsXPath", testForFunction("document.evaluate")],
+
+    // Can we find nodes in a document natively with a CSS selector?
+    //
+    ["supportsQuerySelector", testForFunction("document.querySelector")],
+
+    // Can we do 3d transforms?
+    //
+    ["supportsTransform3d", function () {
+      result(
+        css.supportsMediaQueryProperty('transform-3d') &&
+        css.supportsProperty([
+          'perspectiveProperty',
+          'WebkitPerspective',
+          'MozPerspective',
+          'OPerspective',
+          'msPerspective'
+        ])
+      );
+    }],
+
+
+    // CHECK OUT OUR CONTEXT
+
+    // Does the device have a MobileSafari-style touch interface?
+    //
+    ["touch", function () {
+      result(
+        ('ontouchstart' in window) ||
+        css.supportsMediaQueryProperty('touch-enabled')
+      );
+    }],
+
+    // Is the Reader embedded, or in the top-level window?
+    //
+    ["embedded", function () { result(top != self) }],
+
+
+    // TEST FOR CERTAIN RENDERING OR INTERACTION BUGS
+
+    // iOS (at least up to version 4.1) makes a complete hash of touch events
+    // when an iframe is overlapped by other elements. It's a dog's breakfast.
+    // See test/bugs/ios-frame-touch-bug for details.
+    //
+    ["brokenIframeTouchModel", function () {
+      result(Monocle.Browser.iOSVersionBelow("4.2"));
+    }],
+
+    // In early versions of iOS (up to 4.1), MobileSafari would send text-select
+    // activity to the first iframe, even if that iframe is overlapped by a
+    // "higher" iframe.
+    //
+    ["selectIgnoresZOrder", function () {
+      result(Monocle.Browser.iOSVersionBelow("4.2"));
+    }],
+
+    // Webkit-based browsers put floated elements in the wrong spot when
+    // columns are used -- they appear way down where they would be if there
+    // were no columns.  Presumably the float positions are calculated before
+    // the columns. A bug has been lodged, and it's fixed in recent WebKits.
+    //
+    ["floatsIgnoreColumns", function () {
+      if (!Monocle.Browser.is.WebKit) { return result(false); }
+      match = navigator.userAgent.match(/AppleWebKit\/([\d\.]+)/);
+      if (!match) { return result(false); }
+      return result(match[1] < "534.30");
+    }],
+
+    // The latest engines all agree that if a body is translated leftwards,
+    // its scrollWidth is shortened. But some older WebKits (notably iOS4)
+    // do not subtract translateX values from scrollWidth. In this case,
+    // we should not add the translate back when calculating the width.
+    //
+    ["widthsIgnoreTranslate", function () {
+      loadTestFrame(function (fr) {
+        var firstWidth = columnedWidth(fr);
+        var s = fr.contentDocument.body.style;
+        var props = css.toDOMProps("transform");
+        for (var i = 0, ii = props.length; i < ii; ++i) {
+          s[props[i]] = "translateX(-600px)";
+        }
+        var secondWidth = columnedWidth(fr);
+        for (i = 0, ii = props.length; i < ii; ++i) {
+          s[props[i]] = "none";
+        }
+        result(secondWidth == firstWidth);
+      });
+    }],
+
+    // On Android browsers, if the component iframe has a relative width (ie,
+    // 100%), the width of the entire browser will keep expanding and expanding
+    // to fit the width of the body of the iframe (which, with columns, is
+    // massive). So, 100% is treated as "of the body content" rather than "of
+    // the parent dimensions". In this scenario, we need to give the component
+    // iframe a fixed width in pixels.
+    //
+    // In iOS, the frame is clipped by overflow:hidden, so this doesn't seem to
+    // be a problem.
+    //
+    ["relativeIframeExpands", function () {
+      result(navigator.userAgent.indexOf("Android 2") >= 0);
+    }],
+
+    // iOS3 will pause JavaScript execution if it gets a style-change + a
+    // scroll change on a component body. Weirdly, this seems to break GBCR
+    // in iOS4.
+    //
+    ["scrollToApplyStyle", function () {
+      result(Monocle.Browser.iOSVersionBelow("4"));
+    }],
+
+
+    // TEST FOR OTHER QUIRKY BROWSER BEHAVIOUR
+
+    // Older versions of WebKit (iOS3, Kindle3) need a min-width set on the
+    // body of the iframe at 200%. This forces columns. But when this
+    // min-width is set, it's more difficult to recognise 1 page components,
+    // so we generally don't want to force it unless we have to.
+    //
+    ["forceColumns", function () {
+      loadTestFrame(function (fr) {
+        var bd = fr.contentDocument.body;
+        result(bd.className ? true : false);
+      });
+    }],
+
+    // A component iframe's body is absolutely positioned. This means that
+    // the documentElement should have a height of 0, since it contains nothing
+    // other than an absolutely positioned element.
+    //
+    // But for some browsers (Gecko and Opera), the documentElement is as
+    // wide as the full columned content, and the body is only as wide as
+    // the iframe element (ie, the first column).
+    //
+    // It gets weirder. Gecko sometimes behaves like WebKit (not clipping the
+    // body) IF the component has been loaded via HTML/JS/Nodes, not URL. Still
+    // can't reproduce outside Monocle.
+    //
+    // FIXME: If we can figure out a reliable behaviour for Gecko, we should
+    // use it to precalculate the workaround. At the moment, this test isn't
+    // used, but it belongs in src/dimensions/columns.js#columnedDimensions().
+    //
+    // ["iframeBodyWidthClipped", function () {
+    //   loadTestFrame(function (fr) {
+    //     var doc = fr.contentDocument;
+    //     result(
+    //       doc.body.scrollWidth <= testFrameSize &&
+    //       doc.documentElement.scrollWidth > testFrameSize
+    //     );
+    //   })
+    // }],
+
+    // Finding the page that a given HTML node is on is typically done by
+    // calculating the offset of its rectange from the body's rectangle.
+    //
+    // But if this information isn't provided by the browser, we need to use
+    // node.scrollIntoView and check the scrollOffset. Basically iOS3 is the
+    // only target platform that doesn't give us the rectangle info.
+    //
+    ["findNodesByScrolling", function () {
+      result(typeof document.body.getBoundingClientRect !== "function");
+    }],
+
+    // In MobileSafari browsers, iframes are rendered at the width and height
+    // of their content, rather than having scrollbars. So in that case, it's
+    // the containing element (the "sheaf") that must be scrolled, not the
+    // iframe body.
+    //
+    ["sheafIsScroller", function () {
+      loadTestFrame(function (fr) {
+        result(fr.parentNode.scrollWidth > testFrameSize);
+      });
+    }],
+
+    // For some reason, iOS MobileSafari sometimes loses track of a page after
+    // slideOut -- it thinks it has an x-translation of 0, rather than -768 or
+    // whatever. So the page gets "stuck" there, until it is given a non-zero
+    // x-translation. The workaround is to set a non-zero duration on the jumpIn,
+    // which seems to force WebKit to recalculate the x of the page. Weird, yeah.
+    //
+    ["stickySlideOut", function () {
+      result(Monocle.Browser.is.MobileSafari);
+    }]
+
+  ];
+
+
+  function isCompatible() {
+    return (
+      API.supportsW3CEvents &&
+      API.supportsCustomEvents &&
+      // API.supportsColumns &&     // This is coming in 3.0!
+      API.supportsTransform
+    );
+  }
+
+
+  API.survey = survey;
+  API.isCompatible = isCompatible;
+
+  return API;
+}
+
+
+
+Monocle.pieceLoaded('compat/env');
+Monocle.CSS = function () {
+
+  var API = { constructor: Monocle.CSS }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    guineapig: document.createElement('div')
+  }
+
+
+  // Returns engine-specific properties,
+  //
+  // eg:
+  //
+  //  toCSSProps('transform')
+  //
+  // ... in WebKit, this will return:
+  //
+  //  ['transform', '-webkit-transform']
+  //
+  function toCSSProps(prop) {
+    var props = [];
+    var eng = k.engines.indexOf(Monocle.Browser.engine);
+    if (eng) {
+      var pf = k.prefixes[eng];
+      if (pf) {
+        props.push(pf+prop);
+      }
+    }
+    return props;
+  }
+
+
+  // Returns an engine-specific CSS string.
+  //
+  // eg:
+  //
+  //   toCSSDeclaration('column-width', '300px')
+  //
+  // ... in Mozilla, this will return:
+  //
+  //   "column-width: 300px; -moz-column-width: 300px;"
+  //
+  function toCSSDeclaration(prop, val) {
+    var props = toCSSProps(prop);
+    for (var i = 0, ii = props.length; i < ii; ++i) {
+      props[i] += ": "+val+";";
+    }
+    return props.join("");
+  }
+
+
+  // Returns an array of DOM properties specific to this engine.
+  //
+  // eg:
+  //
+  //   toDOMProps('column-width')
+  //
+  // ... in Opera, this will return:
+  //
+  //   [columnWidth, OColumnWidth]
+  //
+  function toDOMProps(prop) {
+    var parts = prop.split('-');
+    for (var i = parts.length; i > 0; --i) {
+      parts[i] = capStr(parts[i]);
+    }
+
+    var props = [parts.join('')];
+    var eng = k.engines.indexOf(Monocle.Browser.engine);
+    if (eng) {
+      var pf = k.domprefixes[eng];
+      if (pf) {
+        parts[0] = capStr(parts[0]);
+        props.push(pf+parts.join(''));
+      }
+    }
+    return props;
+  }
+
+
+  // Is this exact property (or any in this array of properties) supported
+  // by this engine?
+  //
+  function supportsProperty(props) {
+    for (var i in props) {
+      if (p.guineapig.style[props[i]] !== undefined) { return true; }
+    }
+    return false;
+  } // Thanks modernizr!
+
+
+
+  // Is this property (or a prefixed variant) supported by this engine?
+  //
+  function supportsPropertyWithAnyPrefix(prop) {
+    return supportsProperty(toDOMProps(prop));
+  }
+
+
+  function supportsMediaQuery(query) {
+    var gpid = "monocle_guineapig";
+    p.guineapig.id = gpid;
+    var st = document.createElement('style');
+    st.textContent = query+'{#'+gpid+'{height:3px}}';
+    (document.head || document.getElementsByTagName('head')[0]).appendChild(st);
+    document.documentElement.appendChild(p.guineapig);
+
+    var result = p.guineapig.offsetHeight === 3;
+
+    st.parentNode.removeChild(st);
+    p.guineapig.parentNode.removeChild(p.guineapig);
+
+    return result;
+  } // Thanks modernizr!
+
+
+  function supportsMediaQueryProperty(prop) {
+    return supportsMediaQuery(
+      '@media (' + k.prefixes.join(prop+'),(') + 'monocle__)'
+    );
+  }
+
+
+  function capStr(wd) {
+    return wd ? wd.charAt(0).toUpperCase() + wd.substr(1) : "";
+  }
+
+
+  API.toCSSProps = toCSSProps;
+  API.toCSSDeclaration = toCSSDeclaration;
+  API.toDOMProps = toDOMProps;
+  API.supportsProperty = supportsProperty;
+  API.supportsPropertyWithAnyPrefix = supportsPropertyWithAnyPrefix;
+  API.supportsMediaQuery = supportsMediaQuery;
+  API.supportsMediaQueryProperty = supportsMediaQueryProperty;
+
+  return API;
+}
+
+
+Monocle.CSS.engines = ["W3C", "WebKit", "Gecko", "Opera", "IE", "Konqueror"];
+Monocle.CSS.prefixes = ["", "-webkit-", "-moz-", "-o-", "-ms-", "-khtml-"];
+Monocle.CSS.domprefixes = ["", "Webkit", "Moz", "O", "ms", "Khtml"];
+
+
+Monocle.pieceLoaded('compat/css');
+// STUBS - simple debug functions and polyfills to normalise client
+// execution environments.
+
+
+// A little console stub if not initialized in a console-equipped browser.
+//
+if (typeof window.console == "undefined") {
+  window.console = {
+    messages: [],
+    log: function (msg) {
+      this.messages.push(msg);
+    }
+  }
+}
+
+
+// A simple version of console.dir that works on iOS.
+//
+window.console.compatDir = function (obj) {
+  var stringify = function (o) {
+    var parts = [];
+    for (x in o) {
+      parts.push(x + ": " + o[x]);
+    }
+    return parts.join("; ");
+  }
+
+  window.console.log(stringify(obj));
+}
+
+
+Monocle.pieceLoaded('compat/stubs');
+Monocle.Browser = {}
+
+// Detect the browser engine and set boolean flags for reference.
+//
+Monocle.Browser.is = {
+  IE: !!(window.attachEvent && navigator.userAgent.indexOf('Opera') === -1),
+  Opera: navigator.userAgent.indexOf('Opera') > -1,
+  WebKit: navigator.userAgent.indexOf('AppleWebKit') > -1,
+  Gecko: navigator.userAgent.indexOf('Gecko') > -1 &&
+    navigator.userAgent.indexOf('KHTML') === -1,
+  MobileSafari: !!navigator.userAgent.match(/AppleWebKit.*Mobile/)
+} // ... with thanks to PrototypeJS.
+
+
+if (Monocle.Browser.is.IE) {
+  Monocle.Browser.engine = "IE";
+} else if (Monocle.Browser.is.Opera) {
+  Monocle.Browser.engine = "Opera";
+} else if (Monocle.Browser.is.WebKit) {
+  Monocle.Browser.engine = "WebKit";
+} else if (Monocle.Browser.is.Gecko) {
+  Monocle.Browser.engine = "Gecko";
+} else {
+  Monocle.Browser.engine = "W3C";
+}
+
+
+// Detect the client platform (typically device/operating system).
+//
+Monocle.Browser.on = {
+  iPhone: Monocle.Browser.is.MobileSafari && screen.width == 320,
+  iPad: Monocle.Browser.is.MobileSafari && screen.width == 768,
+  UIWebView: Monocle.Browser.is.MobileSafari &&
+    navigator.userAgent.indexOf("Safari") < 0 &&
+    !navigator.standalone,
+  BlackBerry: navigator.userAgent.indexOf("BlackBerry") != -1,
+  Android: navigator.userAgent.indexOf('Android') != -1,
+  MacOSX: navigator.userAgent.indexOf('Mac OS X') != -1 &&
+    !Monocle.Browser.is.MobileSafari,
+  Kindle3: !!navigator.userAgent.match(/Kindle\/3/)
+  // TODO: Mac, Windows, etc
+}
+
+
+// It is only because MobileSafari is responsible for so much anguish that
+// we special-case it here. Not a badge of honour.
+//
+if (Monocle.Browser.is.MobileSafari) {
+  (function () {
+    var ver = navigator.userAgent.match(/ OS ([\d_]+)/);
+    if (ver) {
+      Monocle.Browser.iOSVersion = ver[1].replace(/_/g, '.');
+    } else {
+      console.warn("Unknown MobileSafari user agent: "+navigator.userAgent);
+    }
+  })();
+}
+Monocle.Browser.iOSVersionBelow = function (strOrNum) {
+  return !!Monocle.Browser.iOSVersion && Monocle.Browser.iOSVersion < strOrNum;
+}
+
+
+// A helper class for sniffing CSS features and creating CSS rules
+// appropriate to the current rendering engine.
+//
+Monocle.Browser.css = new Monocle.CSS();
+
+
+// During Reader initialization, this method is called to create the
+// "environment", which tests for the existence of various browser
+// features and bugs, then invokes the callback to continue initialization.
+//
+// If the survey has already been conducted and the env exists, calls
+// callback immediately.
+//
+Monocle.Browser.survey = function (callback) {
+  if (!Monocle.Browser.env) {
+    Monocle.Browser.env = new Monocle.Env();
+    Monocle.Browser.env.survey(callback);
+  } else if (typeof callback == "function") {
+    callback();
+  }
+}
+
+Monocle.pieceLoaded('compat/browser');
+Monocle.Factory = function (element, label, index, reader) {
+
+  var API = { constructor: Monocle.Factory };
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    element: element,
+    label: label,
+    index: index,
+    reader: reader,
+    prefix: reader.properties.classPrefix || ''
+  }
+
+
+  // If index is null, uses the first available slot. If index is not null and
+  // the slot is not free, throws an error.
+  //
+  function initialize() {
+    if (!p.label) { return; }
+    // Append the element to the reader's graph of DOM elements.
+    var node = p.reader.properties.graph;
+    node[p.label] = node[p.label] || [];
+    if (typeof p.index == 'undefined' && node[p.label][p.index]) {
+      throw('Element already exists in graph: '+p.label+'['+p.index+']');
+    } else {
+      p.index = p.index || node[p.label].length;
+    }
+    node[p.label][p.index] = p.element;
+
+    // Add the label as a class name.
+    addClass(p.label);
+  }
+
+
+  // Finds an element that has been created in the context of the current
+  // reader, with the given label. If oIndex is not provided, returns first.
+  // If oIndex is provided (eg, n), returns the nth element with the label.
+  //
+  function find(oLabel, oIndex) {
+    if (!p.reader.properties.graph[oLabel]) {
+      return null;
+    }
+    return p.reader.properties.graph[oLabel][oIndex || 0];
+  }
+
+
+  // Takes an elements and assimilates it into the reader -- essentially
+  // giving it a "dom" object of it's own. It will then be accessible via find.
+  //
+  // Note that (as per comments for initialize), if oIndex is provided and
+  // there is no free slot in the array for this label at that index, an
+  // error will be thrown.
+  //
+  function claim(oElement, oLabel, oIndex) {
+    return oElement.dom = new Monocle.Factory(
+      oElement,
+      oLabel,
+      oIndex,
+      p.reader
+    );
+  }
+
+
+  // Create an element with the given label.
+  //
+  // The last argument (whether third or fourth) is the options hash. Your
+  // options are:
+  //
+  //   class - the classname for the element. Must only be one name.
+  //   html - the innerHTML for the element.
+  //   text - the innerText for the element (an alternative to html, simpler).
+  //
+  // Returns the created element.
+  //
+  function make(tagName, oLabel, index_or_options, or_options) {
+    var oIndex, options;
+    if (arguments.length == 1) {
+      oLabel = null,
+      oIndex = 0;
+      options = {};
+    } else if (arguments.length == 2) {
+      oIndex = 0;
+      options = {};
+    } else if (arguments.length == 4) {
+      oIndex = arguments[2];
+      options = arguments[3];
+    } else if (arguments.length == 3) {
+      var lastArg = arguments[arguments.length - 1];
+      if (typeof lastArg == "number") {
+        oIndex = lastArg;
+        options = {};
+      } else {
+        oIndex = 0;
+        options = lastArg;
+      }
+    }
+
+    var oElement = document.createElement(tagName);
+    claim(oElement, oLabel, oIndex);
+    if (options['class']) {
+      oElement.className += " "+p.prefix+options['class'];
+    }
+    if (options['html']) {
+      oElement.innerHTML = options['html'];
+    }
+    if (options['text']) {
+      oElement.appendChild(document.createTextNode(options['text']));
+    }
+
+    return oElement;
+  }
+
+
+  // Creates an element by passing all the given arguments to make. Then
+  // appends the element as a child of the current element.
+  //
+  function append(tagName, oLabel, index_or_options, or_options) {
+    var oElement = make.apply(this, arguments);
+    p.element.appendChild(oElement);
+    return oElement;
+  }
+
+
+  // Returns an array of [label, index, reader] for the given element.
+  // A simple way to introspect the arguments required for #find, for eg.
+  //
+  function address() {
+    return [p.label, p.index, p.reader];
+  }
+
+
+  // Apply a set of style rules (hash or string) to the current element.
+  // See Monocle.Styles.applyRules for more info.
+  //
+  function setStyles(rules) {
+    return Monocle.Styles.applyRules(p.element, rules);
+  }
+
+
+  function setBetaStyle(property, value) {
+    return Monocle.Styles.affix(p.element, property, value);
+  }
+
+
+  // ClassName manipulation functions - with thanks to prototype.js!
+
+  // Returns true if one of the current element's classnames matches name --
+  // classPrefix aware (so don't concate the prefix onto it).
+  //
+  function hasClass(name) {
+    name = p.prefix + name;
+    var klass = p.element.className;
+    if (!klass) { return false; }
+    if (klass == name) { return true; }
+    return new RegExp("(^|\\s)"+name+"(\\s|$)").test(klass);
+  }
+
+
+  // Adds name to the classnames of the current element (prepending the
+  // reader's classPrefix first).
+  //
+  function addClass(name) {
+    if (hasClass(name)) { return; }
+    var gap = p.element.className ? ' ' : '';
+    return p.element.className += gap+p.prefix+name;
+  }
+
+
+  // Removes (classPrefix+)name from the classnames of the current element.
+  //
+  function removeClass(name) {
+    var reName = new RegExp("(^|\\s+)"+p.prefix+name+"(\\s+|$)");
+    var reTrim = /^\s+|\s+$/g;
+    var klass = p.element.className;
+    p.element.className = klass.replace(reName, ' ').replace(reTrim, '');
+    return p.element.className;
+  }
+
+
+  API.find = find;
+  API.claim = claim;
+  API.make = make;
+  API.append = append;
+  API.address = address;
+
+  API.setStyles = setStyles;
+  API.setBetaStyle = setBetaStyle;
+  API.hasClass = hasClass;
+  API.addClass = addClass;
+  API.removeClass = removeClass;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.pieceLoaded('core/factory');
+Monocle.Events = {}
+
+
+// Fire a custom event on a given target element. The attached data object will
+// be available to all listeners at evt.m.
+//
+// Internet Explorer does not permit custom events; we'll wait for a
+// version of IE that supports the W3C model.
+//
+Monocle.Events.dispatch = function (elem, evtType, data, cancelable) {
+  if (!document.createEvent) {
+    return true;
+  }
+  var evt = document.createEvent("Events");
+  evt.initEvent(evtType, false, cancelable || false);
+  evt.m = data;
+  try {
+    return elem.dispatchEvent(evt);
+  } catch(e) {
+    console.warn("Failed to dispatch event: "+evtType);
+    return false;
+  }
+}
+
+
+// Register a function to be invoked when an event fires.
+//
+Monocle.Events.listen = function (elem, evtType, fn, useCapture) {
+  if (typeof elem == "string") { elem = document.getElementById(elem); }
+  return elem.addEventListener(evtType, fn, useCapture || false);
+}
+
+
+// De-register a function from an event.
+//
+Monocle.Events.deafen = function (elem, evtType, fn, useCapture) {
+  if (elem.removeEventListener) {
+    return elem.removeEventListener(evtType, fn, useCapture || false);
+  } else if (elem.detachEvent) {
+    try {
+      return elem.detachEvent('on'+evtType, fn);
+    } catch(e) {}
+  }
+}
+
+
+// 'fns' argument is an object like:
+//
+//   {
+//     'start': function () { ... },
+//     'move': function () { ... },
+//     'end': function () { ... },
+//     'cancel': function () { ... }
+//   }
+//
+// All of the functions in this object are optional.
+//
+// 'options' argument:
+//
+//   {
+//     'useCapture': true/false
+//   }
+//
+// Returns an object that can later be passed to Monocle.Events.deafenForContact
+//
+Monocle.Events.listenForContact = function (elem, fns, options) {
+  var listeners = {};
+
+  var cursorInfo = function (evt, ci) {
+    evt.m = {
+      pageX: ci.pageX,
+      pageY: ci.pageY
+    };
+
+    var target = evt.target || evt.srcElement;
+    while (target.nodeType != 1 && target.parentNode) {
+      target = target.parentNode;
+    }
+
+    // The position of contact from the top left of the element
+    // on which the event fired.
+    var offset = offsetFor(evt, target);
+    evt.m.offsetX = offset[0];
+    evt.m.offsetY = offset[1];
+
+    // The position of contact from the top left of the element
+    // on which the event is registered.
+    if (evt.currentTarget) {
+      offset = offsetFor(evt, evt.currentTarget);
+      evt.m.registrantX = offset[0];
+      evt.m.registrantY = offset[1];
+    }
+
+    return evt;
+  }
+
+
+  var offsetFor = function (evt, elem) {
+    var r;
+    if (elem.getBoundingClientRect) {
+      var er = elem.getBoundingClientRect();
+      var dr = document.body.getBoundingClientRect();
+      r = { left: er.left - dr.left, top: er.top - dr.top };
+    } else {
+      r = { left: elem.offsetLeft, top: elem.offsetTop }
+      while (elem = elem.parentNode) {
+        if (elem.offsetLeft || elem.offsetTop) {
+          r.left += elem.offsetLeft;
+          r.top += elem.offsetTop;
+        }
+      }
+    }
+    return [evt.m.pageX - r.left, evt.m.pageY - r.top];
+  }
+
+
+  var capture = (options && options.useCapture) || false;
+
+  if (!Monocle.Browser.env.touch) {
+    if (fns.start) {
+      listeners.mousedown = function (evt) {
+        if (evt.button != 0) { return; }
+        fns.start(cursorInfo(evt, evt));
+      }
+      Monocle.Events.listen(elem, 'mousedown', listeners.mousedown, capture);
+    }
+    if (fns.move) {
+      listeners.mousemove = function (evt) {
+        fns.move(cursorInfo(evt, evt));
+      }
+      Monocle.Events.listen(elem, 'mousemove', listeners.mousemove, capture);
+    }
+    if (fns.end) {
+      listeners.mouseup = function (evt) {
+        fns.end(cursorInfo(evt, evt));
+      }
+      Monocle.Events.listen(elem, 'mouseup', listeners.mouseup, capture);
+    }
+    if (fns.cancel) {
+      listeners.mouseout = function (evt) {
+        obj = evt.relatedTarget || evt.fromElement;
+        while (obj && (obj = obj.parentNode)) {
+          if (obj == elem) { return; }
+        }
+        fns.cancel(cursorInfo(evt, evt));
+      }
+      Monocle.Events.listen(elem, 'mouseout', listeners.mouseout, capture);
+    }
+  } else {
+    if (fns.start) {
+      listeners.start = function (evt) {
+        if (evt.touches.length > 1) { return; }
+        fns.start(cursorInfo(evt, evt.targetTouches[0]));
+      }
+    }
+    if (fns.move) {
+      listeners.move = function (evt) {
+        if (evt.touches.length > 1) { return; }
+        fns.move(cursorInfo(evt, evt.targetTouches[0]));
+      }
+    }
+    if (fns.end) {
+      listeners.end = function (evt) {
+        fns.end(cursorInfo(evt, evt.changedTouches[0]));
+        // BROWSERHACK:
+        // If there is something listening for contact end events, we always
+        // prevent the default, because TouchMonitor can't do it (since it
+        // fires it on a delay: ugh). Would be nice to remove this line and
+        // standardise things.
+        evt.preventDefault();
+      }
+    }
+    if (fns.cancel) {
+      listeners.cancel = function (evt) {
+        fns.cancel(cursorInfo(evt, evt.changedTouches[0]));
+      }
+    }
+
+    if (Monocle.Browser.env.brokenIframeTouchModel) {
+      Monocle.Events.tMonitor = Monocle.Events.tMonitor ||
+        new Monocle.Events.TouchMonitor();
+      Monocle.Events.tMonitor.listen(elem, listeners, options);
+    } else {
+      for (etype in listeners) {
+        Monocle.Events.listen(elem, 'touch'+etype, listeners[etype], capture);
+      }
+    }
+  }
+
+  return listeners;
+}
+
+
+// The 'listeners' argument is a hash of event names and the functions that
+// are registered to them -- de-registers the functions from the events.
+//
+Monocle.Events.deafenForContact = function (elem, listeners) {
+  var prefix = "";
+  if (Monocle.Browser.env.touch) {
+    prefix = Monocle.Browser.env.brokenIframeTouchModel ? "contact" : "touch";
+  }
+
+  for (evtType in listeners) {
+    Monocle.Events.deafen(elem, prefix + evtType, listeners[evtType]);
+  }
+}
+
+
+// Looks for start/end events on an element without significant move events in
+// between. Fires on the end event.
+//
+// Also sets up a dummy click event on Kindle3, so that the elem becomes a
+// cursor target.
+//
+// If the optional activeClass string is provided, and if the element was
+// created by a Monocle.Factory, then the activeClass will be applied to the
+// element while it is being tapped.
+//
+// Returns a listeners object that you should pass to deafenForTap if you
+// need to.
+Monocle.Events.listenForTap = function (elem, fn, activeClass) {
+  var startPos;
+
+  // On Kindle, register a noop function with click to make the elem a
+  // cursor target.
+  if (Monocle.Browser.on.Kindle3) {
+    Monocle.Events.listen(elem, 'click', function () {});
+  }
+
+  var annul = function () {
+    startPos = null;
+    if (activeClass && elem.dom) { elem.dom.removeClass(activeClass); }
+  }
+
+  var annulIfOutOfBounds = function (evt) {
+    // We don't have to track this nonsense for mouse events.
+    if (evt.type.match(/^mouse/)) {
+      return;
+    }
+    // Doesn't work on iOS 3.1 for some reason, so ignore for that version.
+    if (Monocle.Browser.is.MobileSafari && Monocle.Browser.iOSVersion < "3.2") {
+      return;
+    }
+    if (
+      evt.m.registrantX < 0 || evt.m.registrantX > elem.offsetWidth ||
+      evt.m.registrantY < 0 || evt.m.registrantY > elem.offsetHeight
+    ) {
+      annul();
+    }
+  }
+
+  return Monocle.Events.listenForContact(
+    elem,
+    {
+      start: function (evt) {
+        startPos = [evt.m.pageX, evt.m.pageY];
+        if (activeClass && elem.dom) { elem.dom.addClass(activeClass); }
+      },
+      move: annulIfOutOfBounds,
+      end: function (evt) {
+        annulIfOutOfBounds(evt);
+        if (startPos) {
+          evt.m.startOffset = startPos;
+          fn(evt);
+        }
+        annul();
+      },
+      cancel: annul
+    },
+    {
+      useCapture: false
+    }
+  );
+}
+
+
+Monocle.Events.deafenForTap = Monocle.Events.deafenForContact;
+
+
+// Listen for the next transition-end event on the given element, call
+// the function, then deafen.
+//
+// Returns a function that can be used to cancel the listen early.
+//
+Monocle.Events.afterTransition = function (elem, fn) {
+  var evtName = "transitionend";
+  if (Monocle.Browser.is.WebKit) {
+    evtName = 'webkitTransitionEnd';
+  } else if (Monocle.Browser.is.Opera) {
+    evtName =  'oTransitionEnd';
+  }
+  var l = null, cancel = null;
+  l = function () { fn(); cancel(); }
+  cancel = function () { Monocle.Events.deafen(elem, evtName, l); }
+  Monocle.Events.listen(elem, evtName, l);
+  return cancel;
+}
+
+
+
+// BROWSERHACK: iOS touch events on iframes are busted. The TouchMonitor,
+// transposes touch events on underlying iframes onto the elements that
+// sit above them. It's a massive hack.
+Monocle.Events.TouchMonitor = function () {
+  if (Monocle.Events == this) {
+    return new Monocle.Events.TouchMonitor();
+  }
+
+  var API = { constructor: Monocle.Events.TouchMonitor }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    touching: null,
+    edataPrev: null,
+    originator: null,
+    brokenModel_4_1: navigator.userAgent.match(/ OS 4_1/)
+  }
+
+
+  function listenOnIframe(iframe) {
+    if (iframe.contentDocument) {
+      enableTouchProxy(iframe.contentDocument);
+      iframe.contentDocument.isTouchFrame = true;
+    }
+
+    // IN 4.1 ONLY, a touchstart/end/both fires on the *frame* itself when a
+    // touch completes on a part of the iframe that is not overlapped by
+    // anything. This should be translated to a touchend on the touching
+    // object.
+    if (p.brokenModel_4_1) {
+      enableTouchProxy(iframe);
+    }
+  }
+
+
+  function listen(element, fns, useCapture) {
+    for (etype in fns) {
+      Monocle.Events.listen(element, 'contact'+etype, fns[etype], useCapture);
+    }
+    enableTouchProxy(element, useCapture);
+  }
+
+
+  function enableTouchProxy(element, useCapture) {
+    if (element.monocleTouchProxy) {
+      return;
+    }
+    element.monocleTouchProxy = true;
+
+    var fn = function (evt) { touchProxyHandler(element, evt) }
+    Monocle.Events.listen(element, "touchstart", fn, useCapture);
+    Monocle.Events.listen(element, "touchmove", fn, useCapture);
+    Monocle.Events.listen(element, "touchend", fn, useCapture);
+    Monocle.Events.listen(element, "touchcancel", fn, useCapture);
+  }
+
+
+  function touchProxyHandler(element, evt) {
+    var edata = {
+      start: evt.type == "touchstart",
+      move: evt.type == "touchmove",
+      end: evt.type == "touchend" || evt.type == "touchcancel",
+      time: new Date().getTime(),
+      frame: element.isTouchFrame
+    }
+
+    if (!p.touching) {
+      p.originator = element;
+    }
+
+    var target = element;
+    var touch = evt.touches[0] || evt.changedTouches[0];
+    target = document.elementFromPoint(touch.screenX, touch.screenY);
+
+    if (target) {
+      translateTouchEvent(element, target, evt, edata);
+    }
+  }
+
+
+  function translateTouchEvent(element, target, evt, edata) {
+    // IN 4.1 ONLY, if we have a touch start on the layer, and it's been
+    // almost no time since we had a touch end on the layer, discard the start.
+    // (This is the most broken thing about 4.1.)
+    // FIXME: this seems to discard all "taps" on a naked iframe.
+    if (
+      p.brokenModel_4_1 &&
+      !edata.frame &&
+      !p.touching &&
+      edata.start &&
+      p.edataPrev &&
+      p.edataPrev.end &&
+      (edata.time - p.edataPrev.time) < 30
+    ) {
+      evt.preventDefault();
+      return;
+    }
+
+    // If we don't have a touch and we see a start or a move on anything, start
+    // a touch.
+    if (!p.touching && !edata.end) {
+      return fireStart(evt, target, edata);
+    }
+
+    // If this is a move event and we already have a touch, continue the move.
+    if (edata.move && p.touching) {
+      return fireMove(evt, edata);
+    }
+
+    if (p.brokenModel_4_1) {
+      // IN 4.1 ONLY, if we have a touch in progress, and we see a start, end
+      // or cancel event (moves are covered in previous rule), and the event
+      // is not on the iframe, end the touch.
+      // (This is because 4.1 bizarrely sends a random event to the layer
+      // above the iframe, rather than an end event to the iframe itself.)
+      if (p.touching && !edata.frame) {
+        // However, a touch start will fire on the layer when moving out of
+        // the overlap with the frame. This would trigger the end of the touch.
+        // And the immediately subsequent move starts a new touch.
+        //
+        // To get around this, we only provisionally end the touch - if we get
+        // a touchmove momentarily, we'll cancel this touchend.
+        return fireProvisionalEnd(evt, edata);
+      }
+    } else {
+      // In older versions of MobileSafari, if the touch ends when we're
+      // touching something, just fire it.
+      if (edata.end && p.touching) {
+        return fireProvisionalEnd(evt, edata);
+      }
+    }
+
+    // IN 4.1 ONLY, a touch that has started outside an iframe should not be
+    // endable by the iframe.
+    if (
+      p.brokenModel_4_1 &&
+      p.originator != element &&
+      edata.frame &&
+      edata.end
+    ) {
+      evt.preventDefault();
+      return;
+    }
+
+    // If we see a touch end on the frame, end the touch.
+    if (edata.frame && edata.end && p.touching) {
+      return fireProvisionalEnd(evt, edata);
+    }
+  }
+
+
+  function fireStart(evt, target, edata) {
+    p.touching = target;
+    p.edataPrev = edata;
+    return fireTouchEvent(p.touching, 'start', evt);
+  }
+
+
+  function fireMove(evt, edata) {
+    clearProvisionalEnd();
+    p.edataPrev = edata;
+    return fireTouchEvent(p.touching, 'move', evt);
+  }
+
+
+  function fireEnd(evt, edata) {
+    var result = fireTouchEvent(p.touching, 'end', evt);
+    p.edataPrev = edata;
+    p.touching = null;
+    return result;
+  }
+
+
+  function fireProvisionalEnd(evt, edata) {
+    clearProvisionalEnd();
+    var mimicEvt = mimicTouchEvent(p.touching, 'end', evt);
+    p.edataPrev = edata;
+
+    p.provisionalEnd = setTimeout(
+      function() {
+        if (p.touching) {
+          p.touching.dispatchEvent(mimicEvt);
+          p.touching = null;
+        }
+      },
+      30
+    );
+  }
+
+
+  function clearProvisionalEnd() {
+    if (p.provisionalEnd) {
+      clearTimeout(p.provisionalEnd);
+      p.provisionalEnd = null;
+    }
+  }
+
+
+  function mimicTouchEvent(target, newtype, evt) {
+    var cloneTouch = function (t) {
+      return document.createTouch(
+        document.defaultView,
+        target,
+        t.identifier,
+        t.screenX,
+        t.screenY,
+        t.screenX,
+        t.screenY
+      );
+    }
+
+    var findTouch = function (id) {
+      for (var i = 0; i < touches.all.length; ++i) {
+        if (touches.all[i].identifier == id) {
+          return touches.all[i];
+        }
+      }
+    }
+
+    // Mimic the event data, dispatching it on the new target.
+    var touches = { all: [], target: [], changed: [] };
+    for (var i = 0; i < evt.touches.length; ++i) {
+      touches.all.push(cloneTouch(evt.touches[i]));
+    }
+    for (var i = 0; i < evt.targetTouches.length; ++i) {
+      touches.target.push(
+        findTouch(evt.targetTouches[i].identifier) ||
+        cloneTouch(evt.targetTouches[i])
+      );
+    }
+    for (var i = 0; i < evt.changedTouches.length; ++i) {
+      touches.changed.push(
+        findTouch(evt.changedTouches[i].identifier) ||
+        cloneTouch(evt.changedTouches[i])
+      );
+    }
+
+    var mimicEvt = document.createEvent('TouchEvent');
+    mimicEvt.initTouchEvent(
+      "contact"+newtype,
+      true,
+      true,
+      document.defaultView,
+      evt.detail,
+      evt.screenX,
+      evt.screenY,
+      evt.screenX,
+      evt.screenY,
+      evt.ctrlKey,
+      evt.altKey,
+      evt.shiftKey,
+      evt.metaKey,
+      document.createTouchList.apply(document, touches.all),
+      document.createTouchList.apply(document, touches.target),
+      document.createTouchList.apply(document, touches.changed),
+      evt.scale,
+      evt.rotation
+    );
+
+    return mimicEvt;
+  }
+
+
+  function fireTouchEvent(target, newtype, evt) {
+    var mimicEvt = mimicTouchEvent(target, newtype, evt);
+    var result = target.dispatchEvent(mimicEvt);
+    if (!result) {
+      evt.preventDefault();
+    }
+    return result;
+  }
+
+
+  API.listen = listen;
+  API.listenOnIframe = listenOnIframe;
+
+  return API;
+}
+
+
+Monocle.Events.listenOnIframe = function (frame) {
+  if (!Monocle.Browser.env.brokenIframeTouchModel) {
+    return;
+  }
+  Monocle.Events.tMonitor = Monocle.Events.tMonitor ||
+    new Monocle.Events.TouchMonitor();
+  Monocle.Events.tMonitor.listenOnIframe(frame);
+}
+
+Monocle.pieceLoaded('core/events');
+Monocle.Styles = {
+
+  // Takes a hash and returns a string.
+  rulesToString: function (rules) {
+    if (typeof rules != 'string') {
+      var parts = [];
+      for (var declaration in rules) {
+        parts.push(declaration+": "+rules[declaration]+";")
+      }
+      rules = parts.join(" ");
+    }
+    return rules;
+  },
+
+
+  // Takes a hash or string of CSS property assignments and applies them
+  // to the element.
+  //
+  applyRules: function (elem, rules) {
+    rules = Monocle.Styles.rulesToString(rules);
+    elem.style.cssText += ';'+rules;
+    return elem.style.cssText;
+  },
+
+
+  // Generates cross-browser properties for a given property.
+  // ie, affix(<elem>, 'transition', 'linear 100ms') would apply that value
+  // to webkitTransition for WebKit browsers, and to MozTransition for Gecko.
+  //
+  affix: function (elem, property, value) {
+    var target = elem.style ? elem.style : elem;
+    var props = Monocle.Browser.css.toDOMProps(property);
+    while (props.length) { target[props.shift()] = value; }
+  },
+
+
+  setX: function (elem, x) {
+    var s = elem.style;
+    if (typeof x == "number") { x += "px"; }
+    if (Monocle.Browser.env.supportsTransform3d) {
+      s.webkitTransform = "translate3d("+x+", 0, 0)";
+    } else {
+      s.webkitTransform = "translateX("+x+")";
+    }
+    s.MozTransform = s.OTransform = s.transform = "translateX("+x+")";
+    return x;
+  },
+
+
+  setY: function (elem, y) {
+    var s = elem.style;
+    if (typeof y == "number") { y += "px"; }
+    if (Monocle.Browser.env.supportsTransform3d) {
+      s.webkitTransform = "translate3d(0, "+y+", 0)";
+    } else {
+      s.webkitTransform = "translateY("+y+")";
+    }
+    s.MozTransform = s.OTransform = s.transform = "translateY("+y+")";
+    return y;
+  },
+
+
+  getX: function (elem) {
+    var currStyle = document.defaultView.getComputedStyle(elem, null);
+    var re = /matrix\([^,]+,[^,]+,[^,]+,[^,]+,\s*([^,]+),[^\)]+\)/;
+    var props = Monocle.Browser.css.toDOMProps('transform');
+    var matrix = null;
+    while (props.length && !matrix) {
+      matrix = currStyle[props.shift()];
+    }
+    return parseInt(matrix.match(re)[1]);
+  },
+
+
+  transitionFor: function (elem, prop, duration, timing, delay) {
+    var tProps = Monocle.Browser.css.toDOMProps('transition');
+    var pProps = Monocle.Browser.css.toCSSProps(prop);
+    timing = timing || "linear";
+    delay = (delay || 0)+"ms";
+    for (var i = 0, ii = tProps.length; i < ii; ++i) {
+      var t = "none";
+      if (duration) {
+        t = [pProps[i], duration+"ms", timing, delay].join(" ");
+      }
+      elem.style[tProps[i]] = t;
+    }
+  }
+
+}
+
+
+// These rule definitions are more or less compulsory for Monocle to behave
+// as expected. Which is why they appear here and not in the stylesheet.
+// Adjust them if you know what you're doing.
+//
+Monocle.Styles.container = {
+  "position": "absolute",
+  "top": "0",
+  "left": "0",
+  "bottom": "0",
+  "right": "0"
+}
+
+Monocle.Styles.page = {
+  "position": "absolute",
+  "z-index": "1",
+  "-webkit-user-select": "none",
+  "-moz-user-select": "none",
+  "user-select": "none",
+  "-webkit-transform": "translate3d(0,0,0)",
+  "visibility": "visible"
+
+  /*
+  "background": "white",
+  "top": "0",
+  "left": "0",
+  "bottom": "0",
+  "right": "0"
+  */
+}
+
+Monocle.Styles.sheaf = {
+  "position": "absolute",
+  "overflow": "hidden"
+
+  /*
+  "top": "0",
+  "left": "0",
+  "bottom": "0",
+  "right": "0"
+  */
+}
+
+Monocle.Styles.component = {
+  "width": "100%",
+  "height": "100%",
+  "border": "none",
+  "-webkit-user-select": "none",
+  "-moz-user-select": "none",
+  "user-select": "none"
+}
+
+Monocle.Styles.control = {
+  "z-index": "100",
+  "cursor": "pointer"
+}
+
+Monocle.Styles.overlay = {
+  "position": "absolute",
+  "display": "none",
+  "width": "100%",
+  "height": "100%",
+  "z-index": "1000"
+}
+
+
+
+Monocle.pieceLoaded('core/styles');
+// READER
+//
+//
+// The full DOM hierarchy created by Reader is:
+//
+//   box
+//    -> container
+//      -> pages (the number of page elements is determined by the flipper)
+//        -> sheaf (basically just sets the margins)
+//          -> component (an iframe created by the current component)
+//            -> body (the document.body of the iframe)
+//        -> page controls
+//      -> standard controls
+//    -> overlay
+//      -> modal/popover controls
+//
+//
+// Options:
+//
+//  flipper: The class of page flipper to use.
+//
+//  panels: The class of panels to use
+//
+//  stylesheet: A string of CSS rules to apply to the contents of each
+//    component loaded into the reader.
+//
+//  place: A book locus for the page to open to when the reader is
+//    initialized. (See comments at Book#pageNumberAt for more about
+//    the locus option).
+//
+//  systemId: the id for root elements of components, defaults to "RS:monocle"
+//
+Monocle.Reader = function (node, bookData, options, onLoadCallback) {
+  if (Monocle == this) {
+    return new Monocle.Reader(node, bookData, options, onLoadCallback);
+  }
+
+  var API = { constructor: Monocle.Reader }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    // Initialization-completed flag.
+    initialized: false,
+
+    // The active book.
+    book: null,
+
+    // DOM graph of factory-generated objects.
+    graph: {},
+
+    // An array of style rules that are automatically applied to every page.
+    pageStylesheets: [],
+
+    // Id applied to the HTML element of each component, can be used to scope
+    // CSS rules.
+    systemId: (options ? options.systemId : null) || k.DEFAULT_SYSTEM_ID,
+
+    // Prefix for classnames for any created element.
+    classPrefix: k.DEFAULT_CLASS_PREFIX,
+
+    // Registered control objects (see addControl). Hashes of the form:
+    //   {
+    //     control: <control instance>,
+    //     elements: <array of topmost elements created by control>,
+    //     controlType: <standard, page, modal, popover, invisible, etc>
+    //   }
+    controls: [],
+
+    // After the reader has been resized, this resettable timer must expire
+    // the place is restored.
+    resizeTimer: null
+  }
+
+  var dom;
+
+
+  // Inspects the browser environment and kicks off preparing the container.
+  //
+  function initialize() {
+    options = options || {}
+
+    Monocle.Browser.survey(prepareBox);
+  }
+
+
+  // Sets up the container and internal elements.
+  //
+  function prepareBox() {
+    var box = node;
+    if (typeof box == "string") { box = document.getElementById(box); }
+    dom = API.dom = box.dom = new Monocle.Factory(box, 'box', 0, API);
+
+    if (!Monocle.Browser.env.isCompatible()) {
+      if (dispatchEvent("monocle:incompatible", {}, true)) {
+        // TODO: Something cheerier? More informative?
+        box.innerHTML = "Your browser is not compatible with Monocle.";
+      }
+      return;
+    }
+
+    dispatchEvent("monocle:initializing");
+
+    var bk;
+    if (bookData) {
+      bk = new Monocle.Book(bookData);
+    } else {
+      bk = Monocle.Book.fromNodes([box.cloneNode(true)]);
+    }
+    box.innerHTML = "";
+
+    // Make sure the box div is absolutely or relatively positioned.
+    positionBox();
+
+    // Attach the page-flipping gadget.
+    attachFlipper(options.flipper);
+
+    // Create the essential DOM elements.
+    createReaderElements();
+
+    // Clamp page frames to a set of styles that reduce Monocle breakage.
+    clampStylesheets(options.stylesheet);
+
+    primeFrames(options.primeURL, function () {
+      // Make the reader elements look pretty.
+      applyStyles();
+
+      listen('monocle:componentmodify', persistPageStylesOnComponentChange);
+
+      p.flipper.listenForInteraction(options.panels);
+
+      setBook(bk, options.place, function () {
+        p.initialized = true;
+        if (onLoadCallback) { onLoadCallback(API); }
+        dispatchEvent("monocle:loaded");
+      });
+    });
+  }
+
+
+  function positionBox() {
+    var currPosVal;
+    var box = dom.find('box');
+    if (document.defaultView) {
+      var currStyle = document.defaultView.getComputedStyle(box, null);
+      currPosVal = currStyle.getPropertyValue('position');
+    } else if (box.currentStyle) {
+      currPosVal = box.currentStyle.position
+    }
+    if (["absolute", "relative"].indexOf(currPosVal) == -1) {
+      box.style.position = "relative";
+    }
+  }
+
+
+  function attachFlipper(flipperClass) {
+    if (!flipperClass) {
+      if (!Monocle.Browser.env.supportsColumns) {
+        flipperClass = Monocle.Flippers.Legacy;
+      } else if (Monocle.Browser.on.Kindle3) {
+        flipperClass = Monocle.Flippers.Instant;
+      }
+
+      flipperClass = flipperClass || Monocle.Flippers.Slider;
+    }
+
+    if (!flipperClass) { throw("Flipper not found."); }
+
+    p.flipper = new flipperClass(API, null, p.readerOptions);
+  }
+
+
+  function createReaderElements() {
+    var cntr = dom.append('div', 'container');
+    for (var i = 0; i < p.flipper.pageCount; ++i) {
+      var page = cntr.dom.append('div', 'page', i);
+      page.style.visibility = "hidden";
+      page.m = { reader: API, pageIndex: i, place: null }
+      page.m.sheafDiv = page.dom.append('div', 'sheaf', i);
+      page.m.activeFrame = page.m.sheafDiv.dom.append('iframe', 'component', i);
+      page.m.activeFrame.m = { 'pageDiv': page };
+      page.m.activeFrame.setAttribute('frameBorder', 0);
+      page.m.activeFrame.setAttribute('scrolling', 'no');
+      p.flipper.addPage(page);
+      // BROWSERHACK: hook up the iframe to the touchmonitor if it exists.
+      Monocle.Events.listenOnIframe(page.m.activeFrame);
+    }
+    dom.append('div', 'overlay');
+    dispatchEvent("monocle:loading");
+  }
+
+
+  function clampStylesheets(customStylesheet) {
+    var defCSS = k.DEFAULT_STYLE_RULES;
+    if (Monocle.Browser.env.floatsIgnoreColumns) {
+      defCSS.push("html#RS\\:monocle * { float: none !important; }");
+    }
+    p.defaultStyles = addPageStyles(defCSS, false);
+    if (customStylesheet) {
+      p.initialStyles = addPageStyles(customStylesheet, false);
+    }
+  }
+
+
+  // Opens the frame to a particular URL (usually 'about:blank').
+  //
+  function primeFrames(url, callback) {
+    url = url || (Monocle.Browser.on.UIWebView ? "blank.html" : "about:blank");
+
+    var pageCount = 0;
+
+    var cb = function (evt) {
+      var frame = evt.target || evt.srcElement;
+      Monocle.Events.deafen(frame, 'load', cb);
+      dispatchEvent(
+        'monocle:frameprimed',
+        { frame: frame, pageIndex: pageCount }
+      );
+      if ((pageCount += 1) == p.flipper.pageCount) {
+        Monocle.defer(callback);
+      }
+    }
+
+    forEachPage(function (page) {
+      Monocle.Events.listen(page.m.activeFrame, 'load', cb);
+      page.m.activeFrame.src = url;
+    });
+  }
+
+
+  function applyStyles() {
+    dom.find('container').dom.setStyles(Monocle.Styles.container);
+    forEachPage(function (page, i) {
+      page.dom.setStyles(Monocle.Styles.page);
+      dom.find('sheaf', i).dom.setStyles(Monocle.Styles.sheaf);
+      var cmpt = dom.find('component', i)
+      cmpt.dom.setStyles(Monocle.Styles.component);
+    });
+    lockFrameWidths();
+    dom.find('overlay').dom.setStyles(Monocle.Styles.overlay);
+    dispatchEvent('monocle:styles');
+  }
+
+
+  function lockingFrameWidths() {
+    if (!Monocle.Browser.env.relativeIframeExpands) { return; }
+    for (var i = 0, cmpt; cmpt = dom.find('component', i); ++i) {
+      cmpt.style.display = "none";
+    }
+  }
+
+
+  function lockFrameWidths() {
+    if (!Monocle.Browser.env.relativeIframeExpands) { return; }
+    for (var i = 0, cmpt; cmpt = dom.find('component', i); ++i) {
+      cmpt.style.width = cmpt.parentNode.offsetWidth+"px";
+      cmpt.style.display = "block";
+    }
+  }
+
+
+  // Apply the book, move to a particular place or just the first page, wait
+  // for everything to complete, then fire the callback.
+  //
+  function setBook(bk, place, callback) {
+    p.book = bk;
+    var pageCount = 0;
+    if (typeof callback == 'function') {
+      var watchers = {
+        'monocle:componentchange': function (evt) {
+          dispatchEvent('monocle:firstcomponentchange', evt.m);
+          return (pageCount += 1) == p.flipper.pageCount;
+        },
+        'monocle:turn': function (evt) {
+          callback();
+          return true;
+        }
+      }
+      var listener = function (evt) {
+        if (watchers[evt.type](evt)) { deafen(evt.type, listener); }
+      }
+      for (evtType in watchers) { listen(evtType, listener) }
+    }
+    p.flipper.moveTo(place || { page: 1 });
+  }
+
+
+  function getBook() {
+    return p.book;
+  }
+
+
+  // Attempts to restore the place we were up to in the book before the
+  // reader was resized.
+  //
+  function resized() {
+    if (!p.initialized) {
+      console.warn('Attempt to resize book before initialization.');
+    }
+    lockingFrameWidths();
+    if (!dispatchEvent("monocle:resizing", {}, true)) {
+      return;
+    }
+    clearTimeout(p.resizeTimer);
+    p.resizeTimer = setTimeout(
+      function () {
+        lockFrameWidths();
+        recalculateDimensions(true);
+        dispatchEvent("monocle:resize");
+      },
+      k.RESIZE_DELAY
+    );
+  }
+
+
+  function recalculateDimensions(andRestorePlace) {
+    if (!p.book) { return; }
+    dispatchEvent("monocle:recalculating");
+
+    var place, locus;
+    if (andRestorePlace !== false) {
+      var place = getPlace();
+      var locus = { percent: place ? place.percentageThrough() : 0 };
+    }
+
+    // Better to use an event? Or chaining consecutively?
+    forEachPage(function (pageDiv) {
+      pageDiv.m.activeFrame.m.component.updateDimensions(pageDiv);
+    });
+
+    Monocle.defer(function () {
+      if (locus) { p.flipper.moveTo(locus); }
+      dispatchEvent("monocle:recalculated");
+    });
+  }
+
+
+  // Returns the current page number in the book.
+  //
+  // The pageDiv argument is optional - typically defaults to whatever the
+  // flipper thinks is the "active" page.
+  //
+  function pageNumber(pageDiv) {
+    var place = getPlace(pageDiv);
+    return place ? (place.pageNumber() || 1) : 1;
+  }
+
+
+  // Returns the current "place" in the book -- ie, the page number, chapter
+  // title, etc.
+  //
+  // The pageDiv argument is optional - typically defaults to whatever the
+  // flipper thinks is the "active" page.
+  //
+  function getPlace(pageDiv) {
+    if (!p.initialized) {
+      console.warn('Attempt to access place before initialization.');
+    }
+    return p.flipper.getPlace(pageDiv);
+  }
+
+
+  // Moves the current page as specified by the locus. See
+  // Monocle.Book#pageNumberAt for documentation on the locus argument.
+  //
+  // The callback argument is optional.
+  //
+  function moveTo(locus, callback) {
+    if (!p.initialized) {
+      console.warn('Attempt to move place before initialization.');
+    }
+    if (!p.book.isValidLocus(locus)) {
+      dispatchEvent(
+        "monocle:notfound",
+        { href: locus ? locus.componentId : "anonymous" }
+      );
+      return false;
+    }
+    var fn = callback;
+    if (!locus.direction) {
+      dispatchEvent('monocle:jumping', { locus: locus });
+      fn = function () {
+        dispatchEvent('monocle:jump', { locus: locus });
+        if (callback) { callback(); }
+      }
+    }
+    p.flipper.moveTo(locus, fn);
+    return true;
+  }
+
+
+  // Moves to the relevant element in the relevant component.
+  //
+  function skipToChapter(src) {
+    var locus = p.book.locusOfChapter(src);
+    return moveTo(locus);
+  }
+
+
+  // Valid types:
+  //  - standard (an overlay above the pages)
+  //  - page (within the page)
+  //  - modal (overlay where click-away does nothing, for a single control)
+  //  - hud (overlay that multiple controls can share)
+  //  - popover (overlay where click-away removes the ctrl elements)
+  //  - invisible
+  //
+  // Options:
+  //  - hidden -- creates and hides the ctrl elements;
+  //              use showControl to show them
+  //
+  function addControl(ctrl, cType, options) {
+    for (var i = 0; i < p.controls.length; ++i) {
+      if (p.controls[i].control == ctrl) {
+        console.warn("Already added control: " + ctrl);
+        return;
+      }
+    }
+
+    options = options || {};
+
+    var ctrlData = {
+      control: ctrl,
+      elements: [],
+      controlType: cType
+    }
+    p.controls.push(ctrlData);
+
+    var ctrlElem;
+    var cntr = dom.find('container'), overlay = dom.find('overlay');
+    if (!cType || cType == "standard") {
+      ctrlElem = ctrl.createControlElements(cntr);
+      cntr.appendChild(ctrlElem);
+      ctrlData.elements.push(ctrlElem);
+    } else if (cType == "page") {
+      forEachPage(function (page, i) {
+        var runner = ctrl.createControlElements(page);
+        page.appendChild(runner);
+        ctrlData.elements.push(runner);
+      });
+    } else if (cType == "modal" || cType == "popover" || cType == "hud") {
+      ctrlElem = ctrl.createControlElements(overlay);
+      overlay.appendChild(ctrlElem);
+      ctrlData.elements.push(ctrlElem);
+      ctrlData.usesOverlay = true;
+    } else if (cType == "invisible") {
+      if (
+        typeof(ctrl.createControlElements) == "function" &&
+        (ctrlElem = ctrl.createControlElements(cntr))
+      ) {
+        cntr.appendChild(ctrlElem);
+        ctrlData.elements.push(ctrlElem);
+      }
+    } else {
+      console.warn("Unknown control type: " + cType);
+    }
+
+    for (var i = 0; i < ctrlData.elements.length; ++i) {
+      Monocle.Styles.applyRules(ctrlData.elements[i], Monocle.Styles.control);
+    }
+
+    if (options.hidden) {
+      hideControl(ctrl);
+    } else {
+      showControl(ctrl);
+    }
+
+    if (typeof ctrl.assignToReader == 'function') {
+      ctrl.assignToReader(API);
+    }
+
+    return ctrl;
+  }
+
+
+  function dataForControl(ctrl) {
+    for (var i = 0; i < p.controls.length; ++i) {
+      if (p.controls[i].control == ctrl) {
+        return p.controls[i];
+      }
+    }
+  }
+
+
+  function hideControl(ctrl) {
+    var controlData = dataForControl(ctrl);
+    if (!controlData) {
+      console.warn("No data for control: " + ctrl);
+      return;
+    }
+    if (controlData.hidden) {
+      return;
+    }
+    for (var i = 0; i < controlData.elements.length; ++i) {
+      controlData.elements[i].style.display = "none";
+    }
+    if (controlData.usesOverlay) {
+      var overlay = dom.find('overlay');
+      overlay.style.display = "none";
+      Monocle.Events.deafenForContact(overlay, overlay.listeners);
+    }
+    controlData.hidden = true;
+    if (ctrl.properties) {
+      ctrl.properties.hidden = true;
+    }
+    dispatchEvent('monocle:controlhide', { control: ctrl }, false);
+  }
+
+
+  function showControl(ctrl) {
+    var controlData = dataForControl(ctrl);
+    if (!controlData) {
+      console.warn("No data for control: " + ctrl);
+      return false;
+    }
+
+    if (showingControl(ctrl)) {
+      return false;
+    }
+
+    var overlay = dom.find('overlay');
+    if (controlData.usesOverlay && controlData.controlType != "hud") {
+      for (var i = 0, ii = p.controls.length; i < ii; ++i) {
+        if (p.controls[i].usesOverlay && !p.controls[i].hidden) {
+          return false;
+        }
+      }
+      overlay.style.display = "block";
+    }
+
+    for (var i = 0; i < controlData.elements.length; ++i) {
+      controlData.elements[i].style.display = "block";
+    }
+
+    if (controlData.controlType == "popover") {
+      var onControl = function (evt) {
+        var obj = evt.target;
+        do {
+          if (obj == controlData.elements[0]) { return true; }
+        } while (obj && (obj = obj.parentNode));
+        return false;
+      }
+      overlay.listeners = Monocle.Events.listenForContact(
+        overlay,
+        {
+          start: function (evt) { if (!onControl(evt)) { hideControl(ctrl); } },
+          move: function (evt) { if (!onControl(evt)) { evt.preventDefault(); } }
+        }
+      );
+    }
+    controlData.hidden = false;
+    if (ctrl.properties) {
+      ctrl.properties.hidden = false;
+    }
+    dispatchEvent('monocle:controlshow', { control: ctrl }, false);
+    return true;
+  }
+
+
+  function showingControl(ctrl) {
+    var controlData = dataForControl(ctrl);
+    return controlData.hidden == false;
+  }
+
+
+  function dispatchEvent(evtType, data, cancelable) {
+    return Monocle.Events.dispatch(dom.find('box'), evtType, data, cancelable);
+  }
+
+
+  function listen(evtType, fn, useCapture) {
+    Monocle.Events.listen(dom.find('box'), evtType, fn, useCapture);
+  }
+
+
+  function deafen(evtType, fn) {
+    Monocle.Events.deafen(dom.find('box'), evtType, fn);
+  }
+
+
+  /* PAGE STYLESHEETS */
+
+  // API for adding a new stylesheet to all components. styleRules should be
+  // a string of CSS rules. restorePlace defaults to true.
+  //
+  // Returns a sheet index value that can be used with updatePageStyles
+  // and removePageStyles.
+  //
+  function addPageStyles(styleRules, restorePlace) {
+    return changingStylesheet(function () {
+      p.pageStylesheets.push(styleRules);
+      var sheetIndex = p.pageStylesheets.length - 1;
+
+      for (var i = 0; i < p.flipper.pageCount; ++i) {
+        var doc = dom.find('component', i).contentDocument;
+        addPageStylesheet(doc, sheetIndex);
+      }
+      return sheetIndex;
+    }, restorePlace);
+  }
+
+
+  // API for updating the styleRules in an existing page stylesheet across
+  // all components. Takes a sheet index value obtained via addPageStyles.
+  //
+  function updatePageStyles(sheetIndex, styleRules, restorePlace) {
+    return changingStylesheet(function () {
+      p.pageStylesheets[sheetIndex] = styleRules;
+      if (typeof styleRules.join == "function") {
+        styleRules = styleRules.join("\n");
+      }
+      for (var i = 0; i < p.flipper.pageCount; ++i) {
+        var doc = dom.find('component', i).contentDocument;
+        var styleTag = doc.getElementById('monStylesheet'+sheetIndex);
+        if (!styleTag) {
+          console.warn('No such stylesheet: ' + sheetIndex);
+          return;
+        }
+        if (styleTag.styleSheet) {
+          styleTag.styleSheet.cssText = styleRules;
+        } else {
+          styleTag.replaceChild(
+            doc.createTextNode(styleRules),
+            styleTag.firstChild
+          );
+        }
+      }
+    }, restorePlace);
+  }
+
+
+  // API for removing a page stylesheet from all components. Takes a sheet
+  // index value obtained via addPageStyles.
+  //
+  function removePageStyles(sheetIndex, restorePlace) {
+    return changingStylesheet(function () {
+      p.pageStylesheets[sheetIndex] = null;
+      for (var i = 0; i < p.flipper.pageCount; ++i) {
+        var doc = dom.find('component', i).contentDocument;
+        var styleTag = doc.getElementById('monStylesheet'+sheetIndex);
+        styleTag.parentNode.removeChild(styleTag);
+      }
+    }, restorePlace);
+  }
+
+
+  // Called when a page changes its component. Injects our current page
+  // stylesheets into the new component.
+  //
+  function persistPageStylesOnComponentChange(evt) {
+    var doc = evt.m['document'];
+    doc.documentElement.id = p.systemId;
+    for (var i = 0; i < p.pageStylesheets.length; ++i) {
+      if (p.pageStylesheets[i]) {
+        addPageStylesheet(doc, i);
+      }
+    }
+  }
+
+
+  // Wraps all API-based stylesheet changes (add, update, remove) in a
+  // brace of custom events (stylesheetchanging/stylesheetchange), and
+  // recalculates component dimensions if specified (default to true).
+  //
+  function changingStylesheet(callback, restorePlace) {
+    restorePlace = (restorePlace === false) ? false : true;
+    if (restorePlace) {
+      dispatchEvent("monocle:stylesheetchanging", {});
+    }
+    var result = callback();
+    if (restorePlace) {
+      recalculateDimensions(true);
+      Monocle.defer(
+        function () { dispatchEvent("monocle:stylesheetchange", {}); }
+      );
+    } else {
+      recalculateDimensions(false);
+    }
+    return result;
+  }
+
+
+  // Private method for adding a stylesheet to a component. Used by
+  // addPageStyles.
+  //
+  function addPageStylesheet(doc, sheetIndex) {
+    var styleRules = p.pageStylesheets[sheetIndex];
+
+    if (!styleRules) {
+      return;
+    }
+
+    var head = doc.getElementsByTagName('head')[0];
+    if (!head) {
+      head = doc.createElement('head');
+      doc.documentElement.appendChild(head);
+    }
+
+    if (typeof styleRules.join == "function") {
+      styleRules = styleRules.join("\n");
+    }
+
+    var styleTag = doc.createElement('style');
+    styleTag.type = 'text/css';
+    styleTag.id = "monStylesheet"+sheetIndex;
+    if (styleTag.styleSheet) {
+      styleTag.styleSheet.cssText = styleRules;
+    } else {
+      styleTag.appendChild(doc.createTextNode(styleRules));
+    }
+
+    head.appendChild(styleTag);
+
+    return styleTag;
+  }
+
+
+  function visiblePages() {
+    return p.flipper.visiblePages ? p.flipper.visiblePages() : [dom.find('page')];
+  }
+
+
+  function forEachPage(callback) {
+    for (var i = 0, ii = p.flipper.pageCount; i < ii; ++i) {
+      var page = dom.find('page', i);
+      callback(page, i);
+    }
+  }
+
+
+  API.getBook = getBook;
+  API.getPlace = getPlace;
+  API.moveTo = moveTo;
+  API.skipToChapter = skipToChapter;
+  API.resized = resized;
+  API.addControl = addControl;
+  API.hideControl = hideControl;
+  API.showControl = showControl;
+  API.showingControl = showingControl;
+  API.dispatchEvent = dispatchEvent;
+  API.listen = listen;
+  API.deafen = deafen;
+  API.addPageStyles = addPageStyles;
+  API.updatePageStyles = updatePageStyles;
+  API.removePageStyles = removePageStyles;
+  API.visiblePages = visiblePages;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Reader.RESIZE_DELAY = 100;
+Monocle.Reader.DEFAULT_SYSTEM_ID = 'RS:monocle'
+Monocle.Reader.DEFAULT_CLASS_PREFIX = 'monelem_'
+Monocle.Reader.DEFAULT_STYLE_RULES = [
+  "html#RS\\:monocle * {" +
+    "-webkit-font-smoothing: subpixel-antialiased;" +
+    "text-rendering: auto !important;" +
+    "word-wrap: break-word !important;" +
+    "overflow: visible !important;" +
+  "}",
+  "html#RS\\:monocle body {" +
+    "margin: 0 !important;"+
+    "border: none !important;"+
+    "padding: 0 !important;"+
+    "-webkit-text-size-adjust: none;" +
+  "}",
+  "html#RS\\:monocle body * {" +
+    "max-width: 100% !important;" +
+  "}",
+  "html#RS\\:monocle img, html#RS\\:monocle video, html#RS\\:monocle object {" +
+    "max-height: 95% !important;" +
+    "height: auto !important;" +
+  "}"
+]
+
+Monocle.pieceLoaded('core/reader');
+/* BOOK */
+
+/* The Book handles movement through the content by the reader page elements.
+ *
+ * It's responsible for instantiating components as they are required,
+ * and for calculating which component and page number to move to (based on
+ * requests from the Reader).
+ *
+ * It should set and know the place of each page element too.
+ *
+ */
+
+Monocle.Book = function (dataSource) {
+  if (Monocle == this) { return new Monocle.Book(dataSource); }
+
+  var API = { constructor: Monocle.Book }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    dataSource: dataSource,
+    components: [],
+    chapters: {} // flat arrays of chapters per component
+  }
+
+
+  function initialize() {
+    p.componentIds = dataSource.getComponents();
+    p.contents = dataSource.getContents();
+    p.lastCIndex = p.componentIds.length - 1;
+  }
+
+
+  // Adjusts the given locus object to provide the page number within the
+  // current component.
+  //
+  // If the locus implies movement to another component, the locus
+  // 'componentId' property will be updated to point to this component, and
+  // the 'load' property will be set to true, which should be taken as a
+  // sign to call loadPageAt with a callback.
+  //
+  // The locus argument is an object that has one of the following properties:
+  //
+  //  - page: positive integer. Counting up from the start of component.
+  //  - pagesBack: negative integer. Counting back from the end of component.
+  //  - percent: float
+  //  - direction: integer relative to the current page number for this pageDiv
+  //  - position: string, one of "start" or "end", moves to corresponding point
+  //      in the given component
+  //  - anchor: an element id within the component
+  //  - xpath: the node at this XPath within the component
+  //  - selector: the first node at this CSS selector within the component
+  //
+  // The locus object can also specify a componentId. If it is not provided
+  // we default to the currently active component, and if that doesn't exist,
+  // we default to the very first component.
+  //
+  // The locus result will be an object with the following properties:
+  //
+  //  - load: boolean, true if loading component required, false otherwise
+  //  - componentId: component to load (current componentId if load is false)
+  //  - if load is false:
+  //    - page
+  //  - if load is true:
+  //    - one of page / pagesBack / percent / direction / position / anchor
+  //
+  function pageNumberAt(pageDiv, locus) {
+    locus.load = false;
+    var currComponent = pageDiv.m.activeFrame ?
+      pageDiv.m.activeFrame.m.component :
+      null;
+    var component = null;
+    var cIndex = p.componentIds.indexOf(locus.componentId);
+    if (cIndex < 0 && !currComponent) {
+      // No specified component, no current component. Load first component.
+      locus.load = true;
+      locus.componentId = p.componentIds[0];
+      return locus;
+    } else if (
+      cIndex < 0 &&
+      locus.componentId &&
+      currComponent.properties.id != locus.componentId
+    ) {
+      // Invalid component, say not found.
+      pageDiv.m.reader.dispatchEvent(
+        "monocle:notfound",
+        { href: locus.componentId }
+      );
+      return null;
+    } else if (cIndex < 0) {
+      // No specified (or invalid) component, use current component.
+      component = currComponent;
+      locus.componentId = pageDiv.m.activeFrame.m.component.properties.id;
+      cIndex = p.componentIds.indexOf(locus.componentId);
+    } else if (!p.components[cIndex] || p.components[cIndex] != currComponent) {
+      // Specified component differs from current component. Load specified.
+      locus.load = true;
+      return locus;
+    } else {
+      component = currComponent;
+    }
+
+    // If we're here, then the locus is based on the current component.
+    var result = { load: false, componentId: locus.componentId, page: 1 }
+
+    // Get the current last page.
+    lastPageNum = component.lastPageNumber();
+
+    // Deduce the page number for the given locus.
+    if (typeof(locus.page) == "number") {
+      result.page = locus.page;
+    } else if (typeof(locus.pagesBack) == "number") {
+      result.page = lastPageNum + locus.pagesBack;
+    } else if (typeof(locus.percent) == "number") {
+      var place = new Monocle.Place();
+      place.setPlace(component, 1);
+      result.page = place.pageAtPercentageThrough(locus.percent);
+    } else if (typeof(locus.direction) == "number") {
+      if (!pageDiv.m.place) {
+        console.warn("Can't move in a direction if pageDiv has no place.");
+      }
+      result.page = pageDiv.m.place.pageNumber();
+      result.page += locus.direction;
+    } else if (typeof(locus.anchor) == "string") {
+      result.page = component.pageForChapter(locus.anchor, pageDiv);
+    } else if (typeof(locus.xpath) == "string") {
+      result.page = component.pageForXPath(locus.xpath, pageDiv);
+    } else if (typeof(locus.selector) == "string") {
+      result.page = component.pageForSelector(locus.selector, pageDiv);
+    } else if (typeof(locus.position) == "string") {
+      if (locus.position == "start") {
+        result.page = 1;
+      } else if (locus.position == "end") {
+        result.page = lastPageNum['new'];
+      }
+    } else {
+      console.warn("Unrecognised locus: " + locus);
+    }
+
+    if (result.page < 1) {
+      if (cIndex == 0) {
+        // On first page of book.
+        result.page = 1;
+        result.boundarystart = true;
+      } else {
+        // Moving backwards from current component.
+        result.load = true;
+        result.componentId = p.componentIds[cIndex - 1];
+        result.pagesBack = result.page;
+        result.page = null;
+      }
+    } else if (result.page > lastPageNum) {
+      if (cIndex == p.lastCIndex) {
+        // On last page of book.
+        result.page = lastPageNum;
+        result.boundaryend = true;
+      } else {
+        // Moving forwards from current component.
+        result.load = true;
+        result.componentId = p.componentIds[cIndex + 1];
+        result.page -= lastPageNum;
+      }
+    }
+
+    return result;
+  }
+
+
+  // Same as pageNumberAt, but if a load is not flagged, this will
+  // automatically update the pageDiv's place to the given pageNumber.
+  //
+  // If you call this (ie, from a flipper), you are effectively entering into
+  // a contract to move the frame offset to the given page returned in the
+  // locus if load is false.
+  //
+  function setPageAt(pageDiv, locus) {
+    locus = pageNumberAt(pageDiv, locus);
+    if (locus && !locus.load) {
+      var evtData = { locus: locus, page: pageDiv }
+      if (locus.boundarystart) {
+        pageDiv.m.reader.dispatchEvent('monocle:boundarystart', evtData);
+      } else if (locus.boundaryend) {
+        pageDiv.m.reader.dispatchEvent('monocle:boundaryend', evtData);
+      } else {
+        var component = p.components[p.componentIds.indexOf(locus.componentId)];
+        pageDiv.m.place = pageDiv.m.place || new Monocle.Place();
+        pageDiv.m.place.setPlace(component, locus.page);
+
+        var evtData = {
+          page: pageDiv,
+          locus: locus,
+          pageNumber: pageDiv.m.place.pageNumber(),
+          componentId: locus.componentId
+        }
+        pageDiv.m.reader.dispatchEvent("monocle:pagechange", evtData);
+      }
+    }
+    return locus;
+  }
+
+
+  // Will load the given component into the pageDiv's frame, then invoke the
+  // callback with resulting locus (provided by pageNumberAt).
+  //
+  // If the resulting page number is outside the bounds of the new component,
+  // (ie, pageNumberAt again requests a load), this will recurse into further
+  // components until non-loading locus is returned by pageNumberAt. Then the
+  // callback will fire with that locus.
+  //
+  // As with setPageAt, if you call this you're obliged to move the frame
+  // offset to the given page in the locus passed to the callback.
+  //
+  // If you pass a function as the progressCallback argument, the logic of this
+  // function will be in your control. The function will be invoked between:
+  //
+  // a) loading the component and
+  // b) applying the component to the frame and
+  // c) loading any further components if required
+  //
+  // with a function argument that performs the next step in the process. So
+  // if you need to do some special handling during the load process, you can.
+  //
+  function loadPageAt(pageDiv, locus, callback, progressCallback) {
+    var cIndex = p.componentIds.indexOf(locus.componentId);
+    if (!locus.load || cIndex < 0) {
+      locus = pageNumberAt(pageDiv, locus);
+    }
+
+    if (!locus) {
+      return;
+    }
+
+    if (!locus.load) {
+      callback(locus);
+      return;
+    }
+
+    var findPageNumber = function () {
+      locus = setPageAt(pageDiv, locus);
+      if (!locus) {
+        return;
+      } else if (locus.load) {
+        loadPageAt(pageDiv, locus, callback, progressCallback)
+      } else {
+        callback(locus);
+      }
+    }
+
+    var pgFindPageNumber = function () {
+      progressCallback ? progressCallback(findPageNumber) : findPageNumber();
+    }
+
+    var applyComponent = function (component) {
+      component.applyTo(pageDiv, pgFindPageNumber);
+    }
+
+    var pgApplyComponent = function (component) {
+      progressCallback ?
+        progressCallback(function () { applyComponent(component) }) :
+        applyComponent(component);
+    }
+
+    loadComponent(cIndex, pgApplyComponent, pageDiv);
+  }
+
+
+  // If your flipper doesn't care whether a component needs to be
+  // loaded before the page can be set, you can use this shortcut.
+  //
+  function setOrLoadPageAt(pageDiv, locus, callback, onProgress, onFail) {
+    locus = setPageAt(pageDiv, locus);
+    if (!locus) {
+      if (onFail) { onFail(); }
+    } else if (locus.load) {
+      loadPageAt(pageDiv, locus, callback, onProgress);
+    } else {
+      callback(locus);
+    }
+  }
+
+
+  // Fetches the component source from the dataSource.
+  //
+  // 'index' is the index of the component in the
+  // dataSource.getComponents array.
+  //
+  // 'callback' is invoked when the source is received.
+  //
+  // 'pageDiv' is optional, and simply allows firing events on
+  // the reader object that has requested this component, ONLY if
+  // the source has not already been received.
+  //
+  function loadComponent(index, callback, pageDiv) {
+    if (p.components[index]) {
+      return callback(p.components[index]);
+    }
+    var cmptId = p.componentIds[index];
+    if (pageDiv) {
+      var evtData = { 'page': pageDiv, 'component': cmptId, 'index': index };
+      pageDiv.m.reader.dispatchEvent('monocle:componentloading', evtData);
+    }
+    var failedToLoadComponent = function () {
+      console.warn("Failed to load component: "+cmptId);
+      pageDiv.m.reader.dispatchEvent('monocle:componentfailed', evtData);
+      try {
+        var currCmpt = pageDiv.m.activeFrame.m.component;
+        evtData.cmptId = currCmpt.properties.id;
+        callback(currCmpt);
+      } catch (e) {
+        console.warn("Failed to fall back to previous component.");
+      }
+    }
+
+    var fn = function (cmptSource) {
+      if (cmptSource === false) { return failedToLoadComponent(); }
+      if (pageDiv) {
+        evtData['source'] = cmptSource;
+        pageDiv.m.reader.dispatchEvent('monocle:componentloaded', evtData);
+        html = evtData['html'];
+      }
+      p.components[index] = new Monocle.Component(
+        API,
+        cmptId,
+        index,
+        chaptersForComponent(cmptId),
+        cmptSource
+      );
+      callback(p.components[index]);
+    }
+    var cmptSource = p.dataSource.getComponent(cmptId, fn);
+    if (cmptSource && !p.components[index]) {
+      fn(cmptSource);
+    } else if (cmptSource === false) {
+      return failedToLoadComponent();
+    }
+  }
+
+
+  // Returns an array of chapter objects that are found in the given component.
+  //
+  // A chapter object has this format:
+  //
+  //    {
+  //      title: "Chapter 1",
+  //      fragment: null
+  //    }
+  //
+  // The fragment property of a chapter object is either null (the chapter
+  // starts at the head of the component) or the fragment part of the URL
+  // (eg, "foo" in "index.html#foo").
+  //
+  function chaptersForComponent(cmptId) {
+    if (p.chapters[cmptId]) {
+      return p.chapters[cmptId];
+    }
+    p.chapters[cmptId] = [];
+    var matcher = new RegExp('^'+cmptId+"(\#(.+)|$)");
+    var matches;
+    var recurser = function (chp) {
+      if (matches = chp.src.match(matcher)) {
+        p.chapters[cmptId].push({
+          title: chp.title,
+          fragment: matches[2] || null
+        });
+      }
+      if (chp.children) {
+        for (var i = 0; i < chp.children.length; ++i) {
+          recurser(chp.children[i]);
+        }
+      }
+    }
+
+    for (var i = 0; i < p.contents.length; ++i) {
+      recurser(p.contents[i]);
+    }
+    return p.chapters[cmptId];
+  }
+
+
+  // Returns a locus for the chapter that has the URL given in the
+  // 'src' argument.
+  //
+  // See the comments at pageNumberAt for an explanation of locus objects.
+  //
+  function locusOfChapter(src) {
+    var matcher = new RegExp('^(.+?)(#(.*))?$');
+    var matches = src.match(matcher);
+    if (!matches) { return null; }
+    var cmptId = componentIdMatching(matches[1]);
+    if (!cmptId) { return null; }
+    var locus = { componentId: cmptId }
+    matches[3] ? locus.anchor = matches[3] : locus.position = "start";
+    return locus;
+  }
+
+
+  function isValidLocus(locus) {
+    if (!locus) { return false; }
+    if (locus.componentId && !componentIdMatching(locus.componentId)) {
+      return false;
+    }
+    return true;
+  }
+
+
+  function componentIdMatching(str) {
+    return p.componentIds.indexOf(str) >= 0 ? str : null;
+  }
+
+
+  API.getMetaData = dataSource.getMetaData;
+  API.pageNumberAt = pageNumberAt;
+  API.setPageAt = setPageAt;
+  API.loadPageAt = loadPageAt;
+  API.setOrLoadPageAt = setOrLoadPageAt;
+  API.chaptersForComponent = chaptersForComponent;
+  API.locusOfChapter = locusOfChapter;
+  API.isValidLocus = isValidLocus;
+
+  initialize();
+
+  return API;
+}
+
+
+// A shortcut for creating a book from an array of nodes.
+//
+// You could use this as follows, for eg:
+//
+//  Monocle.Book.fromNodes([document.getElementById('content')]);
+//
+Monocle.Book.fromNodes = function (nodes) {
+  var bookData = {
+    getComponents: function () {
+      return ['anonymous'];
+    },
+    getContents: function () {
+      return [];
+    },
+    getComponent: function (n) {
+      return { 'nodes': nodes };
+    },
+    getMetaData: function (key) {
+    }
+  }
+
+  return new Monocle.Book(bookData);
+}
+
+Monocle.pieceLoaded('core/book');
+// PLACE
+
+Monocle.Place = function () {
+
+  var API = { constructor: Monocle.Place }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    component: null,
+    percent: null
+  }
+
+
+  function setPlace(cmpt, pageN) {
+    p.component = cmpt;
+    p.percent = pageN / cmpt.lastPageNumber();
+    p.chapter = null;
+  }
+
+
+  function setPercentageThrough(cmpt, percent) {
+    p.component = cmpt;
+    p.percent = percent;
+    p.chapter = null;
+  }
+
+
+  function componentId() {
+    return p.component.properties.id;
+  }
+
+
+  // How far we are through the component at the "top of the page".
+  //
+  // 0 - start of book. 1.0 - end of book.
+  //
+  function percentAtTopOfPage() {
+    return p.percent - 1.0 / p.component.lastPageNumber();
+  }
+
+
+  // How far we are through the component at the "bottom of the page".
+  //
+  // NB: API aliases this to percentageThrough().
+  //
+  function percentAtBottomOfPage() {
+    return p.percent;
+  }
+
+
+  // The page number at a given point (0: start, 1: end) within the component.
+  //
+  function pageAtPercentageThrough(percent) {
+    return Math.max(Math.round(p.component.lastPageNumber() * percent), 1);
+  }
+
+
+  // The page number of this point within the component.
+  //
+  function pageNumber() {
+    return pageAtPercentageThrough(p.percent);
+  }
+
+
+  function chapterInfo() {
+    if (p.chapter) {
+      return p.chapter;
+    }
+    return p.chapter = p.component.chapterForPage(pageNumber());
+  }
+
+
+  function chapterTitle() {
+    var chp = chapterInfo();
+    return chp ? chp.title : null;
+  }
+
+
+  function chapterSrc() {
+    var src = componentId();
+    var cinfo = chapterInfo();
+    if (cinfo && cinfo.fragment) {
+      src += "#" + cinfo.fragment;
+    }
+    return src;
+  }
+
+
+  function getLocus(options) {
+    options = options || {};
+    var locus = {
+      page: pageNumber(),
+      componentId: componentId()
+    }
+    if (options.direction) {
+      locus.page += options.direction;
+    } else {
+      locus.percent = percentAtBottomOfPage();
+    }
+    return locus;
+  }
+
+
+  // Returns how far this place is in the entire book (0 - start, 1.0 - end).
+  //
+  function percentageOfBook() {
+    componentIds = p.component.properties.book.properties.componentIds;
+    componentSize = 1.0 / componentIds.length;
+    var pc = componentIds.indexOf(componentId()) * componentSize;
+    pc += componentSize * p.percent;
+    return pc;
+  }
+
+
+  function onFirstPageOfBook() {
+    return p.component.properties.index == 0 && pageNumber() == 1;
+  }
+
+
+  function onLastPageOfBook() {
+    return (
+      p.component.properties.index ==
+        p.component.properties.book.properties.lastCIndex &&
+      pageNumber() == p.component.lastPageNumber()
+    );
+  }
+
+
+  API.setPlace = setPlace;
+  API.setPercentageThrough = setPercentageThrough;
+  API.componentId = componentId;
+  API.percentAtTopOfPage = percentAtTopOfPage;
+  API.percentAtBottomOfPage = percentAtBottomOfPage;
+  API.percentageThrough = percentAtBottomOfPage;
+  API.pageAtPercentageThrough = pageAtPercentageThrough;
+  API.pageNumber = pageNumber;
+  API.chapterInfo = chapterInfo;
+  API.chapterTitle = chapterTitle;
+  API.chapterSrc = chapterSrc;
+  API.getLocus = getLocus;
+  API.percentageOfBook = percentageOfBook;
+  API.onFirstPageOfBook = onFirstPageOfBook;
+  API.onLastPageOfBook = onLastPageOfBook;
+
+  return API;
+}
+
+
+Monocle.Place.FromPageNumber = function (component, pageNumber) {
+  var place = new Monocle.Place();
+  place.setPlace(component, pageNumber);
+  return place;
+}
+
+
+Monocle.Place.FromPercentageThrough = function (component, percent) {
+  var place = new Monocle.Place();
+  place.setPercentageThrough(component, percent);
+  return place;
+}
+
+
+// We can't create a place from a percentage of the book, because the
+// component may not have been loaded yet. But we can get a locus.
+//
+Monocle.Place.percentOfBookToLocus = function (reader, percent) {
+  var componentIds = reader.getBook().properties.componentIds;
+  var componentSize = 1.0 / componentIds.length;
+  return {
+    componentId: componentIds[Math.floor(percent / componentSize)],
+    percent: (percent % componentSize) / componentSize
+  }
+}
+
+Monocle.pieceLoaded('core/place');
+/* COMPONENT */
+
+// See the properties declaration for details of constructor arguments.
+//
+Monocle.Component = function (book, id, index, chapters, source) {
+
+  var API = { constructor: Monocle.Component }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    // a back-reference to the public API of the book that owns this component
+    book: book,
+
+    // the string that represents this component in the book's component array
+    id: id,
+
+    // the position in the book's components array of this component
+    index: index,
+
+    // The chapters argument is an array of objects that list the chapters that
+    // can be found in this component. A chapter object is defined as:
+    //
+    //  {
+    //     title: str,
+    //     fragment: str, // optional anchor id
+    //     percent: n     // how far into the component the chapter begins
+    //  }
+    //
+    // NOTE: the percent property is calculated by the component - you only need
+    // to pass in the title and the optional id string.
+    //
+    chapters: chapters,
+
+    // the frame provided by dataSource.getComponent() for this component
+    source: source
+  }
+
+
+  // Makes this component the active component for the pageDiv. There are
+  // several strategies for this (see loadFrame).
+  //
+  // When the component has been loaded into the pageDiv's frame, the callback
+  // will be invoked with the pageDiv and this component as arguments.
+  //
+  function applyTo(pageDiv, callback) {
+    var evtData = { 'page': pageDiv, 'source': p.source };
+    pageDiv.m.reader.dispatchEvent('monocle:componentchanging', evtData);
+
+    var onLoaded = function () {
+      setupFrame(
+        pageDiv,
+        pageDiv.m.activeFrame,
+        function () { callback(pageDiv, API) }
+      );
+    }
+
+    Monocle.defer(function () { loadFrame(pageDiv, onLoaded); });
+  }
+
+
+  // Loads this component into the given frame, using one of the following
+  // strategies:
+  //
+  // * HTML - a HTML string
+  // * URL - a URL string
+  // * Nodes - an array of DOM body nodes (NB: no way to populate head)
+  // * Document - a DOM DocumentElement object
+  //
+  function loadFrame(pageDiv, callback) {
+    var frame = pageDiv.m.activeFrame;
+
+    // We own this frame now.
+    frame.m.component = API;
+
+    // Hide the frame while we're changing it.
+    frame.style.visibility = "hidden";
+
+    // Prevent about:blank overriding imported nodes in Firefox.
+    // Disabled again because it seems to result in blank pages in Saf.
+    //frame.contentWindow.stop();
+
+    if (p.source.html || (typeof p.source == "string")) {   // HTML
+      return loadFrameFromHTML(p.source.html || p.source, frame, callback);
+    } else if (p.source.javascript) {                       // JAVASCRIPT
+      //console.log("Loading as javascript: "+p.source.javascript);
+      return loadFrameFromJavaScript(p.source.javascript, frame, callback);
+    } else if (p.source.url) {                              // URL
+      return loadFrameFromURL(p.source.url, frame, callback);
+    } else if (p.source.nodes) {                            // NODES
+      return loadFrameFromNodes(p.source.nodes, frame, callback);
+    } else if (p.source.doc) {                              // DOCUMENT
+      return loadFrameFromDocument(p.source.doc, frame, callback);
+    }
+  }
+
+
+  // LOAD STRATEGY: HTML
+  // Loads a HTML string into the given frame, invokes the callback once loaded.
+  //
+  // Cleans the string so it can be used in a JavaScript statement. This is
+  // slow, so if the string is already clean, skip this and use
+  // loadFrameFromJavaScript directly.
+  //
+  function loadFrameFromHTML(src, frame, callback) {
+    // Compress whitespace.
+    src = src.replace(/\n/g, '\\n').replace(/\r/, '\\r');
+
+    // Escape single-quotes.
+    src = src.replace(/\'/g, '\\\'');
+
+    // Remove scripts. (DISABLED -- Monocle should leave this to implementers.)
+    //var scriptFragment = "<script[^>]*>([\\S\\s]*?)<\/script>";
+    //src = src.replace(new RegExp(scriptFragment, 'img'), '');
+
+    // BROWSERHACK: Gecko chokes on the DOCTYPE declaration.
+    if (Monocle.Browser.is.Gecko) {
+      var doctypeFragment = "<!DOCTYPE[^>]*>";
+      src = src.replace(new RegExp(doctypeFragment, 'm'), '');
+    }
+
+    loadFrameFromJavaScript(src, frame, callback);
+  }
+
+
+  // LOAD STRATEGY: JAVASCRIPT
+  // Like the HTML strategy, but assumes that the src string is already clean.
+  //
+  function loadFrameFromJavaScript(src, frame, callback) {
+    src = "javascript:'"+src+"';";
+    frame.onload = function () {
+      frame.onload = null;
+      Monocle.defer(callback);
+    }
+    frame.src = src;
+  }
+
+
+  // LOAD STRATEGY: URL
+  // Loads the URL into the given frame, invokes callback once loaded.
+  //
+  function loadFrameFromURL(url, frame, callback) {
+    // If it's a relative path, we need to make it absolute, using the
+    // reader's location (not the active component's location).
+    if (!url.match(/^\//)) {
+      var link = document.createElement('a');
+      link.setAttribute('href', url);
+      url = link.href;
+      delete(link);
+    }
+    frame.onload = function () {
+      frame.onload = null;
+      Monocle.defer(callback);
+    }
+    frame.contentWindow.location.replace(url);
+  }
+
+
+  // LOAD STRATEGY: NODES
+  // Loads the array of DOM nodes into the body of the frame (replacing all
+  // existing nodes), then invokes the callback.
+  //
+  function loadFrameFromNodes(nodes, frame, callback) {
+    var destDoc = frame.contentDocument;
+    destDoc.documentElement.innerHTML = "";
+    var destHd = destDoc.createElement("head");
+    var destBdy = destDoc.createElement("body");
+
+    for (var i = 0; i < nodes.length; ++i) {
+      var node = destDoc.importNode(nodes[i], true);
+      destBdy.appendChild(node);
+    }
+
+    var oldHead = destDoc.getElementsByTagName('head')[0];
+    if (oldHead) {
+      destDoc.documentElement.replaceChild(destHd, oldHead);
+    } else {
+      destDoc.documentElement.appendChild(destHd);
+    }
+    if (destDoc.body) {
+      destDoc.documentElement.replaceChild(destBdy, destDoc.body);
+    } else {
+      destDoc.documentElement.appendChild(destBdy);
+    }
+
+    if (callback) { callback(); }
+  }
+
+
+  // LOAD STRATEGY: DOCUMENT
+  // Replaces the DocumentElement of the given frame with the given srcDoc.
+  // Invokes the callback when loaded.
+  //
+  function loadFrameFromDocument(srcDoc, frame, callback) {
+    var destDoc = frame.contentDocument;
+
+    var srcBases = srcDoc.getElementsByTagName('base');
+    if (srcBases[0]) {
+      var head = destDoc.getElementsByTagName('head')[0];
+      if (!head) {
+        try {
+          head = destDoc.createElement('head');
+          if (destDoc.body) {
+            destDoc.insertBefore(head, destDoc.body);
+          } else {
+            destDoc.appendChild(head);
+          }
+        } catch (e) {
+          head = destDoc.body;
+        }
+      }
+      var bases = destDoc.getElementsByTagName('base');
+      var base = bases[0] ? bases[0] : destDoc.createElement('base');
+      base.setAttribute('href', srcBases[0].getAttribute('href'));
+      head.appendChild(base);
+    }
+
+    destDoc.replaceChild(
+      destDoc.importNode(srcDoc.documentElement, true),
+      destDoc.documentElement
+    );
+
+    // DISABLED: immediate readiness - webkit has some difficulty with this.
+    // if (callback) { callback(); }
+
+    Monocle.defer(callback);
+  }
+
+
+  // Once a frame is loaded with this component, call this method to style
+  // and measure its contents.
+  //
+  function setupFrame(pageDiv, frame, callback) {
+    // iOS touch events on iframes are busted. See comments in
+    // events.js for an explanation of this hack.
+    //
+    Monocle.Events.listenOnIframe(frame);
+
+    var doc = frame.contentDocument;
+    var evtData = { 'page': pageDiv, 'document': doc, 'component': API };
+
+    // Announce that the component is loaded.
+    pageDiv.m.reader.dispatchEvent('monocle:componentmodify', evtData);
+
+    updateDimensions(pageDiv, function () {
+      frame.style.visibility = "visible";
+
+      // Find the place of any chapters in the component.
+      locateChapters(pageDiv);
+
+      // Announce that the component has changed.
+      pageDiv.m.reader.dispatchEvent('monocle:componentchange', evtData);
+
+      callback();
+    });
+  }
+
+
+  // Checks whether the pageDiv dimensions have changed. If they have,
+  // remeasures dimensions and returns true. Otherwise returns false.
+  //
+  function updateDimensions(pageDiv, callback) {
+    pageDiv.m.dimensions.update(function (pageLength) {
+      p.pageLength = pageLength;
+      if (typeof callback == "function") { callback() };
+    });
+  }
+
+
+  // Iterates over all the chapters that are within this component
+  // (according to the array we were provided on initialization) and finds
+  // their location (in percentage terms) within the text.
+  //
+  // Stores this percentage with the chapter object in the chapters array.
+  //
+  function locateChapters(pageDiv) {
+    if (p.chapters[0] && typeof p.chapters[0].percent == "number") {
+      return;
+    }
+    var doc = pageDiv.m.activeFrame.contentDocument;
+    for (var i = 0; i < p.chapters.length; ++i) {
+      var chp = p.chapters[i];
+      chp.percent = 0;
+      if (chp.fragment) {
+        var node = doc.getElementById(chp.fragment);
+        chp.percent = pageDiv.m.dimensions.percentageThroughOfNode(node);
+      }
+    }
+    return p.chapters;
+  }
+
+
+  // For a given page number within the component, return the chapter that
+  // starts on or most-recently-before this page.
+  //
+  // Useful, for example, in displaying the current chapter title as a
+  // running head on the page.
+  //
+  function chapterForPage(pageN) {
+    var cand = null;
+    var percent = (pageN - 1) / p.pageLength;
+    for (var i = 0; i < p.chapters.length; ++i) {
+      if (percent >= p.chapters[i].percent) {
+        cand = p.chapters[i];
+      } else {
+        return cand;
+      }
+    }
+    return cand;
+  }
+
+
+  // For a given chapter fragment (the bit after the hash
+  // in eg, "index.html#foo"), return the page number on which
+  // the chapter starts. If the fragment is null or blank, will
+  // return the first page of the component.
+  //
+  function pageForChapter(fragment, pageDiv) {
+    if (!fragment) {
+      return 1;
+    }
+    for (var i = 0; i < p.chapters.length; ++i) {
+      if (p.chapters[i].fragment == fragment) {
+        return percentToPageNumber(p.chapters[i].percent);
+      }
+    }
+    var doc = pageDiv.m.activeFrame.contentDocument;
+    var node = doc.getElementById(fragment);
+    var percent = pageDiv.m.dimensions.percentageThroughOfNode(node);
+    return percentToPageNumber(percent);
+  }
+
+
+  function pageForXPath(xpath, pageDiv) {
+    var doc = pageDiv.m.activeFrame.contentDocument;
+    var percent = 0;
+    if (Monocle.Browser.env.supportsXPath) {
+      var node = doc.evaluate(xpath, doc, null, 9, null).singleNodeValue;
+      if (node) {
+        percent = pageDiv.m.dimensions.percentageThroughOfNode(node);
+      }
+    } else {
+      console.warn("XPath not supported in this client.");
+    }
+    return percentToPageNumber(percent);
+  }
+
+
+  function pageForSelector(selector, pageDiv) {
+    var doc = pageDiv.m.activeFrame.contentDocument;
+    var percent = 0;
+    if (Monocle.Browser.env.supportsQuerySelector) {
+      var node = doc.querySelector(selector);
+      if (node) {
+        percent = pageDiv.m.dimensions.percentageThroughOfNode(node);
+      }
+    } else {
+      console.warn("querySelector not supported in this client.");
+    }
+    return percentToPageNumber(percent);
+  }
+
+
+  function percentToPageNumber(pc) {
+    return Math.floor(pc * p.pageLength) + 1;
+  }
+
+
+  // A public getter for p.pageLength.
+  //
+  function lastPageNumber() {
+    return p.pageLength;
+  }
+
+
+  API.applyTo = applyTo;
+  API.updateDimensions = updateDimensions;
+  API.chapterForPage = chapterForPage;
+  API.pageForChapter = pageForChapter;
+  API.pageForXPath = pageForXPath;
+  API.pageForSelector = pageForSelector;
+  API.lastPageNumber = lastPageNumber;
+
+  return API;
+}
+
+Monocle.pieceLoaded('core/component');
+// A panel is an invisible column of interactivity. When contact occurs
+// (mousedown, touchstart), the panel expands to the full width of its
+// container, to catch all interaction events and prevent them from hitting
+// other things.
+//
+// Panels are used primarily to provide hit zones for page flipping
+// interactions, but you can do whatever you like with them.
+//
+// After instantiating a panel and adding it to the reader as a control,
+// you can call listenTo() with a hash of methods for any of 'start', 'move'
+// 'end' and 'cancel'.
+//
+Monocle.Controls.Panel = function () {
+
+  var API = { constructor: Monocle.Controls.Panel }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    evtCallbacks: {}
+  }
+
+  function createControlElements(cntr) {
+    p.div = cntr.dom.make('div', k.CLS.panel);
+    p.div.dom.setStyles(k.DEFAULT_STYLES);
+    Monocle.Events.listenForContact(
+      p.div,
+      {
+        'start': start,
+        'move': move,
+        'end': end,
+        'cancel': cancel
+      },
+      { useCapture: false }
+    );
+    return p.div;
+  }
+
+
+  function listenTo(evtCallbacks) {
+    p.evtCallbacks = evtCallbacks;
+  }
+
+
+  function deafen() {
+    p.evtCallbacks = {}
+  }
+
+
+  function start(evt) {
+    p.contact = true;
+    evt.m.offsetX += p.div.offsetLeft;
+    evt.m.offsetY += p.div.offsetTop;
+    expand();
+    invoke('start', evt);
+  }
+
+
+  function move(evt) {
+    if (!p.contact) {
+      return;
+    }
+    invoke('move', evt);
+  }
+
+
+  function end(evt) {
+    if (!p.contact) {
+      return;
+    }
+    Monocle.Events.deafenForContact(p.div, p.listeners);
+    contract();
+    p.contact = false;
+    invoke('end', evt);
+  }
+
+
+  function cancel(evt) {
+    if (!p.contact) {
+      return;
+    }
+    Monocle.Events.deafenForContact(p.div, p.listeners);
+    contract();
+    p.contact = false;
+    invoke('cancel', evt);
+  }
+
+
+  function invoke(evtType, evt) {
+    if (p.evtCallbacks[evtType]) {
+      p.evtCallbacks[evtType](API, evt.m.offsetX, evt.m.offsetY);
+    }
+    evt.preventDefault();
+  }
+
+
+  function expand() {
+    if (p.expanded) {
+      return;
+    }
+    p.div.dom.addClass(k.CLS.expanded);
+    p.expanded = true;
+  }
+
+
+  function contract(evt) {
+    if (!p.expanded) {
+      return;
+    }
+    p.div.dom.removeClass(k.CLS.expanded);
+    p.expanded = false;
+  }
+
+
+  API.createControlElements = createControlElements;
+  API.listenTo = listenTo;
+  API.deafen = deafen;
+  API.expand = expand;
+  API.contract = contract;
+
+  return API;
+}
+
+
+Monocle.Controls.Panel.CLS = {
+  panel: 'panel',
+  expanded: 'controls_panel_expanded'
+}
+Monocle.Controls.Panel.DEFAULT_STYLES = {
+  position: 'absolute',
+  height: '100%'
+}
+
+
+Monocle.pieceLoaded('controls/panel');
+// The simplest page-flipping interaction system: contact to the left half of
+// the reader turns back one page, contact to the right half turns forward
+// one page.
+//
+Monocle.Panels.TwoPane = function (flipper, evtCallbacks) {
+
+  var API = { constructor: Monocle.Panels.TwoPane }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {}
+
+
+  function initialize() {
+    p.panels = {
+      forwards: new Monocle.Controls.Panel(),
+      backwards: new Monocle.Controls.Panel()
+    }
+
+    for (dir in p.panels) {
+      flipper.properties.reader.addControl(p.panels[dir]);
+      p.panels[dir].listenTo(evtCallbacks);
+      p.panels[dir].properties.direction = flipper.constants[dir.toUpperCase()];
+      var style = { "width": k.WIDTH };
+      style[(dir == "forwards" ? "right" : "left")] = 0;
+      p.panels[dir].properties.div.dom.setStyles(style);
+    }
+  }
+
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Panels.TwoPane.WIDTH = "50%";
+
+Monocle.pieceLoaded('panels/twopane');
+// A three-pane system of page interaction. The left 33% turns backwards, the
+// right 33% turns forwards, and contact on the middle third causes the
+// system to go into "interactive mode". In this mode, the page-flipping panels
+// are only active in the margins, and all of the actual text content of the
+// book is selectable. The user can exit "interactive mode" by hitting the little
+// IMode icon in the lower right corner of the reader.
+//
+Monocle.Panels.IMode = function (flipper, evtCallbacks) {
+
+  var API = { constructor: Monocle.Panels.IMode }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {}
+
+
+  function initialize() {
+    p.flipper = flipper;
+    p.reader = flipper.properties.reader;
+    p.panels = {
+      forwards: new Monocle.Controls.Panel(),
+      backwards: new Monocle.Controls.Panel()
+    }
+    p.divs = {}
+
+    for (dir in p.panels) {
+      p.reader.addControl(p.panels[dir]);
+      p.divs[dir] = p.panels[dir].properties.div;
+      p.panels[dir].listenTo(evtCallbacks);
+      p.panels[dir].properties.direction = flipper.constants[dir.toUpperCase()];
+      p.divs[dir].style.width = "33%";
+      p.divs[dir].style[dir == "forwards" ? "right" : "left"] = 0;
+    }
+
+    p.panels.central = new Monocle.Controls.Panel();
+    p.reader.addControl(p.panels.central);
+    p.divs.central = p.panels.central.properties.div;
+    p.divs.central.dom.setStyles({ left: "33%", width: "34%" });
+    menuCallbacks({ end: modeOn });
+
+    for (dir in p.panels) {
+      p.divs[dir].dom.addClass('panels_imode_panel');
+      p.divs[dir].dom.addClass('panels_imode_'+dir+'Panel');
+    }
+
+    p.toggleIcon = {
+      createControlElements: function (cntr) {
+        var div = cntr.dom.make('div', 'panels_imode_toggleIcon');
+        Monocle.Events.listenForTap(div, modeOff);
+        return div;
+      }
+    }
+    p.reader.addControl(p.toggleIcon, null, { hidden: true });
+  }
+
+
+  function menuCallbacks(callbacks) {
+    p.menuCallbacks = callbacks;
+    p.panels.central.listenTo(p.menuCallbacks);
+  }
+
+
+  function toggle() {
+    p.interactive ? modeOff() : modeOn();
+  }
+
+
+  function modeOn() {
+    if (p.interactive) {
+      return;
+    }
+
+    p.panels.central.contract();
+
+    var page = p.reader.visiblePages()[0];
+    var sheaf = page.m.sheafDiv;
+    var bw = sheaf.offsetLeft;
+    var fw = page.offsetWidth - (sheaf.offsetLeft + sheaf.offsetWidth);
+    bw = Math.floor(((bw - 2) / page.offsetWidth) * 10000 / 100 ) + "%";
+    fw = Math.floor(((fw - 2) / page.offsetWidth) * 10000 / 100 ) + "%";
+
+    startCameo(function () {
+      p.divs.forwards.style.width = fw;
+      p.divs.backwards.style.width = bw;
+      Monocle.Styles.affix(p.divs.central, 'transform', 'translateY(-100%)');
+    });
+
+    p.reader.showControl(p.toggleIcon);
+
+    p.interactive = true;
+    if (flipper.interactiveMode) {
+      flipper.interactiveMode(true);
+    }
+  }
+
+
+  function modeOff() {
+    if (!p.interactive) {
+      return;
+    }
+
+    p.panels.central.contract();
+
+    deselect();
+
+    startCameo(function () {
+      p.divs.forwards.style.width = "33%";
+      p.divs.backwards.style.width = "33%";
+      Monocle.Styles.affix(p.divs.central, 'transform', 'translateY(0)');
+    });
+
+    p.reader.hideControl(p.toggleIcon);
+
+    p.interactive = false;
+    if (flipper.interactiveMode) {
+      flipper.interactiveMode(false);
+    }
+  }
+
+
+  function startCameo(fn) {
+    // Set transitions on the panels.
+    var trn = Monocle.Panels.IMode.CAMEO_DURATION+"ms ease-in";
+    Monocle.Styles.affix(p.divs.forwards, 'transition', "width "+trn);
+    Monocle.Styles.affix(p.divs.backwards, 'transition', "width "+trn);
+    Monocle.Styles.affix(p.divs.central, 'transition', "-webkit-transform "+trn);
+
+    // Temporarily disable listeners.
+    for (var pan in p.panels) {
+      p.panels[pan].deafen();
+    }
+
+    // Set the panels to opaque.
+    for (var div in p.divs) {
+      p.divs[div].style.opacity = 1;
+    }
+
+    if (typeof WebkitTransitionEvent != "undefined") {
+      p.cameoListener = Monocle.Events.listen(
+        p.divs.central,
+        'webkitTransitionEnd',
+        endCameo
+      );
+    } else {
+      setTimeout(endCameo, k.CAMEO_DURATION);
+    }
+    fn();
+  }
+
+
+  function endCameo() {
+    setTimeout(function () {
+      // Remove panel transitions.
+      var trn = "opacity linear " + Monocle.Panels.IMode.LINGER_DURATION + "ms";
+      Monocle.Styles.affix(p.divs.forwards, 'transition', trn);
+      Monocle.Styles.affix(p.divs.backwards, 'transition', trn);
+      Monocle.Styles.affix(p.divs.central, 'transition', trn);
+
+      // Set the panels to transparent.
+      for (var div in p.divs) {
+        p.divs[div].style.opacity = 0;
+      }
+
+      // Re-enable listeners.
+      p.panels.forwards.listenTo(evtCallbacks);
+      p.panels.backwards.listenTo(evtCallbacks);
+      p.panels.central.listenTo(p.menuCallbacks);
+    }, Monocle.Panels.IMode.LINGER_DURATION);
+
+
+    if (p.cameoListener) {
+      Monocle.Events.deafen(p.divs.central, 'webkitTransitionEnd', endCameo);
+    }
+  }
+
+
+  function deselect() {
+    for (var i = 0, cmpt; cmpt = p.reader.dom.find('component', i); ++i) {
+      var sel = cmpt.contentWindow.getSelection() || cmpt.contentDocument.selection;
+      //if (sel.collapse) { sel.collapse(true); }
+      if (sel.removeAllRanges) { sel.removeAllRanges(); }
+      if (sel.empty) { sel.empty(); }
+      cmpt.contentDocument.body.scrollLeft = 0;
+      cmpt.contentDocument.body.scrollTop = 0;
+    }
+  }
+
+
+  API.toggle = toggle;
+  API.modeOn = modeOn;
+  API.modeOff = modeOff;
+  API.menuCallbacks = menuCallbacks;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Panels.IMode.CAMEO_DURATION = 250;
+Monocle.Panels.IMode.LINGER_DURATION = 250;
+
+Monocle.pieceLoaded('panels/imode');
+Monocle.Panels.eInk = function (flipper, evtCallbacks) {
+
+  var API = { constructor: Monocle.Panels.eInk }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    flipper: flipper
+  }
+
+
+  function initialize() {
+    p.panel = new Monocle.Controls.Panel();
+    p.reader = p.flipper.properties.reader;
+    p.reader.addControl(p.panel);
+
+    p.panel.listenTo({ end: function (panel, x) {
+      if (x < p.panel.properties.div.offsetWidth / 2) {
+        p.panel.properties.direction = flipper.constants.BACKWARDS;
+      } else {
+        p.panel.properties.direction = flipper.constants.FORWARDS;
+      }
+      evtCallbacks.end(panel, x);
+    } });
+
+    var s = p.panel.properties.div.style;
+    p.reader.listen("monocle:componentchanging", function () {
+      s.opacity = 1;
+      Monocle.defer(function () { s.opacity = 0 }, 40);
+    });
+    s.width = "100%";
+    s.background = "#000";
+    s.opacity = 0;
+
+    if (k.LISTEN_FOR_KEYS) {
+      Monocle.Events.listen(window.top.document, 'keyup', handleKeyEvent);
+    }
+  }
+
+
+  function handleKeyEvent(evt) {
+    var eventCharCode = evt.charCode || evt.keyCode;
+    var dir = null;
+    if (eventCharCode == k.KEYS["PAGEUP"]) {
+      dir = flipper.constants.BACKWARDS;
+    } else if (eventCharCode == k.KEYS["PAGEDOWN"]) {
+      dir = flipper.constants.FORWARDS;
+    }
+    if (dir) {
+      flipper.moveTo({ direction: dir });
+      evt.preventDefault();
+    }
+  }
+
+
+  initialize();
+
+  return API;
+}
+
+
+Monocle.Panels.eInk.LISTEN_FOR_KEYS = true;
+Monocle.Panels.eInk.KEYS = { "PAGEUP": 33, "PAGEDOWN": 34 };
+// Provides page-flipping panels only in the margins of the book. This is not
+// entirely suited to small screens with razor-thin margins, but is an
+// appropriate panel class for larger screens (like, say, an iPad).
+//
+// Since the flipper hit zones are only in the margins, the actual text content
+// of the book is always selectable.
+//
+Monocle.Panels.Marginal = function (flipper, evtCallbacks) {
+
+  var API = { constructor: Monocle.Panels.Marginal }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {}
+
+
+  function initialize() {
+    p.panels = {
+      forwards: new Monocle.Controls.Panel(),
+      backwards: new Monocle.Controls.Panel()
+    }
+
+    for (dir in p.panels) {
+      flipper.properties.reader.addControl(p.panels[dir]);
+      p.panels[dir].listenTo(evtCallbacks);
+      p.panels[dir].properties.direction = flipper.constants[dir.toUpperCase()];
+      with (p.panels[dir].properties.div.style) {
+        dir == "forwards" ? right = 0 : left = 0;
+      }
+    }
+    setWidths();
+
+    if (flipper.interactiveMode) {
+      flipper.interactiveMode(true);
+    }
+  }
+
+
+  function setWidths() {
+    var page = flipper.properties.reader.dom.find('page');
+    var sheaf = page.m.sheafDiv;
+    var bw = sheaf.offsetLeft;
+    var fw = page.offsetWidth - (sheaf.offsetLeft + sheaf.offsetWidth);
+    bw = Math.floor(((bw - 2) / page.offsetWidth) * 10000 / 100 ) + "%";
+    fw = Math.floor(((fw - 2) / page.offsetWidth) * 10000 / 100 ) + "%";
+    p.panels.forwards.properties.div.style.width = fw;
+    p.panels.backwards.properties.div.style.width = bw;
+  }
+
+
+  API.setWidths = setWidths;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.pieceLoaded('panels/marginal');
+Monocle.Dimensions.Vert = function (pageDiv) {
+
+  var API = { constructor: Monocle.Dimensions.Vert }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    page: pageDiv,
+    reader: pageDiv.m.reader
+  }
+
+
+  function initialize() {
+    p.reader.listen('monocle:componentchange', componentChanged);
+  }
+
+
+  function update(callback) {
+    p.bodyHeight = getBodyHeight();
+    p.pageHeight = getPageHeight();
+    p.length = Math.ceil(p.bodyHeight / p.pageHeight);
+    callback(p.length);
+  }
+
+
+  function getBodyHeight() {
+    return p.page.m.activeFrame.contentDocument.body.scrollHeight;
+  }
+
+
+  function getPageHeight() {
+    return p.page.m.activeFrame.offsetHeight - k.GUTTER;
+  }
+
+
+  function percentageThroughOfNode(target) {
+    if (!target) {
+      return 0;
+    }
+    var doc = p.page.m.activeFrame.contentDocument;
+    var offset = 0;
+    if (target.getBoundingClientRect) {
+      offset = target.getBoundingClientRect().top;
+      offset -= doc.body.getBoundingClientRect().top;
+    } else {
+      var oldScrollTop = doc.body.scrollTop;
+      target.scrollIntoView();
+      offset = doc.body.scrollTop;
+      doc.body.scrollLeft = 0;
+      doc.body.scrollTop = oldScrollTop;
+    }
+
+    //console.log(id + ": " + offset + " of " + p.bodyHeight);
+    var percent = offset / p.bodyHeight;
+    return percent;
+  }
+
+
+  function componentChanged(evt) {
+    if (evt.m['page'] != p.page) { return; }
+    var sheaf = p.page.m.sheafDiv;
+    var cmpt = p.page.m.activeFrame;
+    sheaf.dom.setStyles(k.SHEAF_STYLES);
+    cmpt.dom.setStyles(k.COMPONENT_STYLES);
+    var doc = evt.m['document'];
+    doc.documentElement.style.overflow = 'hidden';
+    doc.body.style.marginRight = '10px !important';
+    cmpt.contentWindow.scrollTo(0,0);
+  }
+
+
+  function locusToOffset(locus) {
+    return p.pageHeight * (locus.page - 1);
+  }
+
+
+  API.update = update;
+  API.percentageThroughOfNode = percentageThroughOfNode;
+  API.locusToOffset = locusToOffset;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Dimensions.Vert.GUTTER = 10;
+
+Monocle.pieceLoaded("dimensions/vert");
+Monocle.Flippers.Legacy = function (reader) {
+
+  var API = { constructor: Monocle.Flippers.Legacy }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    pageCount: 1,
+    divs: {}
+  }
+
+
+  function initialize() {
+    p.reader = reader;
+  }
+
+
+  function addPage(pageDiv) {
+    pageDiv.m.dimensions = new Monocle.Dimensions.Vert(pageDiv);
+  }
+
+
+  function getPlace() {
+    return page().m.place;
+  }
+
+
+  function moveTo(locus, callback) {
+    var fn = frameToLocus;
+    if (typeof callback == "function") {
+      fn = function (locus) { frameToLocus(locus); callback(locus); }
+    }
+    p.reader.getBook().setOrLoadPageAt(page(), locus, fn);
+  }
+
+
+  function listenForInteraction(panelClass) {
+    if (typeof panelClass != "function") {
+      panelClass = k.DEFAULT_PANELS_CLASS;
+      if (!panelClass) {
+        console.warn("Invalid panel class.")
+      }
+    }
+    p.panels = new panelClass(API, { 'end': turn });
+  }
+
+
+  function page() {
+    return p.reader.dom.find('page');
+  }
+
+
+  function turn(panel) {
+    var dir = panel.properties.direction;
+    var place = getPlace();
+    if (
+      (dir < 0 && place.onFirstPageOfBook()) ||
+      (dir > 0 && place.onLastPageOfBook())
+    ) { return; }
+    moveTo({ page: getPlace().pageNumber() + dir });
+  }
+
+
+  function frameToLocus(locus) {
+    var cmpt = p.reader.dom.find('component');
+    var win = cmpt.contentWindow;
+    var srcY = scrollPos(win);
+    var dims = page().m.dimensions;
+    var pageHeight = dims.properties.pageHeight;
+    var destY = dims.locusToOffset(locus);
+
+    //console.log(srcY + " => " + destY);
+    if (Math.abs(destY - srcY) > pageHeight) {
+      return win.scrollTo(0, destY);
+    }
+
+    showIndicator(win, srcY < destY ? srcY + pageHeight : srcY);
+    Monocle.defer(
+      function () { smoothScroll(win, srcY, destY, 300, scrollingFinished); },
+      150
+    );
+  }
+
+
+  function scrollPos(win) {
+    // Firefox, Chrome, Opera, Safari
+    if (win.pageYOffset) {
+      return win.pageYOffset;
+    }
+    // Internet Explorer 6 - standards mode
+    if (win.document.documentElement && win.document.documentElement.scrollTop) {
+      return win.document.documentElement.scrollTop;
+    }
+    // Internet Explorer 6, 7 and 8
+    if (win.document.body.scrollTop) {
+      return win.document.body.scrollTop;
+    }
+    return 0;
+  }
+
+
+  function smoothScroll(win, currY, finalY, duration, callback) {
+    clearTimeout(win.smoothScrollInterval);
+    var stamp = (new Date()).getTime();
+    var frameRate = 40;
+    var step = (finalY - currY) * (frameRate / duration);
+    var stepFn = function () {
+      var destY = currY + step;
+      if (
+        (new Date()).getTime() - stamp > duration ||
+        Math.abs(currY - finalY) < Math.abs((currY + step) - finalY)
+      ) {
+        clearTimeout(win.smoothScrollInterval);
+        win.scrollTo(0, finalY);
+        if (callback) { callback(); }
+      } else {
+        win.scrollTo(0, destY);
+        currY = destY;
+      }
+    }
+    win.smoothScrollInterval = setInterval(stepFn, frameRate);
+  }
+
+
+  function scrollingFinished() {
+    hideIndicator(page().m.activeFrame.contentWindow);
+    p.reader.dispatchEvent('monocle:turn');
+  }
+
+
+  function showIndicator(win, pos) {
+    if (p.hideTO) { clearTimeout(p.hideTO); }
+
+    var doc = win.document;
+    if (!doc.body.indicator) {
+      doc.body.indicator = createIndicator(doc);
+      doc.body.appendChild(doc.body.indicator);
+    }
+    doc.body.indicator.line.style.display = "block";
+    doc.body.indicator.style.opacity = 1;
+    positionIndicator(pos);
+  }
+
+
+  function hideIndicator(win) {
+    var doc = win.document;
+    p.hideTO = Monocle.defer(
+      function () {
+        if (!doc.body.indicator) {
+          doc.body.indicator = createIndicator(doc);
+          doc.body.appendChild(doc.body.indicator);
+        }
+        var dims = page().m.dimensions;
+        positionIndicator(
+          dims.locusToOffset(getPlace().getLocus()) + dims.properties.pageHeight
+        )
+        doc.body.indicator.line.style.display = "none";
+        doc.body.indicator.style.opacity = 0.5;
+      },
+      600
+    );
+  }
+
+
+  function createIndicator(doc) {
+    var iBox = doc.createElement('div');
+    doc.body.appendChild(iBox);
+    Monocle.Styles.applyRules(iBox, k.STYLES.iBox);
+
+    iBox.arrow = doc.createElement('div');
+    iBox.appendChild(iBox.arrow);
+    Monocle.Styles.applyRules(iBox.arrow, k.STYLES.arrow);
+
+    iBox.line = doc.createElement('div');
+    iBox.appendChild(iBox.line);
+    Monocle.Styles.applyRules(iBox.line, k.STYLES.line);
+
+    return iBox;
+  }
+
+
+  function positionIndicator(y) {
+    var p = page();
+    var doc = p.m.activeFrame.contentDocument;
+    var maxHeight = p.m.dimensions.properties.bodyHeight;
+    maxHeight -= doc.body.indicator.offsetHeight;
+    if (y > maxHeight) {
+      y = maxHeight;
+    }
+    doc.body.indicator.style.top = y + "px";
+  }
+
+
+  // THIS IS THE CORE API THAT ALL FLIPPERS MUST PROVIDE.
+  API.pageCount = p.pageCount;
+  API.addPage = addPage;
+  API.getPlace = getPlace;
+  API.moveTo = moveTo;
+  API.listenForInteraction = listenForInteraction;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Flippers.Legacy.FORWARDS = 1;
+Monocle.Flippers.Legacy.BACKWARDS = -1;
+Monocle.Flippers.Legacy.DEFAULT_PANELS_CLASS = Monocle.Panels.TwoPane;
+
+Monocle.Flippers.Legacy.STYLES = {
+  iBox: {
+    'position': 'absolute',
+    'right': 0,
+    'left': 0,
+    'height': '10px'
+  },
+  arrow: {
+    'position': 'absolute',
+    'right': 0,
+    'height': '10px',
+    'width': '10px',
+    'background': '#333',
+    'border-radius': '6px'
+  },
+  line: {
+    'width': '100%',
+    'border-top': '2px dotted #333',
+    'margin-top': '5px'
+  }
+}
+
+Monocle.pieceLoaded('flippers/legacy');
+Monocle.Dimensions.Columns = function (pageDiv) {
+
+  var API = { constructor: Monocle.Dimensions.Columns }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    page: pageDiv,
+    reader: pageDiv.m.reader,
+    length: 0,
+    width: 0
+  }
+
+  // Logically, forceColumn browsers can't have a gap, because that would
+  // make the minWidth > 200%. But how much greater? Not worth the effort.
+  k.GAP = Monocle.Browser.env.forceColumns ? 0 : 20;
+
+  function update(callback) {
+    setColumnWidth();
+    Monocle.defer(function () {
+      p.length = columnCount();
+      if (Monocle.DEBUG) {
+        console.log(
+          'page['+p.page.m.pageIndex+'] -> '+p.length+
+          ' ('+p.page.m.activeFrame.m.component.properties.id+')'
+        );
+      }
+      callback(p.length);
+    });
+  }
+
+
+  function setColumnWidth() {
+    var pdims = pageDimensions();
+    var ce = columnedElement();
+
+    p.width = pdims.width;
+
+    var rules = Monocle.Styles.rulesToString(k.STYLE["columned"]);
+    rules += Monocle.Browser.css.toCSSDeclaration('column-width', pdims.col+'px');
+    rules += Monocle.Browser.css.toCSSDeclaration('column-gap', k.GAP+'px');
+    rules += Monocle.Browser.css.toCSSDeclaration('transform', 'translateX(0)');
+
+    if (Monocle.Browser.env.forceColumns && ce.scrollHeight > pdims.height) {
+      rules += Monocle.Styles.rulesToString(k.STYLE['column-force']);
+      if (Monocle.DEBUG) {
+        console.warn("Force columns ("+ce.scrollHeight+" > "+pdims.height+")");
+      }
+    }
+
+    if (ce.style.cssText != rules) {
+      // Update offset because we're translating to zero.
+      p.page.m.offset = 0;
+
+      // Apply body style changes.
+      ce.style.cssText = rules;
+
+      if (Monocle.Browser.env.scrollToApplyStyle) {
+        ce.scrollLeft = 0;
+      }
+    }
+  }
+
+
+  // Returns the element to which columns CSS should be applied.
+  //
+  function columnedElement() {
+    return p.page.m.activeFrame.contentDocument.body;
+  }
+
+
+  // Returns the width of the offsettable area of the columned element. By
+  // definition, the number of pages is always this divided by the
+  // width of a single page (eg, the client area of the columned element).
+  //
+  function columnedWidth() {
+    var bd = columnedElement();
+    var de = p.page.m.activeFrame.contentDocument.documentElement;
+
+    var w = Math.max(bd.scrollWidth, de.scrollWidth);
+
+    // Add one because the final column doesn't have right gutter.
+    w += k.GAP;
+
+    if (!Monocle.Browser.env.widthsIgnoreTranslate && p.page.m.offset) {
+      w += p.page.m.offset;
+    }
+    return w;
+  }
+
+
+  function pageDimensions() {
+    var elem = p.page.m.sheafDiv;
+    return {
+      col: elem.clientWidth,
+      width: elem.clientWidth + k.GAP,
+      height: elem.clientHeight
+    }
+  }
+
+
+  function columnCount() {
+    return Math.ceil(columnedWidth() / pageDimensions().width)
+  }
+
+
+  function locusToOffset(locus) {
+    return pageDimensions().width * (locus.page - 1);
+  }
+
+
+  // Moves the columned element to the offset implied by the locus.
+  //
+  // The 'transition' argument is optional, allowing the translation to be
+  // animated. If not given, no change is made to the columned element's
+  // transition property.
+  //
+  function translateToLocus(locus, transition) {
+    var offset = locusToOffset(locus);
+    p.page.m.offset = offset;
+    translateToOffset(offset, transition);
+    return offset;
+  }
+
+
+  function translateToOffset(offset, transition) {
+    var ce = columnedElement();
+    if (transition) {
+      Monocle.Styles.affix(ce, "transition", transition);
+    }
+    Monocle.Styles.affix(ce, "transform", "translateX(-"+offset+"px)");
+  }
+
+
+  function percentageThroughOfNode(target) {
+    if (!target) { return 0; }
+    var doc = p.page.m.activeFrame.contentDocument;
+    var offset = 0;
+    if (Monocle.Browser.env.findNodesByScrolling) {
+      // First, remove translation...
+      translateToOffset(0);
+
+      // Store scroll offsets for all windows.
+      var win = s = p.page.m.activeFrame.contentWindow;
+      var scrollers = [
+        [win, win.scrollX, win.scrollY],
+        [window, window.scrollX, window.scrollY]
+      ];
+      //while (s != s.parent) { scrollers.push([s, s.scrollX]); s = s.parent; }
+
+      if (Monocle.Browser.env.sheafIsScroller) {
+        var scroller = p.page.m.sheafDiv;
+        var x = scroller.scrollLeft;
+        target.scrollIntoView();
+        offset = scroller.scrollLeft;
+      } else {
+        var scroller = win;
+        var x = scroller.scrollX;
+        target.scrollIntoView();
+        offset = scroller.scrollX;
+      }
+
+      // Restore scroll offsets for all windows.
+      while (s = scrollers.shift()) {
+        s[0].scrollTo(s[1], s[2]);
+      }
+
+      // ... finally, replace translation.
+      translateToOffset(p.page.m.offset);
+    } else {
+      offset = target.getBoundingClientRect().left;
+      offset -= doc.body.getBoundingClientRect().left;
+    }
+
+    // We know at least 1px will be visible, and offset should not be 0.
+    offset += 1;
+
+    // Percent is the offset divided by the total width of the component.
+    var percent = offset / (p.length * p.width);
+
+    // Page number would be offset divided by the width of a single page.
+    // var pageNum = Math.ceil(offset / pageDimensions().width);
+
+    return percent;
+  }
+
+
+  API.update = update;
+  API.percentageThroughOfNode = percentageThroughOfNode;
+
+  API.locusToOffset = locusToOffset;
+  API.translateToLocus = translateToLocus;
+
+  return API;
+}
+
+
+Monocle.Dimensions.Columns.STYLE = {
+  "columned": {
+    "margin": "0",
+    "padding": "0",
+    "height": "100%",
+    "width": "100%",
+    "position": "absolute"
+  },
+  "column-force": {
+    "min-width": "200%",
+    "overflow": "hidden"
+  }
+}
+
+Monocle.pieceLoaded("dimensions/columns");
+Monocle.Flippers.Slider = function (reader) {
+  if (Monocle.Flippers == this) {
+    return new Monocle.Flippers.Slider(reader);
+  }
+
+  var API = { constructor: Monocle.Flippers.Slider }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    pageCount: 2,
+    activeIndex: 1,
+    turnData: {}
+  }
+
+
+  function initialize() {
+    p.reader = reader;
+    p.reader.listen("monocle:componentchanging", showWaitControl);
+  }
+
+
+  function addPage(pageDiv) {
+    pageDiv.m.dimensions = new Monocle.Dimensions.Columns(pageDiv);
+
+    // BROWSERHACK: Firefox 4 is prone to beachballing on the first page turn
+    // unless a zeroed translateX has been applied to the page div.
+    Monocle.Styles.setX(pageDiv, 0);
+  }
+
+
+  function visiblePages() {
+    return [upperPage()];
+  }
+
+
+  function listenForInteraction(panelClass) {
+    // BROWSERHACK: Firstly, prime interactiveMode for buggy iOS WebKit.
+    interactiveMode(true);
+    interactiveMode(false);
+
+    if (typeof panelClass != "function") {
+      panelClass = k.DEFAULT_PANELS_CLASS;
+      if (!panelClass) {
+        console.warn("Invalid panel class.")
+      }
+    }
+    var q = function (action, panel, x) {
+      var dir = panel.properties.direction;
+      if (action == "lift") {
+        lift(dir, x);
+      } else if (action == "release") {
+        release(dir, x);
+      }
+    }
+    p.panels = new panelClass(
+      API,
+      {
+        'start': function (panel, x) { q('lift', panel, x); },
+        'move': function (panel, x) { turning(panel.properties.direction, x); },
+        'end': function (panel, x) { q('release', panel, x); },
+        'cancel': function (panel, x) { q('release', panel, x); }
+      }
+    );
+  }
+
+
+  // A panel can call this with true/false to indicate that the user needs
+  // to be able to select or otherwise interact with text.
+  function interactiveMode(bState) {
+    p.reader.dispatchEvent('monocle:interactive:'+(bState ? 'on' : 'off'));
+    if (!Monocle.Browser.env.selectIgnoresZOrder) { return; }
+    if (p.interactive = bState) {
+      if (p.activeIndex != 0) {
+        var place = getPlace();
+        if (place) {
+          setPage(
+            p.reader.dom.find('page', 0),
+            place.getLocus(),
+            function () {
+              flipPages();
+              prepareNextPage();
+            }
+          );
+        } else {
+          flipPages();
+        }
+      }
+    }
+  }
+
+
+  function getPlace(pageDiv) {
+    pageDiv = pageDiv || upperPage();
+    return pageDiv.m ? pageDiv.m.place : null;
+  }
+
+
+  function moveTo(locus, callback) {
+    var fn = function () {
+      prepareNextPage(function () {
+        if (typeof callback == "function") { callback(); }
+        announceTurn();
+      });
+    }
+    setPage(upperPage(), locus, fn);
+  }
+
+
+  function setPage(pageDiv, locus, callback) {
+    p.reader.getBook().setOrLoadPageAt(
+      pageDiv,
+      locus,
+      function (locus) {
+        pageDiv.m.dimensions.translateToLocus(locus);
+        Monocle.defer(callback);
+      }
+    );
+  }
+
+
+  function upperPage() {
+    return p.reader.dom.find('page', p.activeIndex);
+  }
+
+
+  function lowerPage() {
+    return p.reader.dom.find('page', (p.activeIndex + 1) % 2);
+  }
+
+
+  function flipPages() {
+    upperPage().style.zIndex = 1;
+    lowerPage().style.zIndex = 2;
+    return p.activeIndex = (p.activeIndex + 1) % 2;
+  }
+
+
+  function lift(dir, boxPointX) {
+    if (p.turnData.lifting || p.turnData.releasing) { return; }
+
+    p.turnData.points = {
+      start: boxPointX,
+      min: boxPointX,
+      max: boxPointX
+    }
+    p.turnData.lifting = true;
+
+    var place = getPlace();
+
+    if (dir == k.FORWARDS) {
+      if (place.onLastPageOfBook()) {
+        p.reader.dispatchEvent(
+          'monocle:boundaryend',
+          {
+            locus: getPlace().getLocus({ direction : dir }),
+            page: upperPage()
+          }
+        );
+        resetTurnData();
+        return;
+      }
+      onGoingForward(boxPointX);
+    } else if (dir == k.BACKWARDS) {
+      if (place.onFirstPageOfBook()) {
+        p.reader.dispatchEvent(
+          'monocle:boundarystart',
+          {
+            locus: getPlace().getLocus({ direction : dir }),
+            page: upperPage()
+          }
+        );
+        resetTurnData();
+        return;
+      }
+      onGoingBackward(boxPointX);
+    } else {
+      console.warn("Invalid direction: " + dir);
+    }
+  }
+
+
+  function turning(dir, boxPointX) {
+    if (!p.turnData.points) { return; }
+    if (p.turnData.lifting || p.turnData.releasing) { return; }
+    checkPoint(boxPointX);
+    slideToCursor(boxPointX, null, "0");
+  }
+
+
+  function release(dir, boxPointX) {
+    if (!p.turnData.points) {
+      return;
+    }
+    if (p.turnData.lifting) {
+      p.turnData.releaseArgs = [dir, boxPointX];
+      return;
+    }
+    if (p.turnData.releasing) {
+      return;
+    }
+
+    checkPoint(boxPointX);
+
+    p.turnData.releasing = true;
+
+    if (dir == k.FORWARDS) {
+      if (
+        p.turnData.points.tap ||
+        p.turnData.points.start - boxPointX > 60 ||
+        p.turnData.points.min >= boxPointX
+      ) {
+        // Completing forward turn
+        slideOut(afterGoingForward);
+      } else {
+        // Cancelling forward turn
+        slideIn(afterCancellingForward);
+      }
+    } else if (dir == k.BACKWARDS) {
+      if (
+        p.turnData.points.tap ||
+        boxPointX - p.turnData.points.start > 60 ||
+        p.turnData.points.max <= boxPointX
+      ) {
+        // Completing backward turn
+        slideIn(afterGoingBackward);
+      } else {
+        // Cancelling backward turn
+        slideOut(afterCancellingBackward);
+      }
+    } else {
+      console.warn("Invalid direction: " + dir);
+    }
+  }
+
+
+  function checkPoint(boxPointX) {
+    p.turnData.points.min = Math.min(p.turnData.points.min, boxPointX);
+    p.turnData.points.max = Math.max(p.turnData.points.max, boxPointX);
+    p.turnData.points.tap = p.turnData.points.max - p.turnData.points.min < 10;
+  }
+
+
+  function onGoingForward(x) {
+    lifted(x);
+  }
+
+
+  function onGoingBackward(x) {
+    var lp = lowerPage(), up = upperPage();
+
+    // set lower to "the page before upper"
+    setPage(
+      lp,
+      getPlace(up).getLocus({ direction: k.BACKWARDS }),
+      function () {
+        // flip lower to upper, ready to slide in from left
+        flipPages();
+        // move lower off the screen to the left
+        jumpOut(lp, function () {
+          lifted(x);
+        });
+      }
+    );
+  }
+
+
+  function afterGoingForward() {
+    var up = upperPage(), lp = lowerPage();
+    if (p.interactive) {
+      // set upper (off screen) to current
+      setPage(
+        up,
+        getPlace().getLocus({ direction: k.FORWARDS }),
+        function () {
+          // move upper back onto screen, then set lower to next and reset turn
+          jumpIn(up, function () { prepareNextPage(announceTurn); });
+        }
+      );
+    } else {
+      flipPages();
+      jumpIn(up, function () { prepareNextPage(announceTurn); });
+    }
+  }
+
+
+  function afterGoingBackward() {
+    if (p.interactive) {
+      // set lower page to current
+      setPage(
+        lowerPage(),
+        getPlace().getLocus(),
+        function () {
+          // flip lower to upper
+          flipPages();
+          // set lower to next and reset turn
+          prepareNextPage(announceTurn);
+        }
+      );
+    } else {
+      announceTurn();
+    }
+  }
+
+
+  function afterCancellingForward() {
+    resetTurnData();
+  }
+
+
+  function afterCancellingBackward() {
+    flipPages(); // flip upper to lower
+    jumpIn(lowerPage(), function () { prepareNextPage(resetTurnData); });
+  }
+
+
+  function prepareNextPage(callback) {
+    setPage(
+      lowerPage(),
+      getPlace().getLocus({ direction: k.FORWARDS }),
+      callback
+    );
+  }
+
+
+  function lifted(x) {
+    p.turnData.lifting = false;
+    var releaseArgs = p.turnData.releaseArgs;
+    if (releaseArgs) {
+      p.turnData.releaseArgs = null;
+      release(releaseArgs[0], releaseArgs[1]);
+    } else if (x) {
+      slideToCursor(x);
+    }
+  }
+
+
+  function announceTurn() {
+    p.reader.dispatchEvent('monocle:turn');
+    resetTurnData();
+  }
+
+
+  function resetTurnData() {
+    hideWaitControl();
+    p.turnData = {};
+  }
+
+
+  function setX(elem, x, options, callback) {
+    var duration, transition;
+
+    if (!options.duration) {
+      duration = 0;
+    } else {
+      duration = parseInt(options.duration);
+    }
+
+    if (Monocle.Browser.env.supportsTransition) {
+      Monocle.Styles.transitionFor(
+        elem,
+        'transform',
+        duration,
+        options.timing,
+        options.delay
+      );
+
+      if (Monocle.Browser.env.supportsTransform3d) {
+        Monocle.Styles.affix(elem, 'transform', 'translate3d('+x+'px,0,0)');
+      } else {
+        Monocle.Styles.affix(elem, 'transform', 'translateX('+x+'px)');
+      }
+
+      if (typeof callback == "function") {
+        if (duration && Monocle.Styles.getX(elem) != x) {
+          Monocle.Events.afterTransition(elem, callback);
+        } else {
+          Monocle.defer(callback);
+        }
+      }
+    } else {
+      // Old-school JS animation.
+      elem.currX = elem.currX || 0;
+      var completeTransition = function () {
+        elem.currX = x;
+        Monocle.Styles.setX(elem, x);
+        if (typeof callback == "function") { callback(); }
+      }
+      if (!duration) {
+        completeTransition();
+      } else {
+        var stamp = (new Date()).getTime();
+        var frameRate = 40;
+        var step = (x - elem.currX) * (frameRate / duration);
+        var stepFn = function () {
+          var destX = elem.currX + step;
+          var timeElapsed = ((new Date()).getTime() - stamp) >= duration;
+          var pastDest = (destX > x && elem.currX < x) ||
+            (destX < x && elem.currX > x);
+          if (timeElapsed || pastDest) {
+            completeTransition();
+          } else {
+            Monocle.Styles.setX(elem, destX);
+            elem.currX = destX;
+            setTimeout(stepFn, frameRate);
+          }
+        }
+        stepFn();
+      }
+    }
+  }
+
+
+  function jumpIn(pageDiv, callback) {
+    opts = { duration: (Monocle.Browser.env.stickySlideOut ? 1 : 0) }
+    setX(pageDiv, 0, opts, callback);
+  }
+
+
+  function jumpOut(pageDiv, callback) {
+    setX(pageDiv, 0 - pageDiv.offsetWidth, { duration: 0 }, callback);
+  }
+
+
+  // NB: Slides are always done by the visible upper page.
+
+  function slideIn(callback) {
+    setX(upperPage(), 0, slideOpts(), callback);
+  }
+
+
+  function slideOut(callback) {
+    setX(upperPage(), 0 - upperPage().offsetWidth, slideOpts(), callback);
+  }
+
+
+  function slideToCursor(cursorX, callback, duration) {
+    setX(
+      upperPage(),
+      Math.min(0, cursorX - upperPage().offsetWidth),
+      { duration: duration || k.FOLLOW_DURATION },
+      callback
+    );
+  }
+
+
+  function slideOpts() {
+    var opts = { timing: 'ease-in', duration: 320 }
+    var now = (new Date()).getTime();
+    if (p.lastSlide && now - p.lastSlide < 1500) { opts.duration *= 0.5; }
+    p.lastSlide = now;
+    return opts;
+  }
+
+
+  function ensureWaitControl() {
+    if (p.waitControl) { return; }
+    p.waitControl = {
+      createControlElements: function (holder) {
+        return holder.dom.make('div', 'flippers_slider_wait');
+      }
+    }
+    p.reader.addControl(p.waitControl, 'page');
+  }
+
+
+  function showWaitControl() {
+    ensureWaitControl();
+    p.reader.dom.find('flippers_slider_wait', 0).style.opacity = 1;
+    p.reader.dom.find('flippers_slider_wait', 1).style.opacity = 1;
+  }
+
+
+  function hideWaitControl() {
+    ensureWaitControl();
+    p.reader.dom.find('flippers_slider_wait', 0).style.opacity = 0;
+    p.reader.dom.find('flippers_slider_wait', 1).style.opacity = 0;
+  }
+
+
+  // THIS IS THE CORE API THAT ALL FLIPPERS MUST PROVIDE.
+  API.pageCount = p.pageCount;
+  API.addPage = addPage;
+  API.getPlace = getPlace;
+  API.moveTo = moveTo;
+  API.listenForInteraction = listenForInteraction;
+
+  // OPTIONAL API - WILL BE INVOKED (WHERE RELEVANT) IF PROVIDED.
+  API.visiblePages = visiblePages;
+  API.interactiveMode = interactiveMode;
+
+  initialize();
+
+  return API;
+}
+
+
+// Constants
+Monocle.Flippers.Slider.DEFAULT_PANELS_CLASS = Monocle.Panels.TwoPane;
+Monocle.Flippers.Slider.FORWARDS = 1;
+Monocle.Flippers.Slider.BACKWARDS = -1;
+Monocle.Flippers.Slider.FOLLOW_DURATION = 100;
+
+Monocle.pieceLoaded('flippers/slider');
+Monocle.Flippers.Scroller = function (reader, setPageFn) {
+
+  var API = { constructor: Monocle.Flippers.Scroller }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    pageCount: 1,
+    duration: 300
+  }
+
+
+  function initialize() {
+    p.reader = reader;
+    p.setPageFn = setPageFn;
+  }
+
+
+  function addPage(pageDiv) {
+    pageDiv.m.dimensions = new Monocle.Dimensions.Columns(pageDiv);
+  }
+
+
+  function page() {
+    return p.reader.dom.find('page');
+  }
+
+
+  function listenForInteraction(panelClass) {
+    if (typeof panelClass != "function") {
+      panelClass = k.DEFAULT_PANELS_CLASS;
+    }
+    p.panels = new panelClass(
+      API,
+      {
+        'end': function (panel) { turn(panel.properties.direction); }
+      }
+    );
+  }
+
+
+  function turn(dir) {
+    if (p.turning) { return; }
+    moveTo({ page: getPlace().pageNumber() + dir});
+  }
+
+
+  function getPlace() {
+    return page().m.place;
+  }
+
+
+  function moveTo(locus, callback) {
+    var fn = frameToLocus;
+    if (typeof callback == "function") {
+      fn = function (locus) { frameToLocus(locus); callback(locus); }
+    }
+    p.reader.getBook().setOrLoadPageAt(page(), locus, fn);
+  }
+
+
+  function frameToLocus(locus) {
+    if (locus.boundarystart || locus.boundaryend) { return; }
+    p.turning = true;
+    var dims = page().m.dimensions;
+    var fr = page().m.activeFrame;
+    var bdy = fr.contentDocument.body;
+    var anim = true;
+    if (p.activeComponent != fr.m.component) {
+      // No animation.
+      p.activeComponent = fr.m.component;
+      dims.translateToLocus(locus, "none");
+      Monocle.defer(turned);
+    } else if (Monocle.Browser.env.supportsTransition) {
+      // Native animation.
+      dims.translateToLocus(locus, p.duration+"ms ease-in 0ms");
+      Monocle.Events.afterTransition(bdy, turned);
+    } else {
+      // Old-school JS animation.
+      var x = dims.locusToOffset(locus);
+      var finalX = 0 - x;
+      var stamp = (new Date()).getTime();
+      var frameRate = 40;
+      var currX = p.currX || 0;
+      var step = (finalX - currX) * (frameRate / p.duration);
+      var stepFn = function () {
+        var destX = currX + step;
+        if (
+          (new Date()).getTime() - stamp > p.duration ||
+          Math.abs(currX - finalX) <= Math.abs((currX + step) - finalX)
+        ) {
+          Monocle.Styles.setX(bdy, finalX);
+          turned();
+        } else {
+          Monocle.Styles.setX(bdy, destX);
+          currX = destX;
+          setTimeout(stepFn, frameRate);
+        }
+        p.currX = destX;
+      }
+      stepFn();
+    }
+  }
+
+
+  function turned() {
+    p.turning = false;
+    p.reader.dispatchEvent('monocle:turn');
+  }
+
+
+  // THIS IS THE CORE API THAT ALL FLIPPERS MUST PROVIDE.
+  API.pageCount = p.pageCount;
+  API.addPage = addPage;
+  API.getPlace = getPlace;
+  API.moveTo = moveTo;
+  API.listenForInteraction = listenForInteraction;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Flippers.Scroller.speed = 200; // How long the animation takes
+Monocle.Flippers.Scroller.rate = 20; // frame-rate of the animation
+Monocle.Flippers.Scroller.FORWARDS = 1;
+Monocle.Flippers.Scroller.BACKWARDS = -1;
+Monocle.Flippers.Scroller.DEFAULT_PANELS_CLASS = Monocle.Panels.TwoPane;
+
+
+Monocle.pieceLoaded('flippers/scroller');
+Monocle.Flippers.Instant = function (reader) {
+
+  var API = { constructor: Monocle.Flippers.Instant }
+  var k = API.constants = API.constructor;
+  var p = API.properties = {
+    pageCount: 1
+  }
+
+
+  function initialize() {
+    p.reader = reader;
+  }
+
+
+  function addPage(pageDiv) {
+    pageDiv.m.dimensions = new Monocle.Dimensions.Columns(pageDiv);
+  }
+
+
+  function getPlace() {
+    return page().m.place;
+  }
+
+
+  function moveTo(locus, callback) {
+    var fn = frameToLocus;
+    if (typeof callback == "function") {
+      fn = function (locus) { frameToLocus(locus); callback(locus); }
+    }
+    p.reader.getBook().setOrLoadPageAt(page(), locus, fn);
+  }
+
+
+  function listenForInteraction(panelClass) {
+    if (typeof panelClass != "function") {
+      if (Monocle.Browser.on.Kindle3) {
+        panelClass = Monocle.Panels.eInk;
+      }
+      panelClass = panelClass || k.DEFAULT_PANELS_CLASS;
+    }
+    if (!panelClass) { throw("Panels not found."); }
+    p.panels = new panelClass(API, { 'end': turn });
+  }
+
+
+  function page() {
+    return p.reader.dom.find('page');
+  }
+
+
+  function turn(panel) {
+    var dir = panel.properties.direction;
+    moveTo({ page: getPlace().pageNumber() + dir});
+  }
+
+
+  function frameToLocus(locus) {
+    page().m.dimensions.translateToLocus(locus);
+    Monocle.defer(function () { p.reader.dispatchEvent('monocle:turn'); });
+  }
+
+
+  // THIS IS THE CORE API THAT ALL FLIPPERS MUST PROVIDE.
+  API.pageCount = p.pageCount;
+  API.addPage = addPage;
+  API.getPlace = getPlace;
+  API.moveTo = moveTo;
+  API.listenForInteraction = listenForInteraction;
+
+  initialize();
+
+  return API;
+}
+
+Monocle.Flippers.Instant.FORWARDS = 1;
+Monocle.Flippers.Instant.BACKWARDS = -1;
+Monocle.Flippers.Instant.DEFAULT_PANELS_CLASS = Monocle.Panels.TwoPane;
+
+
+
+Monocle.pieceLoaded('flippers/instant');
+
+Monocle.pieceLoaded('monocore');
