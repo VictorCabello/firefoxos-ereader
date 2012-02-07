@@ -36,9 +36,9 @@ body {
   top: 20px;
   bottom: 20px;
   right: 15px;
-  background-color: #FCF6F0;
-  -webkit-box-shadow: 2px 2px 4px #754;
-  -moz-box-shadow: 2px 2px 4px #754;
+  background-color: #fafafa;
+  -webkit-box-shadow: 2px 2px 4px #333;
+  -moz-box-shadow: 2px 2px 4px #333;
   -webkit-border-top-left-radius: 26px 6px;
   -webkit-border-bottom-left-radius: 26px 6px;
   -moz-border-radius-topleft: 26px 6px;
@@ -48,14 +48,14 @@ body {
   top: 16px;
   bottom: 16px;
   right: 16px;
-  -webkit-box-shadow: 1px 0 2px #A99;
-  -moz-box-shadow: 1px 0 2px #A99;
+  -webkit-box-shadow: 1px 0 2px #333;
+  -moz-box-shadow: 1px 0 2px #333;
 }
 .dummyPage + .dummyPage + .dummyPage {
   top: 13px;
   bottom: 13px;
   right: 18px;
-  background-color: #FFF9F4;
+  background-color: #fafafa;
 }
 .dummyPage + .dummyPage + .dummyPage + .dummyPage {
   top: 10px;
@@ -69,26 +69,23 @@ body {
 }
 .jacket {
   position: absolute;
-  top: 1px;
-  bottom: 1px;
-  right: 3px;
+  top: 0;
+  bottom: 0;
+  right: 0;
   left: 65%;
-  -webkit-box-shadow: -3px 0 3px #311;
-  -moz-box-shadow: -3px 0 3px #311;
-  -webkit-border-top-right-radius: 3px;
-  -webkit-border-bottom-right-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  -moz-border-radius-bottomright: 3px;
-  background-color: #F7F7F7;
-  background: -webkit-gradient(linear, left top, right bottom, from(#FFF), to(#DDD));
+  -webkit-box-shadow: -3px 0 3px #333;
+  -moz-box-shadow: -3px 0 3px #333;
+  -moz-border-radius-bottomright: 5px;
+  background-color: #002747;
+  background-image: -moz-linear-gradient(bottom, rgb(152,190,213) 0%, rgb(3,99,154) 50%, rgb(43,51,79) 75%);
 }
 .board {
   position: absolute;
   top: 1px;
   bottom: 1px;
   width: 90%;
-  background-color: #974;
-  border: 1px solid #852;
+  background-color: #002747;
+  border: 0;
 }
 
 .runner {
@@ -123,7 +120,7 @@ body {
 }
 
 #readerBg {
-  background-color: #000;
+  background-color: #002747;
 }
 
 #toc ul.root {
@@ -195,18 +192,14 @@ div.monelem_page {
   box-shadow: none;
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
-  border-top: 1px solid #DCB;
-  border-right: 1px solid #DCB;
-  border-bottom: 1px solid #DCB;
-  border-top-left-radius: 26px 4px;
-  border-bottom-left-radius: 26px 4px;
-  -webkit-border-top-left-radius: 26px 4px;
-  -webkit-border-bottom-left-radius: 26px 4px;
-  -moz-border-radius-top-left: 26px 4px;
-  -moz-border-radius-bottom-left: 26px 4px;
-  background-color: #FFFEFC;
-  background-image: -moz-linear-gradient(0deg, #EDEAE8 0px, #FFFEFC 24px);
-  background-image: -webkit-linear-gradient(0deg, #EDEAE8 0px, #FFFEFC 24px);
+  border-top: 1px solid #888;
+  border-right: 1px solid #888;
+  border-bottom: 1px solid #888;
+  border-top-left-radius: 20px 5px;
+  border-bottom-left-radius: 20px 5px;
+  -moz-border-radius-top-left: 20px 5px;
+  -moz-border-radius-bottom-left: 20px 5px;
+  background: #fafafa url(../images/paper-shadow.png) repeat-y;
 }
 
 div.monelem_sheaf {
