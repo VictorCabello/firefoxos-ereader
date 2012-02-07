@@ -66,11 +66,8 @@ function getBooks() {
 function initReader(id) {
 		
 		var closeElement = document.createElement("a");
-		closeElement.appendChild(document.createTextNode("X"));
-		closeElement.style.position = "absolute";
-		closeElement.style.zIndex = "110";
+		closeElement.appendChild(document.createTextNode("Back"));
 		closeElement.style.pointerEvents = "all";
-		closeElement.style.margin = "8px";
 		closeElement.href = "javascript:hideReader()";
 		container.removeChild(readerElement);
 		container.appendChild(newReaderDiv());

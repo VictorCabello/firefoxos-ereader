@@ -65,19 +65,14 @@ ul {
 }
 
 .full_circle {
- background-color: #aaa;
- height: 50px;
- -moz-border-radius:25px;
-padding-left:8px;
- width: 50px;
+    padding: 20px;
 	position:absolute;
 	z-index:101;
-	opacity: 0.3;
+}
+#close a {
+    font-size: 14px;
 }
 
-.full_circle:active {
- opacity:1;
-}
 
 div.monelem_controls_magnifier_button {
 	background-color:transparent;
