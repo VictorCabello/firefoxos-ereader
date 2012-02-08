@@ -4,6 +4,7 @@ body {
   background: #000;
   -webkit-user-select: none;
   -webkit-text-size-adjust: none;
+  color: #192150;
 }
 
 #components {
@@ -189,12 +190,8 @@ div.monelem_container {
 div.monelem_page {
   top: 6px;
   bottom: 6px;
-  box-shadow: none;
-  -moz-box-shadow: none;
-  -webkit-box-shadow: none;
-  border-top: 1px solid #888;
-  border-right: 1px solid #888;
-  border-bottom: 1px solid #888;
+  border: 1px solid #666;
+  border-right: 1px solid #999;
   border-top-left-radius: 20px 5px;
   border-bottom-left-radius: 20px 5px;
   -moz-border-radius-top-left: 20px 5px;
@@ -203,10 +200,14 @@ div.monelem_page {
 }
 
 div.monelem_sheaf {
-  top: 2.5em;
-  bottom: 2.5em;
-  left: 2em;
-  right: 2.5em;
+  top: 60px;
+  bottom: 60px;
+  left: 30px;
+  right: 30px;
+}
+
+body body {
+  color: #192150 !important;
 }
 
 
@@ -232,18 +233,16 @@ li.monelem_controls_contents_chapter_active {
 }
 
 div.monelem_controls_magnifier_button {
-  color: #632;
-  padding: 3px 6px;
-  background: #FFF;
-  top: 8px;
-  right: 2.5em;
+  color: #192150;
+  top: 30px;
+  right: 40px;
 }
 
 
 div.monelem_controls_scrubber_container {
-  left: 2em;
-  right: 3em;
-  bottom: 14px;
+  left: 30px;
+  right: 30px;
+  bottom: 30px;
 }
 
 

@@ -66,7 +66,7 @@ function getBooks() {
 function initReader(id) {
 		
 		var closeElement = document.createElement("a");
-		closeElement.appendChild(document.createTextNode("Back"));
+		closeElement.appendChild(document.createTextNode("Library"));
 		closeElement.style.pointerEvents = "all";
 		closeElement.href = "javascript:hideReader()";
 		container.removeChild(readerElement);

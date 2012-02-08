@@ -1,6 +1,6 @@
 body {
 	background-color: #FCF6F0;
-	font-family:Palatino;
+	font-family:Arial;
 }
 
 #wrapper {
@@ -49,7 +49,8 @@ ul {
 }
 
 #close a {
-	color:#000;
+	color:#192152;
+    font-size: 16px;
 	text-decoration:none;
 	font-size: 30px;
 }
@@ -65,7 +66,7 @@ ul {
 }
 
 .full_circle {
-    padding: 20px;
+    padding: 30px 0 0 30px;
 	position:absolute;
 	z-index:101;
 }
