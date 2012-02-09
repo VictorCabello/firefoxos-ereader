@@ -10,7 +10,8 @@ owd.eBookDownloader = function(gutenbergId){
 		_metadata,
 		_epub,
 		_data,
-		_blob;
+		_blob,
+		_cover = 'images/book.png';
 			
 	function saveToInternalStorage() {
 		var books, book, id = getBookId(that._metadata.title);
@@ -23,7 +24,7 @@ owd.eBookDownloader = function(gutenbergId){
 		
 		book = that._metadata;
 		book['id'] = id;
-		book['cover'] = getCoverUrl();
+		book['cover'] = _cover;
 		
 		books.push(book);
 		
@@ -143,13 +144,22 @@ owd.eBookDownloader = function(gutenbergId){
 		return 'book_' + title.replace(/ /g,"_").toLowerCase();
 	}
 	
+	function checkCover() {
+		checkUrl(getCoverUrl(), function(url, exists){
+			if(exists) {
+				_cover = url;
+			}
+		});
+	}
+	
 	return {
 	
 		download: function(url, successCallback, errorCallback) {
 			that._successCallback  = successCallback;
 			that._errorCallback = errorCallback;
 			
-			fetchBinary(url);
+			checkCover();
+			fetchBinary(url);			
 		}
 		
 	};

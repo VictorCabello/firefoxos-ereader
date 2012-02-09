@@ -261,11 +261,7 @@ function checkUrl(url, callback) {
 	xmlhttp.open("HEAD", url,true);
 	xmlhttp.onload = function(e) {
 		if (this.status == 200) {
-	    	if(xmlhttp.getResponseHeader('Content-Length') > 0) { //Not working cause ff has a problem with getResponseHeader and CORS
-				callback(url, true);
-			} else {
-				callback(url, false);
-			}
+	    	callback(url, true);			
 	  	} else {
 			callback(url, false);
 	  	}
