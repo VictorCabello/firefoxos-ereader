@@ -33,17 +33,21 @@
 					<a id='search_button' class='button' href='#'>Search</a>
 				</div>
 				<!-- <a href='javascript:clear()' id='clear'>Clear</a> Debug button to clean the whole localStorage -->
-				<div class='title'>Your Books</div>
+				<div class='title'>Library</div>
+				<div class='order'>
+					<span class=''><a id='sort_title' class='sort selected' onclick='javascript:sort("title")' href='#'>Title</a></span>
+					<span class=''><a id='sort_creator' class='sort ' href='#' onclick='javascript:sort("creator")'>Author</a></span>
+				</div>
 				<div id='list_books'>
 			
 				</div>
 			</div>
-			<div id='search_container' class='transition hidden_left'>
+			<div id='search_container' class='transition hidden_right'>
 					<div class='toolbar'>
 						<a id='library_button' class='button' href='#'>Library</a>
 					</div>
 				<div class='title'>Search</div>
-					<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search!</button>
+					<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search</button>
 					<div id='books_container'>
 					</div>
 			</div>

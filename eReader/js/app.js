@@ -18,13 +18,13 @@ window.onload = function() {
 }
 
 function goto_library() {
-	document.getElementById('search_container').setAttribute('class','transition hidden_left');
+	document.getElementById('search_container').setAttribute('class','transition hidden_right');
 	document.getElementById('home').setAttribute('class','transition show');
 }
 
 function goto_search() {
 	document.getElementById('search_container').setAttribute('class','transition show');
-	document.getElementById('home').setAttribute('class','transition hidden_right');
+	document.getElementById('home').setAttribute('class','transition hidden_left');
 	clearSearchResults();
 }
 
@@ -33,8 +33,51 @@ function clear() {
 	printBooks();
 }
 
+function getBookHTML(element) {
+	var book = document.createElement("li");
+	book.className = "book";
+	book.onClick = function(){readBook(element["id"])}
+	
+	var infoContainer = document.createElement("div");
+	infoContainer.className = "infoContainer";
+	
+	var dl = document.createElement("dl");
+	
+	var dt_book = document.createElement("dt");
+	var bookLink = document.createElement("a");
+	bookLink.setAttribute("href","javascript:readBook(\""+element["id"]+"\")");
+	bookLink.className='book_title';
+	bookLink.appendChild(document.createTextNode(element["title"]));
+	dt_book.appendChild(bookLink);
+	dl.appendChild(dt_book);
+	
+	var dt_author = document.createElement("dt");		
+	var bookAuthor = document.createElement("a");
+	bookAuthor.setAttribute("href","javascript:readBook(\""+element["id"]+"\")");
+	bookAuthor.className='book_author';
+	bookAuthor.appendChild(document.createTextNode(element["creator"]));
+	dt_author.appendChild(bookAuthor);
+	dl.appendChild(dt_author);
+	
+	infoContainer.appendChild(dl);
+
+	var bookCover = document.createElement("img");
+	console.log(element.cover);
+	bookCover.setAttribute("src", element['cover'] == undefined ? 'images/book.png' : element['cover']);
+	bookCover.setAttribute("width", 64);
+	bookCover.setAttribute("height", 64);
+	var imgContainer = document.createElement("div");
+	imgContainer.className = "imgContainer";
+	imgContainer.appendChild(bookCover);
+	
+	book.appendChild(imgContainer);
+	book.appendChild(infoContainer);
+	book.setAttribute("book_id",element["id"]);
+	return book;
+}
+
 var printBooks = function() {
-	document.getElementById("list_books").innerHTML = "";
+
 	if(localStorage.books==undefined) {
 		var script= document.createElement('script');
 		script.type = 'text/javascript';
@@ -44,29 +87,45 @@ var printBooks = function() {
 		return;		
 	}
 	results = JSON.parse(localStorage.books);
+	sorted = results.sort(booksTitleSorter);
+	printBooksHTML(sorted);
+}
+
+function sort(by) {
+	books = JSON.parse(localStorage.books);
+	if(by=='creator'){
+		sorted = books.sort(booksAuthorSorter);
+		document.getElementById("sort_creator").className='sort selected';
+		document.getElementById("sort_title").className='sort';
+	}else{
+		sorted = books.sort(booksTitleSorter);
+		document.getElementById("sort_creator").className='sort';
+		document.getElementById("sort_title").className='sort selected';
+	}
+	printBooksHTML(sorted);
+}
+
+function booksTitleSorter(a,b) {
+	if (a['title'] < b['title']) return -1;
+	if (a['title'] > b['title']) return 1;
+	return 0;
+}
+
+function booksAuthorSorter(a,b) {
+	if (a['creator'] < b['creator']) return -1;
+	if (a['creator'] > b['creator']) return 1;
+	return 0;
+}
+
+function printBooksHTML(books) {
+	document.getElementById("list_books").innerHTML = "";
 	var list = document.createElement("ul");
-	for(i=0;i<results.length;i++) {
-		var element = results[i];
-		var book = document.createElement("li");
-		var bookCover = document.createElement("img");
-		console.log(element.cover);
-		bookCover.setAttribute("src", element['cover'] == undefined ? 'images/book.png' : element['cover']);
-		bookCover.setAttribute("width", 64);
-		bookCover.setAttribute("height", 64);
-		book.appendChild(bookCover);
-		var bookLink = document.createElement("a");
-		bookLink.setAttribute("href","javascript:readBook(\""+element["id"]+"\")");
-		bookLink.appendChild(document.createTextNode(element["title"]));
-		book.appendChild(bookLink);
-		book.setAttribute("book_id",element["id"]);
+	for(i=0;i<books.length;i++) {
+		var element = books[i];
+		var book = getBookHTML(element);
 		list.appendChild(book);
 	}
 	document.getElementById("list_books").appendChild(list);
-}
-
-
-function getBooks() {
-	db.getAll("ebooks", printBooks);
 }
 
 function initReader(id) {
@@ -140,7 +199,7 @@ function search() {
 	var name = document.getElementById('search').value;
 	document.getElementById('click').disabled = true;
 	document.getElementById('books_container').innerHTML = 'Searching for ' + name;
-	document.getElementById('books_container').innerHTML += '<ul id="books"></ul>';
+	document.getElementById('books_container').innerHTML += '<ul id="search_books"></ul>';
 	var head= document.getElementsByTagName('head')[0];
 	var script= document.createElement('script');
 	script.type= 'text/javascript';
@@ -238,9 +297,11 @@ function parseGoogleSearch(data) {
 	ul.id = "books";
 	for(var i in books) {
 		if(books[i].title.indexOf('-') != -1) {
-			books[i].title = books[i].title.substring(0, books[i].title.lastIndexOf('-') - 1);
+			title_creator = books[i].title.substring(0, books[i].title.lastIndexOf('-') - 1).split("by");
+			books[i].title = title_creator[0];
+			books[i].creator = title_creator[1];
 		}
-		ul.innerHTML += "<li><a href='#' onClick='javascript:findEPub(\"" + i + "\")'>" + books[i].title + "</a></li>";
+		ul.innerHTML += "<li class='book'><div class='imgContainer'></div><div class='infoContainer'><dl><dt>"+books[i].title+"</dt><dt>"+books[i].creator+"</dt></dl></div><div class='download' onClick='javascript:findEPub(\"" + i + "\")'></div></li>";
 		var books_container = document.getElementById("books_container");
 		books_container.innerHTML="";
 		books_container.appendChild(ul);
