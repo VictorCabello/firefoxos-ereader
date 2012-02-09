@@ -8,10 +8,10 @@ owd.eBookDownloader = function(){
 	var _successCallback,
 		_errorCallback,
 		_metadata,
-		_content,
 		_epub,
 		_data,
-		_blob;
+		_blob,
+		_coverUrl;
 			
 	function saveToInternalStorage() {
 		var books, book, id = getBookId(that._metadata.title);
@@ -106,34 +106,14 @@ owd.eBookDownloader = function(){
 		        //Post processing
 		    } else if (step === 5) {
 		        //End
-				extractContent();
+				extractMetadata();
 		    } else {
 				that._errorCallback("Error processing ePub: " + step);
 			}
 
 		});
 	}
-	
-	function extractContent() {
-		var spine, href, doc;
 		
-		that._content = "";
-
-/*
-		for(var i=0; i<that._epub.opf.spine.length; i++) {
-			spine = that._epub.opf.spine[i];
-			console.log('spine: ' + spine);
-			href = that._epub.opf.manifest[spine]["href"];
-			console.log('href: ' + href);
-			doc = that._epub.files[href];
-			console.log(doc.getElementById('title'));
-			that._content += doc.getElementsByTagName('body')[0].innerHTML;			
-		}
-*/
-		
-		extractMetadata();
-	}
-	
 	function extractMetadata() {
 		that._metadata = {};
 		var extractIfExists = function(field) {
@@ -146,13 +126,34 @@ owd.eBookDownloader = function(){
 		for(var i in metas) {
 			extractIfExists(metas[i]);
 		}
-		
-		//that._epub = {};
-		
+				
 		onSuccess();
 	}
 	
+	function getCover() {
+		//Don't try if not setup the cover url, or if we tried before and we failed (setup the string 'null' to notice we tried)
+		if(that._coverUrl == null || localStorage['cover_' + getBookId(that._metadata.title)] == 'null') {
+			return;
+		}
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET", that._coverUrl, true);
+		xmlhttp.onload = function(e) {
+			if (this.status == 200) {
+				localStorage['cover_' + getBookId(that._metadata.title)] = 'data:image/gif;base64,' + Base64.encode(e.target.response);
+		  	} else {
+				localStorage['cover_' + getBookId(that._metadata.title)] = 'null';
+			}
+		};
+
+		xmlhttp.onerror = function() {
+			callback(url, false);
+		}
+
+	 	xmlhttp.send(null);
+	}
+	
 	function onSuccess() {
+		getCover();
 		saveToInternalStorage()
 		that._successCallback(that._metadata);
 	}
@@ -168,8 +169,10 @@ owd.eBookDownloader = function(){
 			that._errorCallback = errorCallback;
 			
 			fetchBinary(url);
-		}
-		
+		},
+		setCoverUrl: function(url) {
+			that._coverUrl = url;
+		}		
 	};
 	
 };

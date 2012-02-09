@@ -160,19 +160,21 @@ function findEPub(index) {
 	
 	//Try to download first the epub with images, then the plain one
 	var downloader = new owd.eBookDownloader();
+	downloader.setCoverUrl('http://www.gutenberg.org/files/' + bookId + '/' + bookId + '-h/images/cover.jpg');
+	
+	var bookDownloadedCallback = function(metadata) {
+		alertBox.dismiss();
+		printBooks();
+		goto_library();
+	};
 	
 	downloader.download(ePubImages, function(metadata) { 
-			alertBox.dismiss();
-			printBooks();
-			goto_library();
+			bookDownloadedCallback(metadata);
 		},
 		function(msg) {
 			console.log("There is no ebook with images availabe, trying with the plain text epub");
 			downloader.download(ePub, function(metadata){
-				//alert('Book ' + metadata.title + ' downloaded');
-				alertBox.dismiss();
-				printBooks();
-				goto_library();
+				bookDownloadedCallback(metadata);
 			}, 
 			function(msg) {
 				alertBox.dismiss();
