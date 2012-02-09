@@ -152,7 +152,7 @@ function initReader(id) {
 		}
 		
 		container.style.display = 'block';
-		var placeSaver = new Monocle.Controls.PlaceSaver('reader');
+		var placeSaver = new Monocle.Controls.PlaceSaver(id);
 		var readerOptions = {
 			panel:Monocle.Panels.Marginal,
 			place: placeSaver.savedPlace(),
