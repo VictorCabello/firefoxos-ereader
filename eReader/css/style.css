@@ -88,8 +88,8 @@ ul {
 }
 
 .imgContainer {
-	width:64px;
-	height:64px;
+	width:65px;
+	height:80px;
 	float:left;
 }
 
@@ -162,6 +162,7 @@ ul {
 
 #books_container {
 	padding-left:5%;
+	padding-bottom:5%;
 }
 
 
