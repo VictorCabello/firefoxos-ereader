@@ -164,7 +164,7 @@ function initReader(id) {
 			//HACK
 			if(id == 'book_frankenstein') {
 				var hack = document.createElement("div");
-				hack.appendChild(document.createTextNode("Jincliminqui"));
+				hack.appendChild(document.createTextNode("[Dev: Reset books]"));
 				hack.className = "button blue";
 				hack.style.pointerEvents = "all";
 				hack.addEventListener("click", function(){clear();hideReader();});
