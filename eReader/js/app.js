@@ -161,9 +161,9 @@ function initReader(id) {
 		document.reader = Monocle.Reader('reader',bookData, readerOptions, function() {
 			close.innerHTML = "";
 			close.appendChild(closeElement);
+			document.getElementById('development').innerHTML = "";
 			//HACK
 			if(id == 'book_frankenstein') {
-				document.getElementById('development').innerHTML = "";
 				var hack = document.createElement("div");
 				hack.appendChild(document.createTextNode("[Dev: Reset books]"));
 				hack.className = "button blue";
