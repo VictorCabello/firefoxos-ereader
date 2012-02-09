@@ -168,6 +168,7 @@ function initReader(id) {
 				hack.appendChild(document.createTextNode("[Dev: Reset books]"));
 				hack.className = "button blue";
 				hack.style.pointerEvents = "all";
+				hack.style.float ="left";
 				hack.addEventListener("click", function(){clear();hideReader();});
 				document.getElementById('development').appendChild(hack);
 			}
@@ -307,7 +308,7 @@ function parseGoogleSearch(data) {
 			
 		}
 		books[i].image = 'image_' + i;
-		ul.innerHTML += "<li class='book'><div id='"+ books[i].image +"' class='imgContainer'></div><div class='infoContainer'><dl><dt>"+books[i].title+"</dt><dt>"+books[i].creator+"</dt></dl></div><div class='download' onClick='javascript:findEPub(\"" + i + "\")'></div></li>";
+		ul.innerHTML += "<li class='book' onclick='javascript:findEPub(\"" + i + "\")' ><div id='"+ books[i].image +"' class='imgContainer'></div><div class='infoContainer'><dl><dt>"+books[i].title+"</dt><dt>"+books[i].creator+"</dt></dl></div><div class='download' onClick='javascript:findEPub(\"" + i + "\")'></div></li>";
 		checkUrl(getCoverUrl(getGutenbergId(books[i].url)), function(url, success) {
 			var index = 'image_' + counter++;
 			var bookCover = getCoverElement(!success ? 'images/book.png' : url);
