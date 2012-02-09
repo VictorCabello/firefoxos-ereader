@@ -36,7 +36,7 @@ function clear() {
 function getBookHTML(element) {
 	var book = document.createElement("li");
 	book.className = "book";
-	book.onClick = function(){readBook(element["id"])}
+	book.addEventListener("click", function(){readBook(element["id"])}); 
 	
 	var infoContainer = document.createElement("div");
 	infoContainer.className = "infoContainer";
@@ -86,7 +86,7 @@ var printBooks = function() {
 		head.appendChild(script);
 		return;		
 	}
-	results = JSON.parse(localStorage.books);
+	results	 = JSON.parse(localStorage.books);
 	sorted = results.sort(booksTitleSorter);
 	printBooksHTML(sorted);
 }
