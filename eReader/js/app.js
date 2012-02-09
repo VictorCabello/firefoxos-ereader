@@ -226,23 +226,15 @@ function findEPub(index) {
 	//Try to download first the epub with images, then the plain one
 	var downloader = new owd.eBookDownloader(bookId);
 	
-	downloader.download(ePubImages, function(metadata) { 
+	downloader.download(ePub, function(metadata) { 
 			alertBox.dismiss();
 			printBooks();
 			goto_library();
 		},
 		function(msg) {
-			console.log("There is no ebook with images availabe, trying with the plain text epub");
-			downloader.download(ePub, function(metadata){
-				//alert('Book ' + metadata.title + ' downloaded');
-				alertBox.dismiss();
-				printBooks();
-				goto_library();
-			}, 
-			function(msg) {
-				alertBox.dismiss();
-				alert('Sorry, we cannot find any book :\'(');
-			});
+			alertBox.dismiss();
+			alertBox.show("Couldn't find an ePub file");
+			setTimeout('alertBox.dismiss();goto_library()', 2000);
 		}
 	);
 	alertBox.show("Downloading book", true);
