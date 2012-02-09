@@ -110,7 +110,8 @@ ul {
 
 .toolbar{
 	position:absolute;
-	padding:10px;
+	padding-top:10px;
+	width:100%;
 }
 
 #search_container .title {
