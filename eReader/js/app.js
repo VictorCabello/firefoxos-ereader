@@ -130,10 +130,11 @@ function printBooksHTML(books) {
 
 function initReader(id) {
 		
-		var closeElement = document.createElement("a");
+		var closeElement = document.createElement("div");
 		closeElement.appendChild(document.createTextNode("Library"));
+		closeElement.className = "button blue";
 		closeElement.style.pointerEvents = "all";
-		closeElement.href = "javascript:hideReader()";
+		closeElement.addEventListener("click", function(){hideReader()});
 		container.removeChild(readerElement);
 		container.appendChild(newReaderDiv());
 		

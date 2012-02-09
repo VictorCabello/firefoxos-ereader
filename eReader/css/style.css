@@ -42,6 +42,10 @@ a {
 	padding-left:5%;
 }
 
+.button {
+	padding:10px;
+}
+
 .order a {
 	margin:0 5%;
 }
@@ -53,6 +57,7 @@ a {
 #search_button {
 	position:absolute;
 	left:80%;
+	padding:10px;
 }
 
 .book_title {
@@ -63,13 +68,17 @@ a {
 	font-size:10pt;
 }
 #list_books {
-	padding:10px 20px;
+
 }
 .book {
 	border-bottom:1px solid #5f657b;
 	padding:10px 5px;
 	display:block;
 	overflow:hidden;
+}
+
+.book:active {
+	background-color:#0090d0;
 }
 
 ul {
@@ -102,9 +111,23 @@ ul {
 
 /* SEARCH */ 
 
+.blue {
+	color:#182152;
+}
+
+.order{
+	display:block;
+	overflow:hidden;
+}
+.sort {
+	padding:0 20px;
+	float:left;
+}
 
 #library_button {
 	margin-left:5%;
+	padding:10px;
+	position:absolute;
 }
 
 .toolbar{
@@ -142,6 +165,13 @@ ul {
 }
 
 
+div.monelem_sheaf {
+  top: 70px;
+}
+
+div.monelem_controls_magnifier_button {
+  top: 40px;
+}
 
 #readerBg, #search_container {
 	position:absolute;

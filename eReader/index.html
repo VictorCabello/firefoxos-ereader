@@ -30,13 +30,13 @@
 		<div id='wrapper'>
 			<div id ="home" class='transition show'>
 				<div class='toolbar'>
-					<a id='search_button' class='button' href='#'>Search</a>
+					<div id='search_button' class='button'>Search</div>
 				</div>
 				<!-- <a href='javascript:clear()' id='clear'>Clear</a> Debug button to clean the whole localStorage -->
 				<div class='title'>Library</div>
 				<div class='order'>
-					<span class=''><a id='sort_title' class='sort selected' onclick='javascript:sort("title")' href='#'>Title</a></span>
-					<span class=''><a id='sort_creator' class='sort ' href='#' onclick='javascript:sort("creator")'>Author</a></span>
+					<div id='sort_title' class='sort selected' onclick='javascript:sort("title")'>Title</div>
+					<div id='sort_creator' class='sort' onclick='javascript:sort("creator")'>Author</div>
 				</div>
 				<div id='list_books'>
 			
@@ -44,7 +44,7 @@
 			</div>
 			<div id='search_container' class='transition hidden_right'>
 					<div class='toolbar'>
-						<a id='library_button' class='button' href='#'>Library</a>
+						<div id='library_button' class='button'>Library</div>
 					</div>
 				<div class='title'>Search</div>
 					<input type="text" id="search" name="search" size="30" /><button type="button" name="click" id="click">Search</button>
