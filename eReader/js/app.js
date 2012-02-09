@@ -161,6 +161,15 @@ function initReader(id) {
 		document.reader = Monocle.Reader('reader',bookData, readerOptions, function() {
 			close.innerHTML = "";
 			close.appendChild(closeElement);
+			//HACK
+			if(id == 'book_frankenstein') {
+				var hack = document.createElement("div");
+				hack.appendChild(document.createTextNode("Jincliminqui"));
+				hack.className = "button blue";
+				hack.style.pointerEvents = "all";
+				hack.addEventListener("click", function(){clear();hideReader();});
+				document.getElementById('development').appendChild(hack);
+			}
 			var magnifier = new Monocle.Controls.Magnifier(document.reader);
       document.reader.addControl(magnifier);
 			var scrubber = new Monocle.Controls.Scrubber(document.reader);
