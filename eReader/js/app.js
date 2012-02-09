@@ -48,6 +48,12 @@ var printBooks = function() {
 	for(i=0;i<results.length;i++) {
 		var element = results[i];
 		var book = document.createElement("li");
+		var bookCover = document.createElement("img");
+		console.log(element.cover);
+		bookCover.setAttribute("src", element['cover'] == undefined ? 'images/book.png' : element['cover']);
+		bookCover.setAttribute("width", 64);
+		bookCover.setAttribute("height", 64);
+		book.appendChild(bookCover);
 		var bookLink = document.createElement("a");
 		bookLink.setAttribute("href","javascript:readBook(\""+element["id"]+"\")");
 		bookLink.appendChild(document.createTextNode(element["title"]));
@@ -159,7 +165,7 @@ function findEPub(index) {
 	ePubImages = url + "/pg" + bookId + "-images.epub";
 	
 	//Try to download first the epub with images, then the plain one
-	var downloader = new owd.eBookDownloader();
+	var downloader = new owd.eBookDownloader(bookId);
 	
 	downloader.download(ePubImages, function(metadata) { 
 			alertBox.dismiss();

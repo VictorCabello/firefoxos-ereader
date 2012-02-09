@@ -2,13 +2,12 @@
 
 var owd = window.owd || {};
 
-owd.eBookDownloader = function(){
+owd.eBookDownloader = function(gutenbergId){
 	
 	var that = this;
 	var _successCallback,
 		_errorCallback,
 		_metadata,
-		_content,
 		_epub,
 		_data,
 		_blob;
@@ -24,6 +23,7 @@ owd.eBookDownloader = function(){
 		
 		book = that._metadata;
 		book['id'] = id;
+		book['cover'] = getCoverUrl();
 		
 		books.push(book);
 		
@@ -45,6 +45,10 @@ owd.eBookDownloader = function(){
 		content = null;
 		
 		that._epub = {};
+	}
+	
+	function getCoverUrl() {
+		return 'http://www.gutenberg.org/files/' + gutenbergId + '/' + gutenbergId + '-h/images/cover.jpg';
 	}
 		
 	function fetchBinary(url) {
@@ -106,39 +110,19 @@ owd.eBookDownloader = function(){
 		        //Post processing
 		    } else if (step === 5) {
 		        //End
-				extractContent();
+				extractMetadata();
 		    } else {
 				that._errorCallback("Error processing ePub: " + step);
 			}
 
 		});
 	}
-	
-	function extractContent() {
-		var spine, href, doc;
 		
-		that._content = "";
-
-/*
-		for(var i=0; i<that._epub.opf.spine.length; i++) {
-			spine = that._epub.opf.spine[i];
-			console.log('spine: ' + spine);
-			href = that._epub.opf.manifest[spine]["href"];
-			console.log('href: ' + href);
-			doc = that._epub.files[href];
-			console.log(doc.getElementById('title'));
-			that._content += doc.getElementsByTagName('body')[0].innerHTML;			
-		}
-*/
-		
-		extractMetadata();
-	}
-	
 	function extractMetadata() {
 		that._metadata = {};
 		var extractIfExists = function(field) {
 			if(undefined != that._epub.opf.metadata["dc:" + field]) {
-				that._metadata[field] = that._epub.opf.metadata["dc:" + field]._text
+				that._metadata[field] = that._epub.opf.metadata["dc:" + field]._text;
 			}
 		};
 		
@@ -147,13 +131,11 @@ owd.eBookDownloader = function(){
 			extractIfExists(metas[i]);
 		}
 		
-		//that._epub = {};
-		
 		onSuccess();
 	}
 	
 	function onSuccess() {
-		saveToInternalStorage()
+		saveToInternalStorage();
 		that._successCallback(that._metadata);
 	}
 	
