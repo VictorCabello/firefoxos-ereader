@@ -147,7 +147,7 @@ function initReader(id) {
 		    return [];
 		  },
 		  getComponent: function (componentId) {
-		    return parsed_content["contents"][componentId];
+			return localStorage['content_' + id + '_spine_' + componentId];
 		  },
 		  getMetaData: function(key) {
 		    return parsed_content["metadata"][key];

@@ -39,7 +39,7 @@ owd.eBookDownloader = function(gutenbergId){
 			content.components.push(spine);
 			href = that._epub.opf.manifest[spine]["href"];
 			doc = that._epub.files[href];
-			content.contents[spine] = doc.getElementsByTagName('body')[0].innerHTML;			
+			localStorage['content_' + id + '_spine_' + spine] = doc.getElementsByTagName('body')[0].innerHTML;
 		}
 		
 		localStorage[id] = JSON.stringify(content);
