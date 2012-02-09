@@ -47,11 +47,7 @@ owd.eBookDownloader = function(gutenbergId){
 		
 		that._epub = {};
 	}
-	
-	function getCoverUrl() {
-		return 'http://www.gutenberg.org/files/' + gutenbergId + '/' + gutenbergId + '-h/images/cover.jpg';
-	}
-		
+			
 	function fetchBinary(url) {
 		var BlobBuilder = window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder; //We just need MozBlobBuilder
 
@@ -145,7 +141,7 @@ owd.eBookDownloader = function(gutenbergId){
 	}
 	
 	function checkCover() {
-		checkUrl(getCoverUrl(), function(url, exists){
+		checkUrl(getCoverUrl(gutenbergId), function(url, exists){
 			if(exists) {
 				_cover = url;
 			}

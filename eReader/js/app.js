@@ -61,11 +61,7 @@ function getBookHTML(element) {
 	
 	infoContainer.appendChild(dl);
 
-	var bookCover = document.createElement("img");
-	console.log(element.cover);
-	bookCover.setAttribute("src", element['cover'] == undefined ? 'images/book.png' : element['cover']);
-	bookCover.setAttribute("width", 64);
-	bookCover.setAttribute("height", 64);
+	var bookCover = getCoverElement(element['cover'] == undefined ? 'images/book.png' : element['cover']);
 	var imgContainer = document.createElement("div");
 	imgContainer.className = "imgContainer";
 	imgContainer.appendChild(bookCover);
@@ -213,12 +209,16 @@ function clearSearchResults() {
 	document.getElementById("search").value="";
 }
 
+function getGutenbergId(url) {
+	return url.substring(url.lastIndexOf('/') + 1);
+}
+
 function findEPub(index) {
 	var url = books[index].url;
 	
 	var ePub,ePubImages, bookId;
 
-	bookId = url.substring(url.lastIndexOf('/') + 1);
+	bookId = getGutenbergId(url);
 	url = url.replace('/ebooks/', '/cache/epub/');
 	
 	ePub = url + "/pg" + bookId + ".epub";
@@ -267,6 +267,10 @@ function checkUrl(url, callback) {
  	xmlhttp.send(null);
 }
 
+function getCoverUrl(gutenbergId) {
+	return 'http://www.gutenberg.org/files/' + gutenbergId + '/' + gutenbergId + '-h/images/cover.jpg';
+}
+
 function parseGoogleSearch(data) {
 	document.getElementById('click').disabled = false;
 	if(data.query.results.books == null) {
@@ -284,13 +288,21 @@ function parseGoogleSearch(data) {
 	
 	var ul = document.createElement('ul');
 	ul.id = "books";
+	var counter = 0;
 	for(var i in books) {
 		if(books[i].title.indexOf('-') != -1) {
 			title_creator = books[i].title.substring(0, books[i].title.lastIndexOf('-') - 1).split("by");
 			books[i].title = title_creator[0];
 			books[i].creator = title_creator[1];
+			
 		}
-		ul.innerHTML += "<li class='book'><div class='imgContainer'></div><div class='infoContainer'><dl><dt>"+books[i].title+"</dt><dt>"+books[i].creator+"</dt></dl></div><div class='download' onClick='javascript:findEPub(\"" + i + "\")'></div></li>";
+		books[i].image = 'image_' + i;
+		ul.innerHTML += "<li class='book'><div id='"+ books[i].image +"' class='imgContainer'></div><div class='infoContainer'><dl><dt>"+books[i].title+"</dt><dt>"+books[i].creator+"</dt></dl></div><div class='download' onClick='javascript:findEPub(\"" + i + "\")'></div></li>";
+		checkUrl(getCoverUrl(getGutenbergId(books[i].url)), function(url, success) {
+			var index = 'image_' + counter++;
+			var bookCover = getCoverElement(!success ? 'images/book.png' : url);
+			document.getElementById(index).appendChild(bookCover);
+		});
 		var books_container = document.getElementById("books_container");
 		books_container.innerHTML="";
 		books_container.appendChild(ul);
@@ -298,6 +310,15 @@ function parseGoogleSearch(data) {
 	} 
 	
 	
+}
+
+function getCoverElement(url) {
+	var bookCover = document.createElement("img");
+	bookCover.setAttribute("src", url);
+	bookCover.setAttribute("width", 65);
+	bookCover.setAttribute("height", 80);
+	
+	return bookCover;
 }
 
 var alertWindow = (function(){
