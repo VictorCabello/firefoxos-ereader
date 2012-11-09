@@ -11,13 +11,19 @@
 </head>
 
 <body>
-  <!-- The reader element, with all content to paginate inside it -->
+
   <div id="import">
     <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
     <div id="import_loading" class="loading" style="display:none">
       <p>Loading <progress value="0" max="100"></progress></p>
     </div>
   </div>
+
+  <div id="library">
+    <ul></ul>
+  </div>
+
+  <!-- The reader element, with all content to paginate inside it -->
   <div id="reader">
   </div>
 </body>

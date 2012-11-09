@@ -1,9 +1,11 @@
 require([
     'vendor/monocle/monocore',
     'vendor/domReady',
+    'vendor/hogan',
     'importers/epub_importer',
+    'library',
     'book',
-    ], function(monocore, domready, epubImporter, book) {
+    ], function(monocore, domready, hogan, epubImporter, library, book) {
         domready(function() {
             init();
         });
@@ -42,6 +44,9 @@ function importBook(file, importer) {
 }
 
 function init() {
+    library = new Library(document.getElementById('library'));
+    library.render();
+
     document.getElementById('import_book').addEventListener('change',
         handleFileSelect, false);
 
