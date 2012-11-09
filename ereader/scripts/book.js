@@ -5,7 +5,6 @@ function() {
 
 function Book(bookData) {
     this.bookData = bookData;
-    console.log(this.bookData);
 }
 
 Book.prototype.getId = function() {
@@ -34,7 +33,6 @@ Book.prototype.save = function() {
 
     // save content
     var content = this._serializeContent();
-    console.log(content);
     for (var key in content) {
         localStorage.setItem(this.getId() + '__spine__' + key, content[key]);
     }

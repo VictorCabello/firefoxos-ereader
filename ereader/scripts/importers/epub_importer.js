@@ -97,9 +97,9 @@ EPubImporter.prototype._readMetadata = function(epub) {
     var metadata = {};
 
     for (var i = 0; i < keys.length; i++) {
-        var value = epub.opf.metadata["dc:" + key];
+        var value = epub.opf.metadata["dc:" + keys[i]];
         if (value != undefined) { // some keys might not be present
-			metadata[key] = value._text;
+			metadata[keys[i]] = value._text;
 		}
 	}
 
