@@ -2,7 +2,8 @@ require([
     'vendor/monocle/monocore',
     'vendor/domReady',
     'importers/epub_importer',
-    ], function(monocore, domready, epubImporter) {
+    'book',
+    ], function(monocore, domready, epubImporter, book) {
         domready(function() {
             init();
         });
@@ -45,7 +46,8 @@ function init() {
         handleFileSelect, false);
 
     document.addEventListener('bookloaded', function(event) {
-        var bookData = event.detail;
-        Monocle.Reader('reader', bookData);
+        var book = new Book(event.detail);
+        book.save();
+        Monocle.Reader('reader', book.bookData);
     }, false);
 }
