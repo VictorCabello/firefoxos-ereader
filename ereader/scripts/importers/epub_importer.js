@@ -2,36 +2,11 @@ require([
     'vendor/js-epub/vendor/js-unzip/js-unzip',
     'vendor/js-epub/vendor/js-inflate/js-inflate',
     'vendor/js-epub/js-epub',
+    'book_data',
 ],
-function(unzip, inflate, epubReader) {
+function(unzip, inflate, epubReader, bookData) {
 
 });
-
-// ------------------------------------------
-// ePub bookData object (to use with monocle)
-// ------------------------------------------
-
-function EPubBookData() {
-    this.metadata = {};
-    this.components = {};
-}
-
-EPubBookData.prototype.getComponents = function() {
-    return Object.keys(this.components);
-};
-
-EPubBookData.prototype.getComponent = function(componentId) {
-    return this.components[componentId];
-};
-
-EPubBookData.prototype.getContents = function() {
-    return [];
-};
-
-EPubBookData.prototype.getMetaData = function(key) {
-    return this.metadata[key];
-};
-
 
 // -------------
 // ePub Importer
@@ -83,7 +58,7 @@ EPubImporter.prototype._processCallback = function(step, extras, epub) {
 EPubImporter.prototype._onParsingDone = function(epub) {
     this._loadingContainer.style.display = 'none';
 
-    var bookData = new EPubBookData();
+    var bookData = new BookData();
     bookData.metadata = this._readMetadata(epub);
     bookData.components = this._readContent(epub);
 

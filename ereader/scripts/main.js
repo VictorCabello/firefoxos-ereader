@@ -51,8 +51,15 @@ function init() {
         handleFileSelect, false);
 
     document.addEventListener('bookloaded', function(event) {
-        var book = new Book(event.detail);
+        var book = new Book({bookData: event.detail});
         book.save();
+        library.addBook(book);
+
+        Monocle.Reader('reader', book.bookData);
+    }, false);
+
+    library.container.addEventListener('bookselected', function() {
+        var book = new Book({bookId: event.detail});
         Monocle.Reader('reader', book.bookData);
     }, false);
 }
