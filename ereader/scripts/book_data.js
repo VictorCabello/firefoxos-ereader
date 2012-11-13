@@ -1,7 +1,6 @@
-require([
+define([
 ],
 function() {
-});
 
 function BookData(metadata, components) {
     this.metadata = metadata || {};
@@ -23,3 +22,8 @@ BookData.prototype.getContents = function() {
 BookData.prototype.getMetaData = function(key) {
     return this.metadata[key];
 };
+
+return BookData;
+
+});
+

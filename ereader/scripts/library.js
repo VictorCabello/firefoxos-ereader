@@ -1,8 +1,7 @@
-require([
-
-],
-function() {
-});
+define([
+    'vendor/hogan',
+    'book'
+], function(hogan, Book) {
 
 function Library(container) {
     this.container = container;
@@ -23,7 +22,7 @@ function Library(container) {
 
     var jsonBooks = localStorage.getItem('books');
     this.books = (jsonBooks != undefined) ? JSON.parse(jsonBooks) : [];
-}
+};
 
 
 Library.prototype.render = function() {
@@ -36,15 +35,22 @@ Library.prototype.render = function() {
     var books = this.container.getElementsByClassName('book');
     for (var i = 0; i < books.length; i++) {
         books[i].addEventListener('click', function(event) {
+            var book = new Book({bookId: this.getAttribute('data-bookid')});
+
             document.dispatchEvent(new CustomEvent('bookselected', {
-                detail: this.getAttribute('data-bookid')
+                detail: book
             }));
         }, false);
     }
-}
+};
 
 Library.prototype.addBook = function(book) {
     var bookInfo = book._serializeBookInfo();
     this.books.push(bookInfo);
     this.render();
-}
+};
+
+return Library;
+
+});
+

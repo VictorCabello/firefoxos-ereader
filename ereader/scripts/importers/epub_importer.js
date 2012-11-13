@@ -1,16 +1,11 @@
-require([
+define([
     'vendor/js-epub/vendor/js-unzip/js-unzip',
     'vendor/js-epub/vendor/js-inflate/js-inflate',
     'vendor/js-epub/js-epub',
     'book_data',
+    'book',
 ],
-function(unzip, inflate, epubReader, bookData) {
-
-});
-
-// -------------
-// ePub Importer
-// -------------
+function(unzip, inflate, epubReader, BookData, Book) {
 
 function EPubImporter(container) {
     this._container = container;
@@ -62,8 +57,10 @@ EPubImporter.prototype._onParsingDone = function(epub) {
     bookData.metadata = this._readMetadata(epub);
     bookData.components = this._readContent(epub);
 
+    var book = new Book({bookData: bookData});
+
     document.dispatchEvent(new CustomEvent('bookloaded', {
-        detail: bookData
+        detail: book
     }));
 };
 
@@ -99,3 +96,10 @@ EPubImporter.prototype._readContent = function(epub) {
 
     return components;
 };
+
+
+return EPubImporter;
+
+});
+
+

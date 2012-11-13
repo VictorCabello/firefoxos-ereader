@@ -1,7 +1,6 @@
-require([
-],
-function() {
-});
+define([
+    'book_data'
+], function(BookData) {
 
 function Book(data) {
     // new book with provided bookData
@@ -104,3 +103,8 @@ Book.prototype._deserializeContent = function(bookId, spine) {
 
     return components;
 };
+
+return Book;
+
+});
+
