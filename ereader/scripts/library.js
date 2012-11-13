@@ -7,11 +7,16 @@ function() {
 function Library(container) {
     this.container = container;
     this.bookListTemplate = Hogan.compile(
+    '<h2 class="bb-heading">Books</h2>' +
     '<ul>' +
     '{{#books}}' +
-    '  <li>' +
-    '    <a class="book" href="#" data-bookid="{{contentKey}}">{{metadata.title}}</a>' +
-    '  </li>' +
+    '  <li><a href="#" class="book" data-bookid="{{contentKey}}">' +
+    '    <img src="images/no_cover.png">' +
+    '    <dl>' +
+    '        <dt><strong>{{metadata.title}}</strong></dt>' +
+    '        <dd>{{metadata.creator}}</dd>' +
+    '    </dl>' +
+    '  </a></li>' +
     '{{/books}}' +
     '</ul>'
     );
@@ -31,10 +36,10 @@ Library.prototype.render = function() {
     var books = this.container.getElementsByClassName('book');
     for (var i = 0; i < books.length; i++) {
         books[i].addEventListener('click', function(event) {
-            self.container.dispatchEvent(new CustomEvent('bookselected', {
-                detail: this.getAttribute('data-bookId')
+            document.dispatchEvent(new CustomEvent('bookselected', {
+                detail: this.getAttribute('data-bookid')
             }));
-        });
+        }, false);
     }
 }
 

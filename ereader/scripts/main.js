@@ -5,7 +5,9 @@ require([
     'importers/epub_importer',
     'library',
     'book',
-    ], function(monocore, domready, hogan, epubImporter, library, book) {
+    'app',
+    ], function(monocore, domready, hogan, epubImporter, library, book,
+    app) {
         domready(function() {
             init();
         });
@@ -44,7 +46,9 @@ function importBook(file, importer) {
 }
 
 function init() {
-    library = new Library(document.getElementById('library'));
+    app = new App();
+
+    library = new Library(document.getElementById('book-list'));
     library.render();
 
     document.getElementById('import_book').addEventListener('change',
@@ -58,8 +62,11 @@ function init() {
         Monocle.Reader('reader', book.bookData);
     }, false);
 
-    library.container.addEventListener('bookselected', function() {
+    document.addEventListener('bookselected', function(event) {
         var book = new Book({bookId: event.detail});
         Monocle.Reader('reader', book.bookData);
+        app.switchTo('page-reader');
     }, false);
+
+    app.switchTo('page-library');
 }

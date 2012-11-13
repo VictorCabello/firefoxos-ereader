@@ -2,30 +2,71 @@
 
 <html>
 <head>
-  <!-- Include the Monocle library and styles -->
-  <script data-main="scripts/main" src="scripts/require.js"></script>
-  <link rel="stylesheet" type="text/css" href="scripts/vendor/monocle/styles/monocore.css" />
-  <style>
-    #reader { width: 300px; height: 400px; border: 1px solid #000; }
-  </style>
+    <meta charset="utf-8">
+
+    <!-- Include the Monocle library and styles -->
+    <script data-main="scripts/main" src="scripts/require.js"></script>
+    <link rel="stylesheet" type="text/css" href="scripts/vendor/monocle/styles/monocore.css" />
+    <!-- gaia bb's -->
+    <link rel="stylesheet" type="text/css" href="style/bb/headers.css" />
+    <link rel="stylesheet" type="text/css" href="style/bb/fonts.css" />
+    <link rel="stylesheet" type="text/css" href="style/bb/lists.css" />
+
+    <style>
+        #reader { width: 300px; height: 400px; border: 1px solid #000; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-size: 10px;
+            background-color: #fff;
+        }
+        body {
+            background: none;
+        }
+        section[role="region"] {
+            position: relative;
+        }
+        h2.bb-heading {
+            font-size: 1.8rem;
+            font-family: "Open Sans", Sans-serif;
+            font-weight: lighter;
+            color: #666;
+            margin: -1px 0 0;
+            background-color: #f5f5f5;
+            padding: 0.4rem 0.4rem 0.4rem 3rem;
+            border: solid 1px #e8e8e8;
+        }
+    </style>
 </head>
 
-<body>
+<body role="application">
+    <div id="current-page">
 
-  <div id="import">
-    <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
-    <div id="import_loading" class="loading" style="display:none">
-      <p>Loading <progress value="0" max="100"></progress></p>
     </div>
-  </div>
 
-  <div id="library">
-    <ul></ul>
-  </div>
+    <div id="pages" style="display:none">
+        <section class="page" id="page-library" role="region">
+            <header>
+                <h1>Library</h1>
+            </header>
 
-  <!-- The reader element, with all content to paginate inside it -->
-  <div id="reader">
-  </div>
+            <section id="book-list">
+            </section><!-- book list -->
+
+            <section id="import">
+                <h2 class="bb-heading">Import books</h2>
+                <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
+                <div id="import_loading" class="loading" style="display:none">
+                    <p>Loading <progress value="0" max="100"></progress></p>
+                </div>
+            </section>
+        </section><!-- page library -->
+
+        <!-- The reader element, with all content to paginate inside it -->
+        <section class="page" id="page-reader">
+            <div id="reader"></div>
+        </section><!-- reader -->
+    </div><!-- pages -->
 </body>
 
 </html>
