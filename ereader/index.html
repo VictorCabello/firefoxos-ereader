@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css" />
 
     <style>
-        #reader { width: 300px; height: 400px; border: 1px solid #000; }
+        #reader { width: 300px; height: 400px;}
         html, body {
             margin: 0;
             padding: 0;
@@ -63,7 +63,11 @@
         </section><!-- page library -->
 
         <!-- The reader element, with all content to paginate inside it -->
-        <section class="page" id="page-reader">
+        <section class="page" id="page-reader" role="region">
+            <header>
+                <a href="#"><span class="icon icon-back">Back</span></a>
+                <h1>Book</h1>
+            </header>
             <div id="reader"></div>
         </section><!-- reader -->
     </div><!-- pages -->
