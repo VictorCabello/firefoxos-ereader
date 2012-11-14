@@ -70,3 +70,20 @@
 [role="toolbar"] .delete {
   background-image: url(toolbars/images/icons/delete.png);
 }
+
+/* ----------- */
+/* extra icons */
+/* ----------- */
+
+[role="toolbar"] .next {
+    background-image: url(toolbars/images/icons/next.png);
+}
+[role="toolbar"] .previous {
+    background-image: url(toolbars/images/icons/previous.png);
+}
+[role="toolbar"] .bookmark {
+    background-image: url(toolbars/images/icons/bookmark_off.png);
+}
+[role="toolbar"] .bookmark.on {
+    background-image: url(toolbars/images/icons/bookmark_on.png);
+}
