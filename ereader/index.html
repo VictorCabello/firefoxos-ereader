@@ -11,9 +11,16 @@
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/fonts.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css" />
+    <link rel="stylesheet" type="text/css" href="style/bb/toolbars.css" />
 
     <style>
-        #reader { width: 300px; height: 400px;}
+        #reader {
+            width: 320px;
+            height: 480px;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
         html, body {
             margin: 0;
             padding: 0;
@@ -36,6 +43,15 @@
             padding: 0.4rem 0.4rem 0.4rem 3rem;
             border: solid 1px #e8e8e8;
         }
+        section.overlay {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 320px;
+            height: 480px;
+            z-index: 10000;
+        }
+
     </style>
 </head>
 
@@ -63,12 +79,25 @@
 
         <!-- The reader element, with all content to paginate inside it -->
         <section class="page" id="page-reader" role="region">
-            <header>
-                <a href="#" id="back-to-library">
-                    <span class="icon icon-back">Back</span>
-                </a>
-                <h1>Book</h1>
-            </header>
+            <section class="overlay" role="region" style="display:none">
+                <header>
+                    <a href="#" id="back-to-library">
+                        <span class="icon icon-back">Back</span>
+                    </a>
+                    <h1>Book</h1>
+                </header>
+                <nav role="toolbar">
+                    <ul>
+                      <li><button class="delete">Delete</button></li>
+                    </ul>
+                    <ul class="end">
+                      <li><button class="mark">Mark</button></li>
+                      <li><button class="send">Send</button></li>
+                      <li><button class="move">Move</button></li>
+                      <li><button class="share">Share</button></li>
+                    </ul>
+                </nav>
+            </section><!-- overlay -->
             <div id="reader"></div>
         </section><!-- reader -->
     </div><!-- pages -->

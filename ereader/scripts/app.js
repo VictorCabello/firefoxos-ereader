@@ -51,7 +51,16 @@ App.prototype._bindEvents = function() {
     document.getElementById('back-to-library').addEventListener('click',
     function(event) {
         self.switchTo('page-library');
-    }, false);
+    }, true);
+
+    var overlay = document.getElementById('page-reader').
+        getElementsByClassName('overlay')[0];
+    this.viewer.container.addEventListener('click', function(event) {
+        overlay.style.display = 'block';
+    }, true);
+    overlay.addEventListener('click', function(event) {
+        overlay.style.display = 'none';
+    }, true);
 };
 
 App.prototype._handleFileSelect = function(file) {
