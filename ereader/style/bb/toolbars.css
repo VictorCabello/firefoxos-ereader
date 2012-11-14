@@ -25,6 +25,7 @@
 
 [role="toolbar"] li {
   float: left;
+  width: auto !important;
 }
 
 [role="toolbar"] button {
