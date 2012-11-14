@@ -11,7 +11,7 @@ function App() {
     this.library = new Library(document.getElementById('book-list'));
     this.library.render();
 
-    this.viewer = new BookViewer('reader');
+    this.viewer = new BookViewer('page-reader');
 
     this._bindEvents();
 }
@@ -30,6 +30,8 @@ App.prototype.switchTo = function(pageId) {
 App.prototype._bindEvents = function() {
     var self = this;
 
+    // library management
+    // ------------------
     document.getElementById('import_book').addEventListener('change',
     function(event) {
         self._handleFileSelect(event.target.files[0]);
@@ -48,18 +50,12 @@ App.prototype._bindEvents = function() {
         self.viewer.showBook(book);
     }, false);
 
+    // book viewer
+    // -----------
     document.getElementById('back-to-library').addEventListener('click',
     function(event) {
+        event.preventDefault();
         self.switchTo('page-library');
-    }, true);
-
-    var overlay = document.getElementById('page-reader').
-        getElementsByClassName('overlay')[0];
-    this.viewer.container.addEventListener('click', function(event) {
-        overlay.style.display = 'block';
-    }, true);
-    overlay.addEventListener('click', function(event) {
-        overlay.style.display = 'none';
     }, true);
 };
 
