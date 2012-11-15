@@ -28,7 +28,6 @@ BookViewer.prototype._bindEvents = function() {
     this.bookContainer.addEventListener('centralclick', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        console.log('waka');
         self.overlay.style.display = 'block';
     }, false);
 
@@ -37,6 +36,13 @@ BookViewer.prototype._bindEvents = function() {
         event.preventDefault();
         self.overlay.style.display = 'none';
     }, false);
+
+    this.bookContainer.addEventListener('cursorchanged', function(event) {
+        var counters = self.overlay.getElementsByClassName('page-number');
+        for (var i = 0; i < counters.length; i++) {
+            counters[i].innerHTML = event.detail + 1;
+        }
+    });
 
     // TODO: implement actual button behavior
     var buttons = this.overlay.getElementsByTagName('button');

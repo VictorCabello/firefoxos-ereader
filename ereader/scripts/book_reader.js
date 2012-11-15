@@ -19,12 +19,19 @@ Component.prototype.loadToFrame = function(frameName, frameNode) {
     frameNode.contentDocument.write(this.src);
     frameNode.contentDocument.close();
 
+    // add CSS sheets
     var link = frameNode.contentDocument.createElement('link');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', 'style/bb/fonts.css')
+    frameNode.contentDocument.head.appendChild(link);
+
+    link = frameNode.contentDocument.createElement('link');
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', 'style/ereader_content.css')
     frameNode.contentDocument.head.appendChild(link);
 
-    if (this.totalHeight == undefined) {
+
+    if (this.totalWidth == undefined) {
         this._refreshPageCount(frameNode);
     }
 };
@@ -35,7 +42,8 @@ Component.prototype.goToPage = function(frame, page) {
 
     this.currentPage = page;
     doc.body.setAttribute('style',
-        '-moz-transform: translateX(' + offset + 'px)');
+        '-moz-transform: translateX(' + offset + 'px);' +
+        '-webkit-transform: translateX(' + offset + 'px)');
 };
 
 Component.prototype._refreshPageCount = function(frame) {
@@ -105,8 +113,15 @@ BookReader.prototype.goToLocation = function(location) {
     this.currentComponent.goToPage(this.frames['central'], 1);
     this.currentComponent.goToPage(this.frames['right'], 2);
 
-    this.cursor = 1;
+    this._updateCursor(0);
 };
+
+BookReader.prototype._updateCursor = function(value) {
+    this.cursor = value;
+    this.container.dispatchEvent(new CustomEvent('cursorchanged',{
+        detail: value
+    }));
+}
 
 BookReader.prototype.nextPage = function() {
     if (this.isChangingPage) return;
@@ -114,7 +129,7 @@ BookReader.prototype.nextPage = function() {
     utils.addClass(this.framesContainer, 'forward');
     this.isChangingPage = true;
 
-    this.cursor += 1;
+    this._updateCursor(this.cursor + 1);
 
     var self = this;
     setTimeout(function() {
@@ -131,7 +146,7 @@ BookReader.prototype.previousPage = function() {
     utils.addClass(this.framesContainer, 'backwards');
     this.isChangingPage = true;
 
-    this.cursor -= 1;
+    this._updateCursor(this.cursor - 1);
 
     var self = this;
     setTimeout(function() {
