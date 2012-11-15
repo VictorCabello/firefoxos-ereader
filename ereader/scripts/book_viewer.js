@@ -1,6 +1,8 @@
 define([
-    'vendor/monocle/monocore'
-], function(Monocore) {
+    'vendor/monocle/monocore',
+    'book_flipper',
+    'book_reader'
+], function(Monocore, BookFlipper, Reader) {
 
 function BookViewer(containerId) {
     this.container = document.getElementById(containerId);
@@ -13,15 +15,20 @@ function BookViewer(containerId) {
 
 BookViewer.prototype.showBook = function(book) {
     this.book = book;
-    Monocle.Reader(this.bookContainer, this.book.bookData);
+    // Monocle.Reader(this.bookContainer, this.book.bookData, {
+    //     // flipper: BookFlipper
+    // });
+    this.reader = new Reader.BookReader(this.bookContainer,
+        this.book.bookData);
 };
 
 BookViewer.prototype._bindEvents = function() {
     var self = this;
 
-    this.container.addEventListener('click', function(event) {
+    this.bookContainer.addEventListener('centralclick', function(event) {
         event.stopPropagation();
         event.preventDefault();
+        console.log('waka');
         self.overlay.style.display = 'block';
     }, false);
 

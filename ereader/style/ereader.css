@@ -1,0 +1,97 @@
+div.reader {
+    width: 320px;
+    height: 480px;
+    overflow: hidden;
+    position: relative;
+}
+
+div.reader-overlay {
+    width: 320px;
+    height: 480px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+}
+
+div.reader-overlay a.panel {
+    display: block;
+    float: left;
+    height: 100%;
+}
+
+div.reader-overlay a.panel.left {
+    width: 15%;
+}
+
+div.reader-overlay a.panel.right {
+    width: 15%;
+}
+
+div.reader-overlay a.panel.central {
+    width: 70%;
+}
+
+div.reader-wrapper {
+    width: 960px;
+    height: 480px;
+    position: relative;
+}
+
+div.reader-page {
+    width: 320px;
+    height: 480px;
+    background: #fffcb5;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+div.reader-page.left {
+    -moz-transform: translateX(-320px);
+    -webkit-transform: translateX(-320px);
+}
+
+div.reader-page.central {
+    -moz-transform: translateX(0px);
+    -webkit-transform: translateX(0px);
+}
+
+div.reader-page.right {
+    -moz-transform: translateX(320px);
+    -webkit-transform: translateX(320px);
+}
+
+div.reader-wrapper.forward {
+    animation-duration: 0.5s;
+    animation-name: slide-forward;
+    animation-timing-function: ease-out;
+}
+
+div.reader-wrapper.backwards {
+    animation-duration: 0.5s;
+    animation-name: slide-backwards;
+    animation-timing-function: ease-out;
+}
+
+@keyframes slide-forward {
+    from {
+        -moz-transform: translateX(0px);
+        -webkit-transform: translateX(0px);
+    }
+    to {
+        -moz-transform: translateX(-320px);
+        -webkit-transform: translateX(-320px);
+    }
+}
+
+@keyframes slide-backwards {
+    from {
+        -moz-transform: translateX(0px);
+        -webkit-transform: translateX(0px);
+    }
+    to {
+        -moz-transform: translateX(320px);
+        -webkit-transform: translateX(320px);
+    }
+}
