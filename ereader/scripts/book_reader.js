@@ -6,7 +6,45 @@ define([
 function Component(componentId, bookDataComponent) {
     this.id = componentId;
     this.src = bookDataComponent;
+    this.frames = {};
 }
+
+Component.prototype.loadToFrame = function(frameName, frameNode) {
+    this.frames[frameName] = {
+        node: frameNode,
+        currentPage: 0
+    };
+
+    frameNode.contentDocument.open('text/html', 'replace');
+    frameNode.contentDocument.write(this.src);
+    frameNode.contentDocument.close();
+
+    var link = frameNode.contentDocument.createElement('link');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', 'style/ereader_content.css')
+    frameNode.contentDocument.head.appendChild(link);
+
+    if (this.totalHeight == undefined) {
+        this._refreshPageCount(frameNode);
+    }
+};
+
+Component.prototype.goToPage = function(frame, page) {
+    var offset = -(page * this.pageWidth);
+    var doc = frame.contentWindow.document;
+
+    this.currentPage = page;
+    doc.body.setAttribute('style',
+        '-moz-transform: translateX(' + offset + 'px)');
+};
+
+Component.prototype._refreshPageCount = function(frame) {
+    this.totalWidth = frame.contentWindow.document.body.offsetWidth;
+    this.pageWidth = frame.offsetWidth;
+    this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
+};
+
+
 
 // -----------------------
 // Reader (the main thing)
@@ -42,23 +80,32 @@ function BookReader(container, bookData) {
 
     this.container.innerHTML = template;
     this.frames = this._findFrames();
+    this.components = {};
     this.framesContainer = this.container.getElementsByClassName(
         'reader-wrapper')[0];
     this.overlay = this.container.getElementsByClassName('reader-overlay')[0];
     this.overlay.innerHTML = overlayTemplate;
-    this.components = this._loadComponents();
 
     this.isChangingPage = false;
+    this.cursor = 0;
 
     this._bindEvents();
+    this.currentComponent = this._loadComponent(3);
 
     this.goToLocation(0);
 }
 
 BookReader.prototype.goToLocation = function(location) {
-    this._loadDOM('left', '<h1>Left</h1>');
-    this._loadDOM('right', '<h1>Right</h1>');
-    this._loadDOM('central', this.components[3].src);
+    // TODO: change this
+    this.currentComponent.loadToFrame('left', this.frames['left']);
+    this.currentComponent.loadToFrame('central', this.frames['central']);
+    this.currentComponent.loadToFrame('right', this.frames['right']);
+
+    this.currentComponent.goToPage(this.frames['left'], 0);
+    this.currentComponent.goToPage(this.frames['central'], 1);
+    this.currentComponent.goToPage(this.frames['right'], 2);
+
+    this.cursor = 1;
 };
 
 BookReader.prototype.nextPage = function() {
@@ -67,11 +114,14 @@ BookReader.prototype.nextPage = function() {
     utils.addClass(this.framesContainer, 'forward');
     this.isChangingPage = true;
 
+    this.cursor += 1;
+
     var self = this;
     setTimeout(function() {
         self._rollFramesToLeft();
         utils.removeClass(self.framesContainer, 'forward');
         self.isChangingPage = false;
+        self.currentComponent.goToPage(self.frames['right'], self.cursor + 1);
     }, 500);
 };
 
@@ -81,11 +131,14 @@ BookReader.prototype.previousPage = function() {
     utils.addClass(this.framesContainer, 'backwards');
     this.isChangingPage = true;
 
+    this.cursor -= 1;
+
     var self = this;
     setTimeout(function() {
         self._rollFramesToRight();
         utils.removeClass(self.framesContainer, 'backwards');
         self.isChangingPage = false;
+        self.currentComponent.goToPage(self.frames['left'], self.cursor - 1);
     }, 500);
 }
 
@@ -113,25 +166,11 @@ BookReader.prototype._rollFramesToRight = function() {
     this.frames['left'] = right;
 };
 
-BookReader.prototype._loadDOM = function(frameName, src) {
-    var frame = this.frames[frameName];
-
-    frame.contentDocument.open('text/html', 'replace');
-    frame.contentDocument.write(src);
-    frame.contentDocument.close();
-    // frame.whenDocumentReady();
-};
-
-BookReader.prototype._loadComponents = function() {
-    var components = [];
+BookReader.prototype._loadComponent = function(index) {
     var componentKeys = this.bookData.getComponents();
-    for (var i = 0; i < componentKeys.length; i++) {
-        var c = new Component(
-            componentKeys[i],
-            this.bookData.getComponent(componentKeys[i]));
-        components.push(c);
-    }
-    return components;
+    var key = componentKeys[index]
+
+    return new Component(key,this.bookData.getComponent(key));
 };
 
 BookReader.prototype._findFrames = function() {

@@ -33,7 +33,7 @@ div.reader-overlay a.panel.central {
 }
 
 div.reader-wrapper {
-    width: 960px;
+    width: 320px;
     height: 480px;
     position: relative;
 }
@@ -45,6 +45,9 @@ div.reader-page {
     position: absolute;
     top: 0px;
     left: 0px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding: 10px;
 }
 
 div.reader-page.left {

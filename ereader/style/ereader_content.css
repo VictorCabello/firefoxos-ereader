@@ -1,0 +1,19 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    -webkit-column-width: 300px;
+    -webkit-column-gap: 0px;
+    -webkit-column-fill: auto;
+    -moz-column-width: 300px;
+    -moz-column-gap: 0px;
+    -moz-column-fill: auto;
+    position: absolute;
+}
+
+body * {
+    overflow: visible !important;
+    word-wrap: break-word !important;
+
+}
