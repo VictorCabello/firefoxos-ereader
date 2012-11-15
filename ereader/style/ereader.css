@@ -189,6 +189,11 @@ div.reader-wrapper.backwards {
     -webkit-animation-timing-function: ease-out;
 }
 
+div[role=slider] {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+}
+
 @keyframes slide-forward {
     from {
         -moz-transform: translateX(0px);

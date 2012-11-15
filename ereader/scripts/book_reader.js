@@ -3,10 +3,12 @@ define([
     'utils'
 ], function(hogan, utils) {
 
-function Component(componentId, bookDataComponent) {
+function Component(componentId, bookDataComponent, lengthOffset, ownLength) {
     this.id = componentId;
     this.src = bookDataComponent;
     this.frames = {};
+    this.lengthOffset = lengthOffset;
+    this.ownLength = ownLength;
 }
 
 Component.prototype.loadToFrame = function(frameName, frameNode) {
@@ -30,7 +32,6 @@ Component.prototype.loadToFrame = function(frameName, frameNode) {
     link.setAttribute('href', 'style/ereader_content.css')
     frameNode.contentDocument.head.appendChild(link);
 
-
     if (this.totalWidth == undefined) {
         this._refreshPageCount(frameNode);
     }
@@ -40,7 +41,6 @@ Component.prototype.goToPage = function(frame, page) {
     var offset = -(page * this.pageWidth);
     var doc = frame.contentWindow.document;
 
-    this.currentPage = page;
     doc.body.setAttribute('style',
         '-moz-transform: translateX(' + offset + 'px);' +
         '-webkit-transform: translateX(' + offset + 'px)');
@@ -52,7 +52,11 @@ Component.prototype._refreshPageCount = function(frame) {
     this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
 };
 
-
+Component.prototype.currentPosition = function(cursor) {
+    if (this.pageCount == undefined) return 0;
+    var partialLength = this.ownLength * (cursor / this.pageCount);
+    return (partialLength + this.lengthOffset);
+};
 
 // -----------------------
 // Reader (the main thing)
@@ -88,7 +92,6 @@ function BookReader(container, bookData) {
 
     this.container.innerHTML = template;
     this.frames = this._findFrames();
-    this.components = {};
     this.framesContainer = this.container.getElementsByClassName(
         'reader-wrapper')[0];
     this.overlay = this.container.getElementsByClassName('reader-overlay')[0];
@@ -97,8 +100,12 @@ function BookReader(container, bookData) {
     this.isChangingPage = false;
     this.cursor = 0;
 
+    this._updateComponentLengths();
     this._bindEvents();
+
     this.currentComponent = this._loadComponent(3);
+
+
 
     this.goToLocation(0);
 }
@@ -115,13 +122,6 @@ BookReader.prototype.goToLocation = function(location) {
 
     this._updateCursor(0);
 };
-
-BookReader.prototype._updateCursor = function(value) {
-    this.cursor = value;
-    this.container.dispatchEvent(new CustomEvent('cursorchanged',{
-        detail: value
-    }));
-}
 
 BookReader.prototype.nextPage = function() {
     if (this.isChangingPage) return;
@@ -155,7 +155,39 @@ BookReader.prototype.previousPage = function() {
         self.isChangingPage = false;
         self.currentComponent.goToPage(self.frames['left'], self.cursor - 1);
     }, 500);
-}
+};
+
+// 0..1
+BookReader.prototype.currentPosition = function() {
+    return this.currentComponent.currentPosition(this.cursor) /
+        this.totalLength();
+};
+
+BookReader.prototype.totalLength = function() {
+    var res = 0;
+    for (var i = 0; i < this.lengths.length; i++) {
+        res += this.lengths[i];
+    }
+    return res;
+};
+
+BookReader.prototype._updateCursor = function(value) {
+    this.cursor = value;
+
+    var self = this;
+    this.container.dispatchEvent(new CustomEvent('cursorchanged',{
+        detail: self.currentPosition()
+    }));
+};
+
+BookReader.prototype._updateComponentLengths = function() {
+    this.lengths = [];
+    var keys = this.bookData.getComponents();
+    for (var i = 0; i < keys.length; i++) {
+        this.lengths.push(this.bookData.getComponentLength(keys[i]));
+    }
+};
+
 
 BookReader.prototype._rollFramesToLeft = function() {
     // [l][c][r] -> [c][r][l]
@@ -182,10 +214,21 @@ BookReader.prototype._rollFramesToRight = function() {
 };
 
 BookReader.prototype._loadComponent = function(index) {
+    var self = this;
+    var offset = function(index) {
+        var res = 0;
+        for (var i = 0; i < index; i++) {
+            res += self.lengths[i];
+        }
+        return res;
+    };
+
     var componentKeys = this.bookData.getComponents();
     var key = componentKeys[index]
+    var lengthOffset = offset(index);
 
-    return new Component(key,this.bookData.getComponent(key));
+    return new Component(key, this.bookData.getComponent(key), lengthOffset,
+        this.lengths[index]);
 };
 
 BookReader.prototype._findFrames = function() {

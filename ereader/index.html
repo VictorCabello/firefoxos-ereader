@@ -7,12 +7,14 @@
     <!-- Include the Monocle library and styles -->
     <script data-main="scripts/main" src="scripts/require.js"></script>
     <link rel="stylesheet" type="text/css" href="scripts/vendor/monocle/styles/monocore.css" />
-    <link rel="stylesheet" type="text/css" href="style/ereader.css" />
     <!-- gaia bb's -->
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/fonts.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/toolbars.css" />
+    <link rel="stylesheet" type="text/css" href="style/bb/seekbars.css" />
+
+    <link rel="stylesheet" type="text/css" href="style/ereader.css" />
 
     <style>
 /*        #reader {
@@ -88,7 +90,9 @@
                     <h1>Book</h1>
                 </header>
                 <nav role="toolbar">
-                    <p class="center">Page <span class="page-number">0</span></p>
+                    <div role="slider" class="seeker">
+                      <progress value="0" max="100"></progress>
+                    </div>
                     <ul>
                       <li><button class="previous">Previous</button></li>
                       <li><button class="bookmark">Bookmark</button></li>

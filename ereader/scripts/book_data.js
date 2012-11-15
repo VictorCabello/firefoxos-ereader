@@ -23,6 +23,10 @@ BookData.prototype.getMetaData = function(key) {
     return this.metadata[key];
 };
 
+BookData.prototype.getComponentLength = function(componentId) {
+    return this.components[componentId].length;
+}
+
 return BookData;
 
 });

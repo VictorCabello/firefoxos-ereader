@@ -38,10 +38,9 @@ BookViewer.prototype._bindEvents = function() {
     }, false);
 
     this.bookContainer.addEventListener('cursorchanged', function(event) {
-        var counters = self.overlay.getElementsByClassName('page-number');
-        for (var i = 0; i < counters.length; i++) {
-            counters[i].innerHTML = event.detail + 1;
-        }
+        var percentage = Math.floor(100 * event.detail);
+        var seeker = self.overlay.getElementsByClassName('seeker')[0];
+        seeker.getElementsByTagName('progress')[0].value = percentage;
     });
 
     // TODO: implement actual button behavior
