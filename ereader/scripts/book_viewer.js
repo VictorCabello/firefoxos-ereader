@@ -37,6 +37,20 @@ BookViewer.prototype._bindEvents = function() {
         self.overlay.style.display = 'none';
     }, false);
 
+    this.overlay.getElementsByClassName('previous')[0].
+    addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        self.reader.previousPage();
+    }, false);
+
+    this.overlay.getElementsByClassName('next')[0].
+    addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        self.reader.nextPage();
+    }, false);
+
     this.bookContainer.addEventListener('cursorchanged', function(event) {
         var percentage = Math.floor(100 * event.detail);
         var seeker = self.overlay.getElementsByClassName('seeker')[0];
