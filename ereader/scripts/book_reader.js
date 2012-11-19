@@ -3,20 +3,24 @@ define([
     'utils'
 ], function(hogan, utils) {
 
-function Component(componentId, bookDataComponent, lengthOffset, ownLength) {
+function Component(index, componentId, bookDataComponent, lengthOffset,
+ownLength) {
+    this.index = index;
     this.id = componentId;
     this.src = bookDataComponent;
-    this.frames = {};
     this.lengthOffset = lengthOffset;
     this.ownLength = ownLength;
 }
 
-Component.prototype.loadToFrame = function(frameName, frameNode) {
-    this.frames[frameName] = {
-        node: frameNode,
-        currentPage: 0
-    };
+Component.prototype.show = function(frameName, frame, location) {
+    var self = this;
 
+    this.loadToFrame(frameName, frame.node, function() {
+        self.goToPage(frameName, frame, location);
+    });
+};
+
+Component.prototype.loadToFrame = function(frameName, frameNode, callback) {
     frameNode.contentDocument.open('text/html', 'replace');
     frameNode.contentDocument.write(this.src);
     frameNode.contentDocument.close();
@@ -32,24 +36,38 @@ Component.prototype.loadToFrame = function(frameName, frameNode) {
     link.setAttribute('href', 'style/ereader_content.css')
     frameNode.contentDocument.head.appendChild(link);
 
-    if (this.totalWidth == undefined) {
-        this._refreshPageCount(frameNode);
+
+    if (this.pageCount == undefined) {
+        this._refreshDimensions(frameNode, callback);
+    }
+    else {
+        if (callback) callback();
     }
 };
 
-Component.prototype.goToPage = function(frame, page) {
-    var offset = -(page * this.pageWidth);
-    var doc = frame.contentWindow.document;
+Component.prototype.goToPage = function(name, frame, page) {
+    var doc = frame.node.contentWindow.document;
+    var oldPage = page;
 
+    if (page < 0) {
+        page = this.pageCount + page;
+    }
+
+    var offset = -(page * this.pageWidth);
     doc.body.setAttribute('style',
-        '-moz-transform: translateX(' + offset + 'px);' +
+        '-moz-transform: translateX(' + offset + 'px); ' +
         '-webkit-transform: translateX(' + offset + 'px)');
 };
 
-Component.prototype._refreshPageCount = function(frame) {
-    this.totalWidth = frame.contentWindow.document.body.offsetWidth;
+Component.prototype._refreshDimensions = function(frame, callback) {
     this.pageWidth = frame.offsetWidth;
-    this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
+    var self = this;
+    setTimeout(function() {
+        self.totalWidth = frame.contentWindow.document.body.scrollWidth;
+        self.pageCount = Math.ceil(self.totalWidth / self.pageWidth);
+        if (callback) callback();
+        document.dispatchEvent(new CustomEvent('dimensionschanged'));
+    }, 200);
 };
 
 Component.prototype.currentPosition = function(cursor) {
@@ -100,27 +118,30 @@ function BookReader(container, bookData) {
     this.isChangingPage = false;
     this.cursor = 0;
 
+    this.components = [];
+    this.componentLoadQueue = [];
+
     this._updateComponentLengths();
     this._bindEvents();
 
-    this.currentComponent = this._loadComponent(3);
-
-
-
-    this.goToLocation(0);
+    var self = this;
+    this._loadComponent(3, function(component) {
+        self.currentComponent = component;
+        self.goToLocation(1);
+    });
 }
 
 BookReader.prototype.goToLocation = function(location) {
     // TODO: change this
-    this.currentComponent.loadToFrame('left', this.frames['left']);
-    this.currentComponent.loadToFrame('central', this.frames['central']);
-    this.currentComponent.loadToFrame('right', this.frames['right']);
+    this.currentComponent.loadToFrame('left', this.frames['left'].node);
+    this.currentComponent.loadToFrame('central', this.frames['central'].node);
+    this.currentComponent.loadToFrame('right', this.frames['right'].node);
 
-    this.currentComponent.goToPage(this.frames['left'], 0);
-    this.currentComponent.goToPage(this.frames['central'], 1);
-    this.currentComponent.goToPage(this.frames['right'], 2);
+    this.currentComponent.goToPage('left', this.frames['left'], 0);
+    this.currentComponent.goToPage('central', this.frames['central'], 1);
+    this.currentComponent.goToPage('right', this.frames['right'], 2);
 
-    this._updateCursor(0);
+    this._updateCursor(1);
 };
 
 BookReader.prototype.nextPage = function() {
@@ -136,25 +157,55 @@ BookReader.prototype.nextPage = function() {
         self._rollFramesToLeft();
         utils.removeClass(self.framesContainer, 'forward');
         self.isChangingPage = false;
-        self.currentComponent.goToPage(self.frames['right'], self.cursor + 1);
+        self.currentComponent.goToPage('right', self.frames['right'], self.cursor + 1);
     }, 500);
 };
 
 BookReader.prototype.previousPage = function() {
     if (this.isChangingPage) return;
-
-    utils.addClass(this.framesContainer, 'backwards');
     this.isChangingPage = true;
 
-    this._updateCursor(this.cursor - 1);
-
     var self = this;
-    setTimeout(function() {
-        self._rollFramesToRight();
-        utils.removeClass(self.framesContainer, 'backwards');
-        self.isChangingPage = false;
-        self.currentComponent.goToPage(self.frames['left'], self.cursor - 1);
-    }, 500);
+
+    var flipPage = function() {
+        utils.addClass(self.framesContainer, 'backwards');
+
+        setTimeout(function() {
+            self._rollFramesToRight();
+            utils.removeClass(self.framesContainer, 'backwards');
+            self.isChangingPage = false;
+        }, 500);
+    }
+
+    function handleCursorChange(event) {
+        if (event.detail.mustLoad) {
+            var index = event.detail.component.index;
+            if (index < self.currentComponent.index) {
+                self.components[index].show('right', self.frames['right'],
+                    -1);
+            }
+            flipPage();
+        }
+        else {
+            if (self.frames['right'].componentIndex != self.currentComponent.index) {
+                self.currentComponent.show('right', self.frames['right'],
+                    self.cursor - 1);
+            }
+            else {
+                self.currentComponent.goToPage('right', self.frames['right'],
+                    self.cursor - 1);
+            }
+
+            flipPage();
+        }
+        self.container.removeEventListener('cursorchanged',
+            handleCursorChange, false);
+    }
+
+    this.container.addEventListener('cursorchanged', handleCursorChange,
+        false);
+
+    this._updateCursor(this.cursor - 1);
 };
 
 // 0..1
@@ -173,11 +224,46 @@ BookReader.prototype.totalLength = function() {
 
 BookReader.prototype._updateCursor = function(value) {
     this.cursor = value;
-
     var self = this;
-    this.container.dispatchEvent(new CustomEvent('cursorchanged',{
-        detail: self.currentPosition()
-    }));
+
+    var index = undefined;
+    if (this.cursor == 0) {
+        // need to load previous component
+        index = this.currentComponent.index - 1;
+    }
+    else if (this.cursor == -1) {
+        // need to change component
+        this.currentComponent = this.components[this.currentComponent.index - 1];
+
+        this.cursor = this.currentComponent.pageCount -1;
+    }
+    // TODO: end of chapter
+
+    var triggerEvent = function(detail) {
+        self.container.dispatchEvent(new CustomEvent('cursorchanged', {
+            detail: detail
+        }));
+    };
+
+    if (index != undefined) {
+        this._loadComponent(index, function(component) {
+            // if (self.cursor == 0) {
+            //     self.cursor = component.pageCount - 1;
+            // }
+            // self.currentComponent = component;
+            triggerEvent({
+                position: self.currentPosition(),
+                mustLoad: true,
+                component: component
+            });
+        });
+    }
+    else {
+        triggerEvent({
+            position: self.currentPosition(),
+            mustLoad: false
+        });
+    }
 };
 
 BookReader.prototype._updateComponentLengths = function() {
@@ -191,9 +277,9 @@ BookReader.prototype._updateComponentLengths = function() {
 
 BookReader.prototype._rollFramesToLeft = function() {
     // [l][c][r] -> [c][r][l]
-    this.frames['left'].parentNode.className = 'reader-page right';
-    this.frames['central'].parentNode.className = 'reader-page left';
-    this.frames['right'].parentNode.className = 'reader-page central';
+    this.frames['left'].node.parentNode.className = 'reader-page right';
+    this.frames['central'].node.parentNode.className = 'reader-page left';
+    this.frames['right'].node.parentNode.className = 'reader-page central';
 
     var left = this.frames['left'];
     this.frames['left'] = this.frames['central'];
@@ -203,9 +289,9 @@ BookReader.prototype._rollFramesToLeft = function() {
 
 BookReader.prototype._rollFramesToRight = function() {
     // [l][c][r] -> [r][l][c]
-    this.frames['left'].parentNode.className = 'reader-page central';
-    this.frames['central'].parentNode.className = 'reader-page right';
-    this.frames['right'].parentNode.className = 'reader-page left';
+    this.frames['left'].node.parentNode.className = 'reader-page central';
+    this.frames['central'].node.parentNode.className = 'reader-page right';
+    this.frames['right'].node.parentNode.className = 'reader-page left';
 
     var right = this.frames['right'];
     this.frames['right'] = this.frames['central'];
@@ -213,7 +299,9 @@ BookReader.prototype._rollFramesToRight = function() {
     this.frames['left'] = right;
 };
 
-BookReader.prototype._loadComponent = function(index) {
+BookReader.prototype._loadComponent = function(index, callback) {
+    if (this.componentLoadQueue[index]) return;
+
     var self = this;
     var offset = function(index) {
         var res = 0;
@@ -227,8 +315,12 @@ BookReader.prototype._loadComponent = function(index) {
     var key = componentKeys[index]
     var lengthOffset = offset(index);
 
-    return new Component(key, this.bookData.getComponent(key), lengthOffset,
-        this.lengths[index]);
+    this.componentLoadQueue[index] = true;
+    this.bookData.getComponent(key, function(componentData) {
+        var component = new Component(index, key, componentData, lengthOffset,
+            self.lengths[index]);
+        self._onComponentLoaded(component, callback);
+    });
 };
 
 BookReader.prototype._findFrames = function() {
@@ -238,7 +330,10 @@ BookReader.prototype._findFrames = function() {
     for (var i = 0; i < divs.length; i++) {
         for (var j = 0; j < names.length; j++) {
             if (divs[i].classList.contains(names[j])) {
-                frames[names[j]] = divs[i].getElementsByTagName('iframe')[0];
+                frames[names[j]] = {
+                    node: divs[i].getElementsByTagName('iframe')[0],
+                    componentIndex: undefined
+                };
                 break;
             }
         }
@@ -267,6 +362,17 @@ BookReader.prototype._bindEvents = function() {
    addEventListener('click', function(event) {
        self.previousPage();
    });
+};
+
+BookReader.prototype._onComponentLoaded = function(component, callback) {
+    this.components[component.index] = component;
+    this.componentLoadQueue[component.index] = false;
+
+    if (callback) callback(component);
+
+    this.container.dispatchEvent(new CustomEvent('componentloaded', {
+        detail: component
+    }));
 };
 
 return {
