@@ -214,55 +214,76 @@ BookReader.prototype._changePage = function(offset) {
     this._updateCursor(target);
 };
 
+// TODO: look for a proper name for this!
+BookReader.prototype._browseThroughComponents = function() {
+    var index = undefined;
+
+    // at the beginning of component -> load previous component
+    if (this.cursor == 0 && this.currentComponent.index > 0) {
+        index = this.currentComponent.index - 1;
+    }
+    // chaging to a new component (BACKWARDS)
+    else if (this.cursor == -1 && this.currentComponent.index > 0) {
+        this.currentComponent = this.components[
+            this.currentComponent.index - 1];
+        this.cursor = this.currentComponent.pageCount -1;
+
+        // need to load previous component?
+        if (this.cursor == 0) {
+            index = this.currentComponent.index - 1;
+        }
+    }
+    // at the end of component -> load next component
+    else if (this.cursor >= this.currentComponent.pageCount - 1 &&
+             this.currentComponent.index < this.components.length - 1) {
+        index = this.currentComponent.index + 1;
+    }
+    // changing to a new component (FORWARD)
+    else if (this.cursor >= this.currentComponent.pageCount &&
+             this.currentComponent.index < this.components.length - 1) {
+        this.currentComponent = this.components[
+            this.currentComponent.index + 1];
+
+        // need to load next component?
+        if (this.cursor == this.currentComponent.pageCount - 1) {
+            index = this.currentComponent.index + 1;
+        }
+    }
+
+    return index;
+}
+
 BookReader.prototype._updateCursor = function(value) {
     // TODO: refactorize this!
     this.cursor = value;
     var self = this;
 
-    var index = undefined;
-    if (this.cursor == 0 && this.currentComponent.index > 0) {
-        // need to load previous component
-        index = this.currentComponent.index - 1;
-    }
-    else if (this.cursor == -1 && this.currentComponent.index > 0) {
-        // need to change component
-        this.currentComponent = this.components[
-            this.currentComponent.index - 1];
-        this.cursor = this.currentComponent.pageCount -1;
-        // need to load previous component too, if this component only
-        // has 1 page
-        if (this.cursor == 0) index = this.currentComponent.index - 1;
-    }
-    // TODO: end of chapter
-
-    var triggerEvent = function(detail) {
-        self.container.dispatchEvent(new CustomEvent('cursorchanged', {
-            detail: detail
-        }));
-    };
+    var indexToLoad = this._browseThroughComponents();
 
     var handleCursorChange = function(mustLoad, component) {
         // TODO: left component
         var rightComponent = component;
         if (mustLoad) {
-            var index = component.index;
-            if (index < self.currentComponent.index) {
-               rightComponent = self.components[index];
+            var indexToLoad = component.index;
+            if (indexToLoad < self.currentComponent.index) {
+               rightComponent = self.components[indexToLoad];
             }
         }
 
         rightComponent.goToPage('right', self.frames['right'],
             self.cursor - 1);
 
-        triggerEvent({
-            position: self.currentPosition(),
-            mustLoad: mustLoad,
-            component: component
-        });
+        self.container.dispatchEvent(new CustomEvent('cursorchanged', {
+            detail: {
+                position: self.currentPosition(),
+                mustLoad: mustLoad,
+                component: component
+            }
+        }));
     }
 
-    if (index != undefined) {
-        this._loadComponent(index, function(component) {
+    if (indexToLoad != undefined) {
+        this._loadComponent(indexToLoad, function(component) {
             handleCursorChange(true, component);
         });
     }
