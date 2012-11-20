@@ -12,30 +12,27 @@ ownLength) {
     this.ownLength = ownLength;
 }
 
-Component.prototype.show = function(frameName, frame, location) {
-    var self = this;
+Component.prototype.loadToFrame = function(frameName, frame, callback) {
+    // TODO: embed styles into a <style> and see if with this we don't have
+    // the delay in applying those styles to the DOM
+    var appendStylesheets = function(doc, sheets) {
+        for (var i = 0; i < sheets.length; i++) {
+            var link = doc.createElement('link');
+            link.setAttribute('href', 'style/' + sheets[i]);
+            link.setAttribute('type', 'text/css');
+            link.setAttribute('rel', 'stylesheet');
 
-    this.loadToFrame(frameName, frame.node, function() {
-        self.goToPage(frameName, frame, location);
-    });
-};
-
-Component.prototype.loadToFrame = function(frameName, frameNode, callback) {
+            doc.head.appendChild(link);
+        }
+    }
+    var frameNode = frame.node;
+    frame.componentIndex = this.index;
     frameNode.contentDocument.open('text/html', 'replace');
     frameNode.contentDocument.write(this.src);
     frameNode.contentDocument.close();
 
-    // add CSS sheets
-    var link = frameNode.contentDocument.createElement('link');
-    link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('href', 'style/bb/fonts.css')
-    frameNode.contentDocument.head.appendChild(link);
-
-    link = frameNode.contentDocument.createElement('link');
-    link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('href', 'style/ereader_content.css')
-    frameNode.contentDocument.head.appendChild(link);
-
+    appendStylesheets(frameNode.contentDocument,
+        ['ereader_content.css', 'bb/fonts.css']);
 
     if (this.pageCount == undefined) {
         this._refreshDimensions(frameNode, callback);
@@ -45,18 +42,31 @@ Component.prototype.loadToFrame = function(frameName, frameNode, callback) {
     }
 };
 
-Component.prototype.goToPage = function(name, frame, page) {
+Component.prototype.goToPage = function(frameName, frame, page) {
     var doc = frame.node.contentWindow.document;
-    var oldPage = page;
+    var self = this;
+    var goTo = function() {
+        if (page < 0) {
+            page = self.pageCount + page;
+        }
 
-    if (page < 0) {
-        page = this.pageCount + page;
+        console.log('[' + frameName + '] -> ' + self.index + '#' + page);
+
+        var offset = -(page * self.pageWidth);
+        doc.body.setAttribute('style',
+            '-moz-transform: translateX(' + offset + 'px); ' +
+            '-webkit-transform: translateX(' + offset + 'px)');
     }
 
-    var offset = -(page * this.pageWidth);
-    doc.body.setAttribute('style',
-        '-moz-transform: translateX(' + offset + 'px); ' +
-        '-webkit-transform: translateX(' + offset + 'px)');
+    if (frame.componentIndex != this.index) {
+        this.loadToFrame(frameName, frame, function() {
+            goTo();
+        });
+    }
+    else {
+       goTo();
+    }
+
 };
 
 Component.prototype._refreshDimensions = function(frame, callback) {
@@ -133,9 +143,9 @@ function BookReader(container, bookData) {
 
 BookReader.prototype.goToLocation = function(location) {
     // TODO: change this
-    this.currentComponent.loadToFrame('left', this.frames['left'].node);
-    this.currentComponent.loadToFrame('central', this.frames['central'].node);
-    this.currentComponent.loadToFrame('right', this.frames['right'].node);
+    this.currentComponent.loadToFrame('left', this.frames['left']);
+    this.currentComponent.loadToFrame('central', this.frames['central']);
+    this.currentComponent.loadToFrame('right', this.frames['right']);
 
     this.currentComponent.goToPage('left', this.frames['left'], 0);
     this.currentComponent.goToPage('central', this.frames['central'], 1);
@@ -181,14 +191,14 @@ BookReader.prototype.previousPage = function() {
         if (event.detail.mustLoad) {
             var index = event.detail.component.index;
             if (index < self.currentComponent.index) {
-                self.components[index].show('right', self.frames['right'],
+                self.components[index].goToPage('right', self.frames['right'],
                     -1);
             }
             flipPage();
         }
         else {
             if (self.frames['right'].componentIndex != self.currentComponent.index) {
-                self.currentComponent.show('right', self.frames['right'],
+                self.currentComponent.goToPage('right', self.frames['right'],
                     self.cursor - 1);
             }
             else {
