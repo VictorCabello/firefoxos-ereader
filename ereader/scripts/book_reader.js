@@ -50,8 +50,6 @@ Component.prototype.goToPage = function(frameName, frame, page) {
             page = self.pageCount + page;
         }
 
-        console.log('[' + frameName + '] -> ' + self.index + '#' + page);
-
         var offset = -(page * self.pageWidth);
         doc.body.setAttribute('style',
             '-moz-transform: translateX(' + offset + 'px); ' +
@@ -77,7 +75,7 @@ Component.prototype._refreshDimensions = function(frame, callback) {
         self.pageCount = Math.ceil(self.totalWidth / self.pageWidth);
         if (callback) callback();
         document.dispatchEvent(new CustomEvent('dimensionschanged'));
-    }, 200);
+    }, 0);
 };
 
 Component.prototype.currentPosition = function(cursor) {
@@ -151,71 +149,15 @@ BookReader.prototype.goToLocation = function(location) {
     this.currentComponent.goToPage('central', this.frames['central'], 1);
     this.currentComponent.goToPage('right', this.frames['right'], 2);
 
-    this._updateCursor(1);
+    this._updateCursor(location);
 };
 
 BookReader.prototype.nextPage = function() {
-    if (this.isChangingPage) return;
-
-    utils.addClass(this.framesContainer, 'forward');
-    this.isChangingPage = true;
-
-    this._updateCursor(this.cursor + 1);
-
-    var self = this;
-    setTimeout(function() {
-        self._rollFramesToLeft();
-        utils.removeClass(self.framesContainer, 'forward');
-        self.isChangingPage = false;
-        self.currentComponent.goToPage('right', self.frames['right'], self.cursor + 1);
-    }, 500);
+    this._changePage(1);
 };
 
 BookReader.prototype.previousPage = function() {
-    if (this.isChangingPage) return;
-    this.isChangingPage = true;
-
-    var self = this;
-
-    var flipPage = function() {
-        utils.addClass(self.framesContainer, 'backwards');
-
-        setTimeout(function() {
-            self._rollFramesToRight();
-            utils.removeClass(self.framesContainer, 'backwards');
-            self.isChangingPage = false;
-        }, 500);
-    }
-
-    function handleCursorChange(event) {
-        if (event.detail.mustLoad) {
-            var index = event.detail.component.index;
-            if (index < self.currentComponent.index) {
-                self.components[index].goToPage('right', self.frames['right'],
-                    -1);
-            }
-            flipPage();
-        }
-        else {
-            if (self.frames['right'].componentIndex != self.currentComponent.index) {
-                self.currentComponent.goToPage('right', self.frames['right'],
-                    self.cursor - 1);
-            }
-            else {
-                self.currentComponent.goToPage('right', self.frames['right'],
-                    self.cursor - 1);
-            }
-
-            flipPage();
-        }
-        self.container.removeEventListener('cursorchanged',
-            handleCursorChange, false);
-    }
-
-    this.container.addEventListener('cursorchanged', handleCursorChange,
-        false);
-
-    this._updateCursor(this.cursor - 1);
+    this._changePage(-1);
 };
 
 // 0..1
@@ -232,7 +174,39 @@ BookReader.prototype.totalLength = function() {
     return res;
 };
 
+BookReader.prototype._changePage = function(offset) {
+    if (this.isChangingPage) return;
+    this.isChangingPage = true;
+
+    var self = this;
+
+    var flipPage = function() {
+        var direction = (offset > 0) ? 'forward' : 'backwards';
+        utils.addClass(self.framesContainer, direction);
+
+        setTimeout(function() {
+            if (offset > 0) {
+                self._rollFramesToLeft();
+            }
+            else {
+                self._rollFramesToRight();
+            }
+            utils.removeClass(self.framesContainer, direction);
+            self.isChangingPage = false;
+        }, 500);
+    };
+
+    this.container.addEventListener('cursorchanged', function(event) {
+        flipPage();
+        self.container.removeEventListener('cursorchanged', arguments.callee,
+            false);
+    }, false);
+
+    this._updateCursor(this.cursor + offset);
+};
+
 BookReader.prototype._updateCursor = function(value) {
+    // TODO: refactorize this!
     this.cursor = value;
     var self = this;
 
@@ -243,8 +217,8 @@ BookReader.prototype._updateCursor = function(value) {
     }
     else if (this.cursor == -1) {
         // need to change component
-        this.currentComponent = this.components[this.currentComponent.index - 1];
-
+        this.currentComponent = this.components[
+            this.currentComponent.index - 1];
         this.cursor = this.currentComponent.pageCount -1;
     }
     // TODO: end of chapter
@@ -255,24 +229,33 @@ BookReader.prototype._updateCursor = function(value) {
         }));
     };
 
+    var handleCursorChange = function(mustLoad, component) {
+        // TODO: left component
+        var rightComponent = component;
+        if (mustLoad) {
+            var index = component.index;
+            if (index < self.currentComponent.index) {
+               rightComponent = self.components[index];
+            }
+        }
+
+        rightComponent.goToPage('right', self.frames['right'],
+            self.cursor - 1);
+
+        triggerEvent({
+            position: self.currentPosition(),
+            mustLoad: mustLoad,
+            component: component
+        });
+    }
+
     if (index != undefined) {
         this._loadComponent(index, function(component) {
-            // if (self.cursor == 0) {
-            //     self.cursor = component.pageCount - 1;
-            // }
-            // self.currentComponent = component;
-            triggerEvent({
-                position: self.currentPosition(),
-                mustLoad: true,
-                component: component
-            });
+            handleCursorChange(true, component);
         });
     }
     else {
-        triggerEvent({
-            position: self.currentPosition(),
-            mustLoad: false
-        });
+        handleCursorChange(false, this.currentComponent);
     }
 };
 
