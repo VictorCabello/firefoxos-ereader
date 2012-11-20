@@ -126,7 +126,7 @@ function BookReader(container, bookData) {
     this.isChangingPage = false;
     this.cursor = 0;
 
-    this.components = [];
+    this.components = new Array(this.bookData.getComponentCount());
     this.componentLoadQueue = [];
 
     this._updateComponentLengths();
@@ -174,8 +174,17 @@ BookReader.prototype.totalLength = function() {
     return res;
 };
 
+BookReader.prototype.isInvalidCursor = function(value) {
+    var index = this.currentComponent.index;
+    var pageCount = this.currentComponent.pageCount;
+
+    return (value < 0 && index <= 0) ||
+           (value >= pageCount && index >= this.components.length - 1);
+}
+
 BookReader.prototype._changePage = function(offset) {
-    if (this.isChangingPage) return;
+    var target = this.cursor + offset;
+    if (this.isChangingPage || this.isInvalidCursor(target)) return;
     this.isChangingPage = true;
 
     var self = this;
@@ -202,7 +211,7 @@ BookReader.prototype._changePage = function(offset) {
             false);
     }, false);
 
-    this._updateCursor(this.cursor + offset);
+    this._updateCursor(target);
 };
 
 BookReader.prototype._updateCursor = function(value) {
@@ -211,15 +220,18 @@ BookReader.prototype._updateCursor = function(value) {
     var self = this;
 
     var index = undefined;
-    if (this.cursor == 0) {
+    if (this.cursor == 0 && this.currentComponent.index > 0) {
         // need to load previous component
         index = this.currentComponent.index - 1;
     }
-    else if (this.cursor == -1) {
+    else if (this.cursor == -1 && this.currentComponent.index > 0) {
         // need to change component
         this.currentComponent = this.components[
             this.currentComponent.index - 1];
         this.cursor = this.currentComponent.pageCount -1;
+        // need to load previous component too, if this component only
+        // has 1 page
+        if (this.cursor == 0) index = this.currentComponent.index - 1;
     }
     // TODO: end of chapter
 

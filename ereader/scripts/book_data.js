@@ -11,6 +11,10 @@ BookData.prototype.getComponents = function() {
     return Object.keys(this.components);
 };
 
+BookData.prototype.getComponentCount = function() {
+    return Object.keys.length;
+}
+
 BookData.prototype.getComponent = function(componentId, callback) {
     var self = this;
 
