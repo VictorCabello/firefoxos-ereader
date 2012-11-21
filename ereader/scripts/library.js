@@ -50,6 +50,12 @@ Library.prototype.addBook = function(book) {
     this.render();
 };
 
+Library.prototype.clear = function() {
+    localStorage.clear();
+    this.books = [];
+    this.render();
+};
+
 return Library;
 
 });

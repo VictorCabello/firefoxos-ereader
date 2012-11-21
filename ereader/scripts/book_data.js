@@ -32,7 +32,8 @@ BookData.prototype.getComponent = function(componentId, callback) {
 };
 
 BookData.prototype.getContents = function() {
-    return []; // TODO
+    // TODO: implement this!!!
+    return [];
 };
 
 BookData.prototype.getMetaData = function(key) {

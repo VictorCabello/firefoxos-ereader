@@ -47,6 +47,13 @@ App.prototype._bindEvents = function() {
         preinstaller.load();
     }, false);
 
+    document.getElementById('reset_library').addEventListener('click',
+    function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        self.library.clear();
+    });
+
     document.addEventListener('bookloaded', function(event) {
         var book = event.detail;
         book.save();

@@ -1,0 +1,27 @@
+{
+  "name": "eReader",
+  "description": "eReader for epubs",
+  "type": "certified",
+  "launch_path": "/index.html",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "permissions": {
+    "alarms":{},
+    "settings":{},
+    "attention":{}
+  },
+  "locales": {
+    "es": {
+      "name": "eReader",
+      "description": "eReader para ePubs"
+    }
+  },
+  "default_locale": "es",
+  "icons": {
+    "120": "/icons/Clock.png",
+    "60": "/icons/60/Clock.png"
+  },
+  "orientation": "portrait-primary"
+}
