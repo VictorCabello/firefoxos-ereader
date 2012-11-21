@@ -13,6 +13,7 @@ ownLength) {
 }
 
 Component.prototype.loadToFrame = function(frameName, frame, callback) {
+    console.log('[' + frameName + '] <- #' + this.index);
     // TODO: embed styles into a <style> and see if with this we don't have
     // the delay in applying those styles to the DOM
     var appendStylesheets = function(doc, sheets) {
@@ -49,8 +50,10 @@ Component.prototype.goToPage = function(frameName, frame, page) {
         if (page < 0) {
             page = self.pageCount + page;
         }
-
         var offset = -(page * self.pageWidth);
+        console.log('[' + frameName + '] -> ' + self.index + '#' + page +
+        ' (' + offset + ' px)');
+
         doc.body.setAttribute('style',
             '-moz-transform: translateX(' + offset + 'px); ' +
             '-webkit-transform: translateX(' + offset + 'px)');
@@ -71,11 +74,24 @@ Component.prototype._refreshDimensions = function(frame, callback) {
     this.pageWidth = frame.offsetWidth;
     var self = this;
     setTimeout(function() {
-        self.totalWidth = frame.contentWindow.document.body.scrollWidth;
+        // hack for browsers changing scrollWidth when a translate is applied
+        // to it
+        try {
+            var correction = -1 * parseFloat(/translateX\((-?\d+)px/.exec(
+                frame.contentDocument.body.style.cssText)[1]);
+        }
+        catch (e){
+            var correction = 0;
+        }
+        // TODO: aqui
+
+        self.totalWidth = frame.contentDocument.body.scrollWidth + correction;
         self.pageCount = Math.ceil(self.totalWidth / self.pageWidth);
+
+        console.log('component #' + self.index + ' pageCount: ' + self.pageCount);
         if (callback) callback();
         document.dispatchEvent(new CustomEvent('dimensionschanged'));
-    }, 0);
+    }, 500);
 };
 
 Component.prototype.currentPosition = function(cursor) {
@@ -124,9 +140,11 @@ function BookReader(container, bookData) {
     this.overlay.innerHTML = overlayTemplate;
 
     this.isChangingPage = false;
-    this.cursor = 0;
+    this.cursor = undefined;
 
     this.components = new Array(this.bookData.getComponentCount());
+    console.log(this.bookData.getComponentCount());
+    console.log(this.components);
     this.componentLoadQueue = [];
 
     this._updateComponentLengths();
@@ -139,17 +157,17 @@ function BookReader(container, bookData) {
     });
 }
 
-BookReader.prototype.goToLocation = function(location) {
+BookReader.prototype.goToLocation = function(loc) {
     // TODO: change this
     this.currentComponent.loadToFrame('left', this.frames['left']);
     this.currentComponent.loadToFrame('central', this.frames['central']);
     this.currentComponent.loadToFrame('right', this.frames['right']);
 
-    this.currentComponent.goToPage('left', this.frames['left'], 0);
-    this.currentComponent.goToPage('central', this.frames['central'], 1);
-    this.currentComponent.goToPage('right', this.frames['right'], 2);
+    this.currentComponent.goToPage('left', this.frames['left'], loc - 1);
+    this.currentComponent.goToPage('central', this.frames['central'], loc);
+    this.currentComponent.goToPage('right', this.frames['right'], loc + 1);
 
-    this._updateCursor(location);
+    this._updateCursor(loc);
 };
 
 BookReader.prototype.nextPage = function() {
@@ -178,8 +196,10 @@ BookReader.prototype.isInvalidCursor = function(value) {
     var index = this.currentComponent.index;
     var pageCount = this.currentComponent.pageCount;
 
-    return (value < 0 && index <= 0) ||
-           (value >= pageCount && index >= this.components.length - 1);
+    var isInvalid = (value < 0 && index <= 0) ||
+        (value >= pageCount && index >= this.components.length - 1);
+
+    return isInvalid;
 }
 
 BookReader.prototype._changePage = function(offset) {
@@ -189,9 +209,10 @@ BookReader.prototype._changePage = function(offset) {
 
     var self = this;
 
-    var flipPage = function() {
-        var direction = (offset > 0) ? 'forward' : 'backwards';
-        utils.addClass(self.framesContainer, direction);
+
+    var flipPage = function(direction) {
+        var directionClass = (direction > 0) ? 'forward' : 'backwards';
+        utils.addClass(self.framesContainer, directionClass);
 
         setTimeout(function() {
             if (offset > 0) {
@@ -200,13 +221,16 @@ BookReader.prototype._changePage = function(offset) {
             else {
                 self._rollFramesToRight();
             }
-            utils.removeClass(self.framesContainer, direction);
+            utils.removeClass(self.framesContainer, directionClass);
             self.isChangingPage = false;
+            self.container.dispatchEvent(new CustomEvent('pageflipped', {
+                detail: direction
+            }));
         }, 500);
     };
 
     this.container.addEventListener('cursorchanged', function(event) {
-        flipPage();
+        flipPage(event.detail.direction);
         self.container.removeEventListener('cursorchanged', arguments.callee,
             false);
     }, false);
@@ -216,11 +240,12 @@ BookReader.prototype._changePage = function(offset) {
 
 // TODO: look for a proper name for this!
 BookReader.prototype._browseThroughComponents = function() {
-    var index = undefined;
+    var indexPrev = undefined;
+    var indexNext = undefined;
 
     // at the beginning of component -> load previous component
     if (this.cursor == 0 && this.currentComponent.index > 0) {
-        index = this.currentComponent.index - 1;
+        indexPrev = this.currentComponent.index - 1;
     }
     // chaging to a new component (BACKWARDS)
     else if (this.cursor == -1 && this.currentComponent.index > 0) {
@@ -230,65 +255,93 @@ BookReader.prototype._browseThroughComponents = function() {
 
         // need to load previous component?
         if (this.cursor == 0) {
-            index = this.currentComponent.index - 1;
+            indexPrev = this.currentComponent.index - 1;
         }
-    }
-    // at the end of component -> load next component
-    else if (this.cursor >= this.currentComponent.pageCount - 1 &&
-             this.currentComponent.index < this.components.length - 1) {
-        index = this.currentComponent.index + 1;
     }
     // changing to a new component (FORWARD)
     else if (this.cursor >= this.currentComponent.pageCount &&
              this.currentComponent.index < this.components.length - 1) {
         this.currentComponent = this.components[
             this.currentComponent.index + 1];
+        this.cursor = 0;
 
         // need to load next component?
         if (this.cursor == this.currentComponent.pageCount - 1) {
-            index = this.currentComponent.index + 1;
+            indexNext = this.currentComponent.index + 1;
         }
     }
+    // at the end of component -> load next component
+    else if (this.cursor >= this.currentComponent.pageCount - 1 &&
+             this.currentComponent.index < this.components.length - 1) {
+        indexNext = this.currentComponent.index + 1;
+    }
 
-    return index;
+
+    return {
+        indexPrev: indexPrev,
+        indexNext: indexNext
+    };
 }
 
 BookReader.prototype._updateCursor = function(value) {
     // TODO: refactorize this!
+    var oldCursor = this.cursor;
     this.cursor = value;
     var self = this;
 
-    var indexToLoad = this._browseThroughComponents();
+    var direction = (oldCursor == undefined) ? 0 : this.cursor - oldCursor;
 
-    var handleCursorChange = function(mustLoad, component) {
-        // TODO: left component
-        var rightComponent = component;
-        if (mustLoad) {
-            var indexToLoad = component.index;
-            if (indexToLoad < self.currentComponent.index) {
-               rightComponent = self.components[indexToLoad];
-            }
+    var indicesToLoad = this._browseThroughComponents();
+    console.log(indicesToLoad);
+
+    var handleCursorChange = function(loaded, components) {
+        var prevComponent = components.prev || self.currentComponent;
+        var nextComponent = components.next || self.currentComponent;
+
+        // need to prepare the 3rd frame to display the correct page
+        if (direction > 0) { // FORWARD [l][c][r] -> [c][r][l]
+            var offset = (self.cursor + 1) % self.currentComponent.pageCount;
+            nextComponent.goToPage('left', self.frames['left'],
+                offset);
         }
-
-        rightComponent.goToPage('right', self.frames['right'],
-            self.cursor - 1);
+        else if (direction < 0){ // BACKWARDS [l][c][r] -> [r][l][c]
+            console.log('backwards');
+            prevComponent.goToPage('right', self.frames['right'],
+                self.cursor - 1);
+        }
 
         self.container.dispatchEvent(new CustomEvent('cursorchanged', {
             detail: {
                 position: self.currentPosition(),
-                mustLoad: mustLoad,
-                component: component
+                direction: direction
             }
         }));
     }
 
-    if (indexToLoad != undefined) {
-        this._loadComponent(indexToLoad, function(component) {
-            handleCursorChange(true, component);
+    var indexPrev = indicesToLoad.indexPrev;
+    var indexNext = indicesToLoad.indexNext;
+
+    // load both components (for 1-page components)
+    if (indexPrev != undefined && indexNext != undefined) {
+        this._loadComponent(indexPrev, function(prev) {
+            self._loadComponent(indexNext, function(next) {
+                handleCursorChange(true, {
+                    prev: prev,
+                    next: next
+                });
+            })
         });
     }
+    // load prev XOR next component
+    else if (indexPrev != undefined || indexNext != undefined) {
+        this._loadComponent(indexPrev || indexNext, function(component) {
+            data = indexPrev ? {prev: component} : {next: component}
+            handleCursorChange(true, data);
+        });
+    }
+    // no component needed loading
     else {
-        handleCursorChange(false, this.currentComponent);
+        handleCursorChange(false, {});
     }
 };
 
@@ -327,7 +380,7 @@ BookReader.prototype._rollFramesToRight = function() {
 
 BookReader.prototype._loadComponent = function(index, callback) {
     if (this.componentLoadQueue[index]) return;
-
+    console.log('loading component #' + index);
     var self = this;
     var offset = function(index) {
         var res = 0;

@@ -12,7 +12,7 @@ BookData.prototype.getComponents = function() {
 };
 
 BookData.prototype.getComponentCount = function() {
-    return Object.keys.length;
+    return Object.keys(this.components).length;
 }
 
 BookData.prototype.getComponent = function(componentId, callback) {
