@@ -3,6 +3,13 @@ define([
     'utils'
 ], function(hogan, utils) {
 
+var __next_objid=1;
+function objectId(obj) {
+    if (obj==null) return null;
+    if (obj.__obj_id==null) obj.__obj_id=__next_objid++;
+    return obj.__obj_id;
+}
+
 function Component(index, componentId, bookDataComponent, lengthOffset,
 ownLength) {
     this.index = index;
@@ -10,31 +17,24 @@ ownLength) {
     this.src = bookDataComponent;
     this.lengthOffset = lengthOffset;
     this.ownLength = ownLength;
+    this.puta = Math.floor(Math.random() * 10000);
 }
 
 Component.prototype.loadToFrame = function(frameName, frame, callback) {
-    console.log('[' + frameName + '] <- #' + this.index);
-    // TODO: embed styles into a <style> and see if with this we don't have
-    // the delay in applying those styles to the DOM
-    var appendStylesheets = function(doc, sheets) {
-        for (var i = 0; i < sheets.length; i++) {
-            var link = doc.createElement('link');
-            link.setAttribute('href', 'style/' + sheets[i]);
-            link.setAttribute('type', 'text/css');
-            link.setAttribute('rel', 'stylesheet');
-
-            doc.head.appendChild(link);
-        }
-    }
+    var src = '<html><head><style>' +
+    'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; padding: 0px; width: 100%; height: 100%; -webkit-column-width: 280px;     -webkit-column-gap: 0px; -webkit-column-fill: auto; -moz-column-width: 280px;        -moz-column-gap: 0px; -moz-column-fill: auto; position: absolute; font-size: 12pt; color: #5a3120; }' +
+    'body * { overflow: visible !important; word-wrap: break-word !important;        line-height: 1.25em; }' +
+    'p { margin: 0px;  text-indent: 1.5em; }' +
+    '</style></head><body>' +
+    this.src +
+    '</body></html>';
     var frameNode = frame.node;
     frame.componentIndex = this.index;
     frameNode.contentDocument.open('text/html', 'replace');
-    frameNode.contentDocument.write(this.src);
+    frameNode.contentDocument.write(src);
     frameNode.contentDocument.close();
 
-    appendStylesheets(frameNode.contentDocument,
-        ['ereader_content.css', 'bb/fonts.css']);
-
+    console.log('[' + frameName + '] <- ' + this.index);
     if (this.pageCount == undefined) {
         this._refreshDimensions(frameNode, callback);
     }
@@ -46,18 +46,21 @@ Component.prototype.loadToFrame = function(frameName, frame, callback) {
 Component.prototype.goToPage = function(frameName, frame, page) {
     var doc = frame.node.contentWindow.document;
     var self = this;
+
     var goTo = function() {
+        if (typeof page == 'function') page = page();
+
         if (page < 0) {
             page = self.pageCount + page;
         }
         var offset = -(page * self.pageWidth);
-        console.log('[' + frameName + '] -> ' + self.index + '#' + page +
-        ' (' + offset + ' px)');
+
+        console.log('[' + frameName + '] -> ' + self.index + '#' + page + ' of ' + self.pageCount + ' (' + offset + ' px)');
 
         doc.body.setAttribute('style',
             '-moz-transform: translateX(' + offset + 'px); ' +
             '-webkit-transform: translateX(' + offset + 'px)');
-    }
+    };
 
     if (frame.componentIndex != this.index) {
         this.loadToFrame(frameName, frame, function() {
@@ -72,24 +75,23 @@ Component.prototype.goToPage = function(frameName, frame, page) {
 
 Component.prototype._refreshDimensions = function(frame, callback) {
     this.pageWidth = frame.offsetWidth;
-    var self = this;
-    setTimeout(function() {
-        // hack for browsers changing scrollWidth when a translate is applied
-        // to it
-        try {
-            var correction = -1 * parseFloat(/translateX\((-?\d+)px/.exec(
-                frame.contentDocument.body.style.cssText)[1]);
-        }
-        catch (e) {
-            var correction = 0;
-        }
 
-        self.totalWidth = frame.contentDocument.body.scrollWidth + correction;
-        self.pageCount = Math.ceil(self.totalWidth / self.pageWidth);
+    // hack for browsers changing scrollWidth when a translate is applied
+    // to it
+    try {
+        var correction = -1 * parseFloat(/translateX\((-?\d+)px/.exec(
+            frame.contentDocument.body.style.cssText)[1]);
+    }
+    catch (e) {
+        var correction = 0;
+    }
 
-        if (callback) callback();
-        document.dispatchEvent(new CustomEvent('dimensionschanged'));
-    }, 500);
+    this.totalWidth = frame.contentDocument.body.scrollWidth + correction;
+    this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
+
+    if (callback) callback();
+    document.dispatchEvent(new CustomEvent('dimensionschanged'));
+
 };
 
 Component.prototype.currentPosition = function(cursor) {
@@ -155,15 +157,14 @@ function BookReader(container, bookData) {
 
 BookReader.prototype.goToLocation = function(loc) {
     // TODO: change this
+
+    var self = this;
     this.currentComponent.loadToFrame('left', this.frames['left']);
-    this.currentComponent.loadToFrame('central', this.frames['central']);
     this.currentComponent.loadToFrame('right', this.frames['right']);
-
-    this.currentComponent.goToPage('left', this.frames['left'], loc - 1);
-    this.currentComponent.goToPage('central', this.frames['central'], loc);
-    this.currentComponent.goToPage('right', this.frames['right'], loc + 1);
-
-    this._updateCursor(loc);
+    this.currentComponent.loadToFrame('central', this.frames['central'],
+    function() {
+        self._updateCursor(loc);
+    });
 };
 
 BookReader.prototype.nextPage = function() {
@@ -238,6 +239,7 @@ BookReader.prototype._changePage = function(offset) {
 BookReader.prototype._browseThroughComponents = function() {
     var indexPrev = undefined;
     var indexNext = undefined;
+    var self = this;
 
     // at the beginning of component -> load previous component
     if (this.cursor == 0 && this.currentComponent.index > 0) {
@@ -247,6 +249,9 @@ BookReader.prototype._browseThroughComponents = function() {
     else if (this.cursor == -1 && this.currentComponent.index > 0) {
         this.currentComponent = this.components[
             this.currentComponent.index - 1];
+        if (this.currentComponent.pageCount == undefined) {
+            this.currentComponent.loadToFrame('left', this.frames['left']);
+        }
         this.cursor = this.currentComponent.pageCount -1;
 
         // need to load previous component?
@@ -271,7 +276,6 @@ BookReader.prototype._browseThroughComponents = function() {
              this.currentComponent.index < this.components.length - 1) {
         indexNext = this.currentComponent.index + 1;
     }
-
 
     return {
         indexPrev: indexPrev,
@@ -303,6 +307,14 @@ BookReader.prototype._updateCursor = function(value) {
             prevComponent.goToPage('right', self.frames['right'],
                 self.cursor - 1);
         }
+        else { // no direction => it's a jump
+            self.currentComponent.goToPage('central', self.frames['central'],
+                self.cursor);
+            prevComponent.goToPage('left', self.frames['left'],
+                self.cursor - 1);
+            var offset = (self.cursor + 1) % self.currentComponent.pageCount;
+            nextComponent.goToPage('right', self.frames['right'], offset);
+        }
 
         self.container.dispatchEvent(new CustomEvent('cursorchanged', {
             detail: {
@@ -328,7 +340,8 @@ BookReader.prototype._updateCursor = function(value) {
     }
     // load prev XOR next component
     else if (indexPrev != undefined || indexNext != undefined) {
-        this._loadComponent(indexPrev || indexNext, function(component) {
+        var index = (indexPrev != undefined) ? indexPrev : indexNext;
+        this._loadComponent(index, function(component) {
             data = indexPrev ? {prev: component} : {next: component}
             handleCursorChange(true, data);
         });
@@ -374,7 +387,6 @@ BookReader.prototype._rollFramesToRight = function() {
 
 BookReader.prototype._loadComponent = function(index, callback) {
     if (this.componentLoadQueue[index]) return;
-    console.log('loading component #' + index);
     var self = this;
     var offset = function(index) {
         var res = 0;

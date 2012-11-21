@@ -52,7 +52,8 @@ BookViewer.prototype._bindEvents = function() {
     }, false);
 
     this.bookContainer.addEventListener('cursorchanged', function(event) {
-        var percentage = Math.floor(100 * event.detail.position);
+        var percentage = isNaN(event.detail.position) ? 0 :
+            Math.floor(100 * event.detail.position);
         var seeker = self.overlay.getElementsByClassName('seeker')[0];
         seeker.getElementsByTagName('progress')[0].value = percentage;
     });
