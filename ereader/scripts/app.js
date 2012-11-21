@@ -1,9 +1,10 @@
 define([
     'importers/epub_importer',
+    'importers/preinstalled_importer',
     'library',
     'book',
     'book_viewer',
-], function(EPubImporter, Library, Book, BookViewer) {
+], function(EPubImporter, PreinstalledImporter, Library, Book, BookViewer) {
 
 function App() {
     this.currentContainer = document.getElementById('current-page');
@@ -35,6 +36,15 @@ App.prototype._bindEvents = function() {
     document.getElementById('import_book').addEventListener('change',
     function(event) {
         self._handleFileSelect(event.target.files[0]);
+    }, false);
+
+    document.getElementById('frankenstein').addEventListener('click',
+    function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var preinstaller = new PreinstalledImporter(
+            document.getElementById('import'));
+        preinstaller.load();
     }, false);
 
     document.addEventListener('bookloaded', function(event) {

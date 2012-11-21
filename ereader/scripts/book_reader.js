@@ -80,15 +80,13 @@ Component.prototype._refreshDimensions = function(frame, callback) {
             var correction = -1 * parseFloat(/translateX\((-?\d+)px/.exec(
                 frame.contentDocument.body.style.cssText)[1]);
         }
-        catch (e){
+        catch (e) {
             var correction = 0;
         }
-        // TODO: aqui
 
         self.totalWidth = frame.contentDocument.body.scrollWidth + correction;
         self.pageCount = Math.ceil(self.totalWidth / self.pageWidth);
 
-        console.log('component #' + self.index + ' pageCount: ' + self.pageCount);
         if (callback) callback();
         document.dispatchEvent(new CustomEvent('dimensionschanged'));
     }, 500);
@@ -143,17 +141,15 @@ function BookReader(container, bookData) {
     this.cursor = undefined;
 
     this.components = new Array(this.bookData.getComponentCount());
-    console.log(this.bookData.getComponentCount());
-    console.log(this.components);
     this.componentLoadQueue = [];
 
     this._updateComponentLengths();
     this._bindEvents();
 
     var self = this;
-    this._loadComponent(3, function(component) {
+    this._loadComponent(0, function(component) {
         self.currentComponent = component;
-        self.goToLocation(1);
+        self.goToLocation(0);
     });
 }
 
@@ -292,7 +288,6 @@ BookReader.prototype._updateCursor = function(value) {
     var direction = (oldCursor == undefined) ? 0 : this.cursor - oldCursor;
 
     var indicesToLoad = this._browseThroughComponents();
-    console.log(indicesToLoad);
 
     var handleCursorChange = function(loaded, components) {
         var prevComponent = components.prev || self.currentComponent;
@@ -305,7 +300,6 @@ BookReader.prototype._updateCursor = function(value) {
                 offset);
         }
         else if (direction < 0){ // BACKWARDS [l][c][r] -> [r][l][c]
-            console.log('backwards');
             prevComponent.goToPage('right', self.frames['right'],
                 self.cursor - 1);
         }
