@@ -15,9 +15,9 @@ ownLength) {
 
 Component.prototype.loadToFrame = function(frameName, frame, callback) {
     var src = '<html><head><style>' +
-    'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; padding: 0px; width: 100%; height: 100%; -webkit-column-width: 280px;     -webkit-column-gap: 0px; -webkit-column-fill: auto; -moz-column-width: 280px;        -moz-column-gap: 0px; -moz-column-fill: auto; position: absolute; font-size: 12pt; color: #5a3120; }' +
+    'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; padding: 0px; width: 100%; height: 100%; -webkit-column-width: 280px;     -webkit-column-gap: 0px; -webkit-column-fill: auto; -moz-column-width: 280px;        -moz-column-gap: 0px; -moz-column-fill: auto; position: absolute; font-size: 12pt; color: #5a3120;}' +
     'body * { overflow: visible !important; word-wrap: break-word !important;        line-height: 1.25em; }' +
-    'p { margin: 0px;  text-indent: 1.5em; }' +
+    'p { margin: 0px;  text-indent: 1.5em; text-align: justify;}' +
     '</style></head><body>' +
     this.src +
     '</body></html>';
