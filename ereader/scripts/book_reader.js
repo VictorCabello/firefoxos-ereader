@@ -285,7 +285,6 @@ BookReader.prototype._updateCursor = function(value) {
     var direction = (oldCursor == undefined) ? 0 : this.cursor - oldCursor;
 
     var indicesToLoad = this._browseThroughComponents();
-    console.log('Cursor is now ' + this.cursor);
 
     var handleCursorChange = function(loaded, components) {
         var prevComponent = components.prev || self.currentComponent;
