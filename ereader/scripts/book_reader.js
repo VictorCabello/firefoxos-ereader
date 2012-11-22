@@ -3,13 +3,6 @@ define([
     'utils'
 ], function(hogan, utils) {
 
-var __next_objid=1;
-function objectId(obj) {
-    if (obj==null) return null;
-    if (obj.__obj_id==null) obj.__obj_id=__next_objid++;
-    return obj.__obj_id;
-}
-
 function Component(index, componentId, bookDataComponent, lengthOffset,
 ownLength) {
     this.index = index;
@@ -110,19 +103,15 @@ function BookReader(container, bookData) {
 
     var template =
     '<div class="reader-wrapper">' +
-    '<div class="reader-page left">' +
+    '<div class="reader-page central main">' +
     '  <iframe frameborder="0" scrolling="no" style="' +
     '   width: 100%; height: 100%; -moz-user-select: none"></iframe>' +
     '</div>' +
-    '<div class="reader-page central">' +
+    '<div class="reader-page other right">' +
     '  <iframe frameborder="0" scrolling="no" style="' +
     '   width: 100%; height: 100%; -moz-user-select: none"></iframe>' +
     '</div>' +
-    '<div class="reader-page right">' +
-    '  <iframe frameborder="0" scrolling="no" style="' +
-    '   width: 100%; height: 100%; -moz-user-select: none"></iframe>' +
-    '</div>' +
-    '</div><!-- overlay -->' +
+    '</div><!-- wrapper -->' +
     '<div class="reader-overlay"></a></div>'
     ;
 
@@ -159,12 +148,12 @@ BookReader.prototype.goToLocation = function(loc) {
     // TODO: change this
 
     var self = this;
-    this.currentComponent.loadToFrame('left', this.frames['left']);
-    this.currentComponent.loadToFrame('right', this.frames['right']);
-    this.currentComponent.loadToFrame('central', this.frames['central'],
-    function() {
-        self._updateCursor(loc);
-    });
+    this.currentComponent.loadToFrame('main', this.frames['main']);
+    this.currentComponent.loadToFrame('other', this.frames['other'],
+        function() {
+            self._updateCursor(loc);
+        }
+    );
 };
 
 BookReader.prototype.nextPage = function() {
@@ -206,28 +195,29 @@ BookReader.prototype._changePage = function(offset) {
 
     var self = this;
 
-
     var flipPage = function(direction) {
         var directionClass = (direction > 0) ? 'forward' : 'backwards';
+        utils.removeClass(self.frames['other'].node.parentNode,
+            (direction > 0) ? 'left' : 'right');
+        utils.addClass(self.frames['other'].node.parentNode,
+            (direction > 0) ? 'right' : 'left');
+        self.frames['other'].node.style.visibility = 'visible';
+
         utils.addClass(self.framesContainer, directionClass);
 
         setTimeout(function() {
-            if (offset > 0) {
-                self._rollFramesToLeft();
-            }
-            else {
-                self._rollFramesToRight();
-            }
+            self.frames['main'].node.style.visibility = 'hidden';
+            self._swapFrames();
             utils.removeClass(self.framesContainer, directionClass);
             self.isChangingPage = false;
-            self.container.dispatchEvent(new CustomEvent('pageflipped', {
-                detail: direction
-            }));
         }, 500);
     };
 
     this.container.addEventListener('cursorchanged', function(event) {
+        self.currentComponent.goToPage('other', self.frames['other'],
+            self.cursor);
         flipPage(event.detail.direction);
+
         self.container.removeEventListener('cursorchanged', arguments.callee,
             false);
     }, false);
@@ -250,9 +240,9 @@ BookReader.prototype._browseThroughComponents = function() {
         this.currentComponent = this.components[
             this.currentComponent.index - 1];
         if (this.currentComponent.pageCount == undefined) {
-            this.currentComponent.loadToFrame('left', this.frames['left']);
+            this.currentComponent.loadToFrame('other', this.frames['other']);
         }
-        this.cursor = this.currentComponent.pageCount -1;
+        this.cursor = this.currentComponent.pageCount - 1;
 
         // need to load previous component?
         if (this.cursor == 0) {
@@ -265,6 +255,9 @@ BookReader.prototype._browseThroughComponents = function() {
         this.currentComponent = this.components[
             this.currentComponent.index + 1];
         this.cursor = 0;
+        if (this.currentComponent.pageCount == undefined) {
+            this.currentComponent.loadToFrame('other', this.frames['other']);
+        }
 
         // need to load next component?
         if (this.cursor == this.currentComponent.pageCount - 1) {
@@ -292,29 +285,11 @@ BookReader.prototype._updateCursor = function(value) {
     var direction = (oldCursor == undefined) ? 0 : this.cursor - oldCursor;
 
     var indicesToLoad = this._browseThroughComponents();
+    console.log('Cursor is now ' + this.cursor);
 
     var handleCursorChange = function(loaded, components) {
         var prevComponent = components.prev || self.currentComponent;
         var nextComponent = components.next || self.currentComponent;
-
-        // need to prepare the 3rd frame to display the correct page
-        if (direction > 0) { // FORWARD [l][c][r] -> [c][r][l]
-            var offset = (self.cursor + 1) % self.currentComponent.pageCount;
-            nextComponent.goToPage('left', self.frames['left'],
-                offset);
-        }
-        else if (direction < 0){ // BACKWARDS [l][c][r] -> [r][l][c]
-            prevComponent.goToPage('right', self.frames['right'],
-                self.cursor - 1);
-        }
-        else { // no direction => it's a jump
-            self.currentComponent.goToPage('central', self.frames['central'],
-                self.cursor);
-            prevComponent.goToPage('left', self.frames['left'],
-                self.cursor - 1);
-            var offset = (self.cursor + 1) % self.currentComponent.pageCount;
-            nextComponent.goToPage('right', self.frames['right'], offset);
-        }
 
         self.container.dispatchEvent(new CustomEvent('cursorchanged', {
             detail: {
@@ -360,29 +335,14 @@ BookReader.prototype._updateComponentLengths = function() {
     }
 };
 
+BookReader.prototype._swapFrames = function() {
+    this.frames['main'].node.parentNode.className = 'reader-page other right';
+    this.frames['other'].node.parentNode.className =
+        'reader-page main central';
 
-BookReader.prototype._rollFramesToLeft = function() {
-    // [l][c][r] -> [c][r][l]
-    this.frames['left'].node.parentNode.className = 'reader-page right';
-    this.frames['central'].node.parentNode.className = 'reader-page left';
-    this.frames['right'].node.parentNode.className = 'reader-page central';
-
-    var left = this.frames['left'];
-    this.frames['left'] = this.frames['central'];
-    this.frames['central'] = this.frames['right'];
-    this.frames['right'] = left;
-};
-
-BookReader.prototype._rollFramesToRight = function() {
-    // [l][c][r] -> [r][l][c]
-    this.frames['left'].node.parentNode.className = 'reader-page central';
-    this.frames['central'].node.parentNode.className = 'reader-page right';
-    this.frames['right'].node.parentNode.className = 'reader-page left';
-
-    var right = this.frames['right'];
-    this.frames['right'] = this.frames['central'];
-    this.frames['central'] = this.frames['left'];
-    this.frames['left'] = right;
+    var other = this.frames['other'];
+    this.frames['other'] = this.frames['main'];
+    this.frames['main'] = other;
 };
 
 BookReader.prototype._loadComponent = function(index, callback) {
@@ -404,6 +364,7 @@ BookReader.prototype._loadComponent = function(index, callback) {
     this.bookData.getComponent(key, function(componentData) {
         var component = new Component(index, key, componentData, lengthOffset,
             self.lengths[index]);
+        console.log("Loaded component #" + component.index);
         self._onComponentLoaded(component, callback);
     });
 };
@@ -411,7 +372,7 @@ BookReader.prototype._loadComponent = function(index, callback) {
 BookReader.prototype._findFrames = function() {
     var frames = {};
     var divs =  this.container.getElementsByTagName('div');
-    var names = ['left', 'central', 'right'];
+    var names = ['main', 'other'];
     for (var i = 0; i < divs.length; i++) {
         for (var j = 0; j < names.length; j++) {
             if (divs[i].classList.contains(names[j])) {
