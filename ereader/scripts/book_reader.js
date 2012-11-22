@@ -1,7 +1,8 @@
 define([
     'vendor/hogan',
-    'utils'
-], function(hogan, utils) {
+    'utils',
+    'vendor/gaia/gesture_detector'
+], function(hogan, utils, GestureDetector) {
 
 function Component(index, componentId, bookDataComponent, lengthOffset,
 ownLength) {
@@ -100,6 +101,7 @@ Component.prototype.currentPosition = function(cursor) {
 function BookReader(container, bookData) {
     this.container = container;
     this.bookData = bookData;
+    this.gestures = new GestureDetector(this.container);
 
     var template =
     '<div class="reader-wrapper">' +
@@ -142,6 +144,14 @@ function BookReader(container, bookData) {
         self.currentComponent = component;
         self.goToLocation(0);
     });
+}
+
+BookReader.prototype.enableGestures = function() {
+    this.gestures.startDetecting();
+};
+
+BookReader.prototype.disableGestures = function() {
+    this.gestures.stopDetecting();
 }
 
 BookReader.prototype.goToLocation = function(loc) {
@@ -210,7 +220,7 @@ BookReader.prototype._changePage = function(offset) {
             self._swapFrames();
             utils.removeClass(self.framesContainer, directionClass);
             self.isChangingPage = false;
-        }, 500);
+        }, 400);
     };
 
     this.container.addEventListener('cursorchanged', function(event) {
@@ -390,22 +400,31 @@ BookReader.prototype._bindEvents = function() {
     var self = this;
 
     // central click
-    self.overlay.getElementsByClassName('central')[0]
-    .addEventListener('click', function(event) {
+    this.overlay.getElementsByClassName('central')[0]
+    .addEventListener('tap', function(event) {
         event.stopPropagation();
         event.preventDefault();
         self.container.dispatchEvent(new CustomEvent('centralclick',
             {}));
     }, false);
 
-   self.overlay.getElementsByClassName('right')[0].
-   addEventListener('click', function(event) {
+   this.overlay.getElementsByClassName('right')[0].
+   addEventListener('tap', function(event) {
        self.nextPage();
    });
 
-   self.overlay.getElementsByClassName('left')[0].
-   addEventListener('click', function(event) {
+   this.overlay.getElementsByClassName('left')[0].
+   addEventListener('tap', function(event) {
        self.previousPage();
+   });
+
+   this.container.addEventListener('swipe', function(event) {
+       if (event.detail.direction == 'left') {
+           self.nextPage();
+       }
+       else {
+           self.previousPage();
+       }
    });
 };
 

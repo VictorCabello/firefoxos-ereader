@@ -20,6 +20,7 @@ BookViewer.prototype.showBook = function(book) {
     // });
     this.reader = new Reader.BookReader(this.bookContainer,
         this.book.bookData);
+    this.reader.enableGestures();
 };
 
 BookViewer.prototype._bindEvents = function() {
@@ -29,12 +30,14 @@ BookViewer.prototype._bindEvents = function() {
         event.stopPropagation();
         event.preventDefault();
         self.overlay.style.display = 'block';
+        self.reader.disableGestures();
     }, false);
 
     this.overlay.addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         self.overlay.style.display = 'none';
+        self.reader.enableGestures();
     }, false);
 
     this.overlay.getElementsByClassName('previous')[0].

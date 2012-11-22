@@ -80,10 +80,10 @@ div.reader-page.other {
 }
 
 div.reader-wrapper.forward {
-    animation-duration: 0.5s;
+    animation-duration: 0.4s;
     animation-name: slide-forward;
     animation-timing-function: ease-out;
-    -webkit-animation-duration: 0.5s;
+    -webkit-animation-duration: 0.4s;
     -webkit-animation-name: slide-forward;
     -webkit-animation-timing-function: ease-out;
     -moz-transform: translateX(-320px);
@@ -91,10 +91,10 @@ div.reader-wrapper.forward {
 }
 
 div.reader-wrapper.backwards {
-    animation-duration: 0.5s;
+    animation-duration: 0.4s;
     animation-name: slide-backwards;
     animation-timing-function: ease-out;
-    -webkit-animation-duration: 0.5s;
+    -webkit-animation-duration: 0.4s;
     -webkit-animation-name: slide-backwards;
     -webkit-animation-timing-function: ease-out;
     -moz-transform: translateX(320px);
