@@ -13,7 +13,7 @@ BookData.prototype.getComponents = function() {
 
 BookData.prototype.getComponentCount = function() {
     return Object.keys(this.components).length;
-}
+};
 
 BookData.prototype.getComponent = function(componentId, callback) {
     var self = this;
@@ -42,9 +42,8 @@ BookData.prototype.getMetaData = function(key) {
 
 BookData.prototype.getComponentLength = function(componentId) {
     return this.components[componentId].length;
-}
+};
 
 return BookData;
 
 });
-

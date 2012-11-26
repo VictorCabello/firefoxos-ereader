@@ -6,6 +6,11 @@ define([
 function Book(data) {
     var self = this;
 
+    this.lastLocation = {
+        componentIndex: 0,
+        cursor: 0
+    };
+
     var dispatchLoaded = function() {
         document.dispatchEvent(new CustomEvent('bookloaded', {
             detail: self
@@ -24,6 +29,15 @@ function Book(data) {
         });
     }
 }
+
+Book.prototype.isEqualTo = function(other) {
+    try {
+        return this.getId() == other.getId();
+    }
+    catch (e) {
+        return false;
+    }
+};
 
 Book.prototype.getId = function() {
     var slugify = function(text) {
@@ -125,11 +139,11 @@ Book.prototype._deserializeContent = function(bookId, spine, callback) {
     var components = {};
     var loadedCount = 0;
 
-    var loadContent = function(index) {
+    var loadContent = function(index, storedKey) {
         asyncStorage.getItem(storedKey, function(content) {
             if (content) {
+                components[spine[index]] = content;
                 loadedCount++;
-                components[spine[i]] = content;
                 if (loadedCount == spine.length) {
                     if (callback) callback(components);
                 }

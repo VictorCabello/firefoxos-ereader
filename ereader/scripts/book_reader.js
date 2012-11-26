@@ -64,7 +64,6 @@ Component.prototype.goToPage = function(frameName, frame, page) {
     else {
        goTo();
     }
-
 };
 
 Component.prototype._refreshDimensions = function(frame, callback) {
@@ -98,7 +97,7 @@ Component.prototype.currentPosition = function(cursor) {
 // Reader (the main thing)
 // -----------------------
 
-function BookReader(container, bookData) {
+function BookReader(container, bookData, location) {
     this.container = container;
     this.bookData = bookData;
     this.gestures = new GestureDetector(this.container);
@@ -140,9 +139,9 @@ function BookReader(container, bookData) {
     this._bindEvents();
 
     var self = this;
-    this._loadComponent(0, function(component) {
+    this._loadComponent(location.componentIndex, function(component) {
         self.currentComponent = component;
-        self.goToLocation(0);
+        self.goToLocation(location.cursor);
     });
 }
 
@@ -196,7 +195,14 @@ BookReader.prototype.isInvalidCursor = function(value) {
         (value >= pageCount && index >= this.components.length - 1);
 
     return isInvalid;
-}
+};
+
+BookReader.prototype.getCurrentLocation = function() {
+    return {
+        componentIndex: this.currentComponent.index || 0,
+        cursor: this.cursor || 0
+    };
+};
 
 BookReader.prototype._changePage = function(offset) {
     var target = this.cursor + offset;

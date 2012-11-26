@@ -55,19 +55,17 @@ App.prototype._bindEvents = function() {
 
     document.addEventListener('bookimported', function(event) {
         var book = event.detail;
-        console.log('book imported');
         book.save(function() {
             self.library.addBook(book);
-            self.viewer.showBook(book);
-            console.log('book saved');
         });
     }, false);
 
     document.addEventListener('bookselected', function(event) {
-        var book = event.detail;
-        console.log('Selected book: ' + book.getTitle());
         self.switchTo('page-reader');
-        self.viewer.showBook(book);
+        // NOTE: we need to always redraw the book because Firefox reloads
+        // the iframes when hidden and visible again... and we have no src
+        // parameter, so the iframes are empty :(
+        self.viewer.showBook(self.library.currentBook);
     }, false);
 
     // book viewer
@@ -75,6 +73,7 @@ App.prototype._bindEvents = function() {
     document.getElementById('back-to-library').addEventListener('click',
     function(event) {
         event.preventDefault();
+        self.viewer.saveLastLocation();
         self.switchTo('page-library');
     }, true);
 };

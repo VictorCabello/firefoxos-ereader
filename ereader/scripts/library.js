@@ -22,40 +22,29 @@ function Library(container) {
     );
 
     this.books = [];
+    this.currentBook = null;
+
+    this._bindBookLoaded();
 
     var self = this;
     asyncStorage.getItem('books', function(jsonBooks) {
         self.books = (jsonBooks != undefined) ? JSON.parse(jsonBooks) : [];
         self.render();
     });
+
 };
 
 
 Library.prototype.render = function() {
     var self = this;
 
-    var bindBookLoaded = function() {
-        // TODO: bind only once, and not multiple times since we can call
-        // this render method n times
-        document.addEventListener('bookloaded', function(event) {
-            document.dispatchEvent(new CustomEvent('bookselected', {
-                detail: event.detail
-            }));
-            self.container.removeEventListener('bookloaded',
-                arguments.callee, false);
-        }, false);
-    };
-
     this.container.innerHTML = this.bookListTemplate.render({
         books:this.books
     });
 
-    var books = this.container.getElementsByClassName('book');
-    for (var i = 0; i < books.length; i++) {
-        books[i].addEventListener('click', function(event) {
-            var book = new Book({bookId: this.getAttribute('data-bookid')});
-            bindBookLoaded();
-        }, false);
+    var bookNodes = this.container.getElementsByClassName('book');
+    for (var i = 0; i < bookNodes.length; i++) {
+        this._bindBookEvents(bookNodes[i]);
     }
 };
 
@@ -69,6 +58,37 @@ Library.prototype.clear = function() {
     asyncStorage.clear();
     this.books = [];
     this.render();
+};
+
+Library.prototype._bindBookEvents = function(bookNode) {
+    var self = this;
+
+    bookNode.addEventListener('click', function(event) {
+        var bookId = this.getAttribute('data-bookid');
+
+        if (!self.currentBook || self.currentBook.getId() != bookId) {
+            var book = new Book({
+                bookId: bookId
+            });
+        }
+        else {
+            document.dispatchEvent(new CustomEvent('bookselected', {
+                detail: self.currentBook
+            }));
+        }
+    }, false);
+};
+
+Library.prototype._bindBookLoaded = function() {
+    var self = this;
+    document.addEventListener('bookloaded', function(event) {
+        self.currentBook = event.detail;
+        document.dispatchEvent(new CustomEvent('bookselected', {
+            detail: self.currentBook
+        }));
+        // self.container.removeEventListener('bookloaded',
+        //     arguments.callee, false);
+    }, false);
 };
 
 return Library;

@@ -9,18 +9,20 @@ function BookViewer(containerId) {
     this.bookContainer = this.container.getElementsByClassName('reader')[0];
     this.overlay = this.container.getElementsByClassName('overlay')[0];
     this.book = null;
-
+    this.reader = null;
     this._bindEvents();
 }
 
 BookViewer.prototype.showBook = function(book) {
     this.book = book;
-    // Monocle.Reader(this.bookContainer, this.book.bookData, {
-    //     // flipper: BookFlipper
-    // });
     this.reader = new Reader.BookReader(this.bookContainer,
-        this.book.bookData);
+        this.book.bookData, this.book.lastLocation);
     this.reader.enableGestures();
+};
+
+BookViewer.prototype.saveLastLocation = function() {
+    this.book.lastLocation = this.reader.getCurrentLocation();
+    // this.book.save(true);
 };
 
 BookViewer.prototype._bindEvents = function() {
