@@ -16,7 +16,7 @@ define(['book_data', 'book'], function(BookData, Book) {
       front0: front,
       chap0: chap0,
       chap1: chap1,
-      chap2: chap2 
+      chap2: chap2
     };
 
     this._container = container;
@@ -34,7 +34,7 @@ define(['book_data', 'book'], function(BookData, Book) {
     this._progressBar.value = 100;
     this._loadingContainer.style.display = 'none';
 
-    document.dispatchEvent(new CustomEvent('bookloaded', {
+    document.dispatchEvent(new CustomEvent('bookimported', {
       detail: book
     }));
   };

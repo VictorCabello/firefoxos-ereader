@@ -59,7 +59,7 @@ EPubImporter.prototype._onParsingDone = function(epub) {
 
     var book = new Book({bookData: bookData});
 
-    document.dispatchEvent(new CustomEvent('bookloaded', {
+    document.dispatchEvent(new CustomEvent('bookimported', {
         detail: book
     }));
 };

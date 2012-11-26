@@ -1,15 +1,27 @@
 define([
-    'book_data'
-], function(BookData) {
+    'book_data',
+    'vendor/gaia/async_storage'
+], function(BookData, asyncStorage) {
 
 function Book(data) {
+    var self = this;
+
+    var dispatchLoaded = function() {
+        document.dispatchEvent(new CustomEvent('bookloaded', {
+            detail: self
+        }));
+    };
+
     // new book with provided bookData
     if (data.bookData != undefined) {
         this.bookData = data.bookData;
+        dispatchLoaded();
     }
-    // load book from LocalStorage
+    // load book from asyncStorage
     else {
-        this._load(data.bookId);
+        this._load(data.bookId, function() {
+            dispatchLoaded();
+        });
     }
 }
 
@@ -30,25 +42,47 @@ Book.prototype.getAuthor = function() {
     return this.bookData.getMetaData('author') || 'Unknown';
 };
 
-Book.prototype.save = function() {
-    // save metadata
-    var books = (!localStorage.getItem('books')) ? [] :
-        JSON.parse(localStorage.getItem('books'));
-    books.push(this._serializeBookInfo());
-    localStorage.setItem('books', JSON.stringify(books));
+Book.prototype.save = function(callback) {
+    var self = this;
+    var bookInfo = self._serializeBookInfo();
+    var content = self._serializeContent();
 
-    // save content
-    var content = this._serializeContent();
-    for (var key in content) {
-        localStorage.setItem(this.getId() + '__spine__' + key, content[key]);
-    }
+    var savedCount = 0;
+    var saveContent = function(key) {
+        var storageKey = self.getId() + '__spine__' + key;
+        asyncStorage.setItem(storageKey, content[key], function() {
+            savedCount++;
+            if (savedCount == self.bookData.getComponentCount()) {
+                if (callback) callback();
+                document.dispatchEvent(new CustomEvent('booksaved', {
+                    detail: self
+                }));
+            }
+        });
+    };
+
+    asyncStorage.getItem('books', function(value) {
+        // save metadata
+        var books = !value ? [] : JSON.parse(value);
+        books.push(bookInfo);
+        // save content
+
+        asyncStorage.setItem('books', JSON.stringify(books), function() {
+            for (var key in content) {
+                saveContent(key);
+            }
+        });
+    });
 };
 
-Book.prototype._load = function(bookId) {
-    var bookInfo = this._deserializeBookInfo(bookId);
-    var content = this._deserializeContent(bookId, bookInfo.spine);
-
-    this.bookData = new BookData(bookInfo.metadata, content);
+Book.prototype._load = function(bookId, callback) {
+    var self = this;
+    this._deserializeBookInfo(bookId, function(bookInfo) {
+        self._deserializeContent(bookId, bookInfo.spine, function(content) {
+            self.bookData = new BookData(bookInfo.metadata, content);
+            if (callback) callback();
+        });
+    });
 };
 
 
@@ -71,37 +105,45 @@ Book.prototype._serializeContent = function() {
     return content;
 };
 
-Book.prototype._deserializeBookInfo = function(bookId) {
-    var books = (!localStorage.getItem('books')) ? [] :
-        JSON.parse(localStorage.getItem('books'));
-    var bookInfo = null;
+Book.prototype._deserializeBookInfo = function(bookId, callback) {
+    asyncStorage.getItem('books', function(value) {
+        var books = (!value) ? [] :JSON.parse(value);
+        var bookInfo = null;
 
-    for (var i = 0; i < books.length; i++) {
-        if (books[i].contentKey == bookId) {
-            bookInfo = books[i];
-            break;
+        for (var i = 0; i < books.length; i++) {
+            if (books[i].contentKey == bookId) {
+                bookInfo = books[i];
+                break;
+            }
         }
-    }
-
-    if (!bookInfo) throw ('Book not found');
-
-    return bookInfo;
+        if (!bookInfo) throw ('Book not found');
+        if (callback) callback(bookInfo);
+    });
 };
 
-Book.prototype._deserializeContent = function(bookId, spine) {
+Book.prototype._deserializeContent = function(bookId, spine, callback) {
     var components = {};
+    var loadedCount = 0;
+
+    var loadContent = function(index) {
+        asyncStorage.getItem(storedKey, function(content) {
+            if (content) {
+                loadedCount++;
+                components[spine[i]] = content;
+                if (loadedCount == spine.length) {
+                    if (callback) callback(components);
+                }
+            }
+            else {
+                throw('Book content not found');
+            }
+        });
+    };
 
     for (var i = 0; i < spine.length; i++) {
-        var content = localStorage.getItem(bookId + '__spine__' + spine[i]);
-        if (content) {
-            components[spine[i]] = content;
-        }
-        else {
-            throw ('Book content not found');
-        }
+        var storedKey = bookId + '__spine__' + spine[i];
+        loadContent(i, storedKey);
     }
-
-    return components;
 };
 
 return Book;

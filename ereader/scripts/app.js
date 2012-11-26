@@ -10,7 +10,6 @@ function App() {
     this.currentContainer = document.getElementById('current-page');
     this.pagesContainer = document.getElementById('pages');
     this.library = new Library(document.getElementById('book-list'));
-    this.library.render();
 
     this.viewer = new BookViewer('page-reader');
 
@@ -54,15 +53,19 @@ App.prototype._bindEvents = function() {
         self.library.clear();
     });
 
-    document.addEventListener('bookloaded', function(event) {
+    document.addEventListener('bookimported', function(event) {
         var book = event.detail;
-        book.save();
-        self.library.addBook(book);
-        self.viewer.showBook(book);
+        console.log('book imported');
+        book.save(function() {
+            self.library.addBook(book);
+            self.viewer.showBook(book);
+            console.log('book saved');
+        });
     }, false);
 
     document.addEventListener('bookselected', function(event) {
         var book = event.detail;
+        console.log('Selected book: ' + book.getTitle());
         self.switchTo('page-reader');
         self.viewer.showBook(book);
     }, false);
