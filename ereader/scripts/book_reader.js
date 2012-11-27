@@ -154,9 +154,15 @@ BookReader.prototype.disableGestures = function() {
 }
 
 BookReader.prototype.goToLocation = function(loc) {
-    // TODO: change this
-
     var self = this;
+
+    this.container.addEventListener('cursorchanged', function(event) {
+        self.currentComponent.goToPage('main', self.frames['main'],
+            self.cursor);
+        self.container.removeEventListener('cursorchanged', arguments.callee,
+            false);
+    }, false);
+
     this.currentComponent.loadToFrame('main', this.frames['main']);
     this.currentComponent.loadToFrame('other', this.frames['other'],
         function() {
@@ -305,7 +311,6 @@ BookReader.prototype._updateCursor = function(value) {
     var handleCursorChange = function(loaded, components) {
         var prevComponent = components.prev || self.currentComponent;
         var nextComponent = components.next || self.currentComponent;
-
         self.container.dispatchEvent(new CustomEvent('cursorchanged', {
             detail: {
                 position: self.currentPosition(),
