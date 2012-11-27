@@ -210,6 +210,13 @@ section[role="region"] > header:first-child > a {
   text-align: center;
 }
 
+section[role="region"] > header:first-child > button.right,
+section[role="region"] > header:first-child > a.right {
+  right: 0px;
+  top: 0px;
+  left: auto;
+}
+
 section[role="region"] > header:first-child > button .icon,
 section[role="region"] > header:first-child > a .icon {
   overflow: visible;
@@ -217,6 +224,12 @@ section[role="region"] > header:first-child > a .icon {
   position: static;
   margin-left: -3rem;
   height: 4.9rem;
+}
+
+section[role="region"] > header:first-child > button .icon.right,
+section[role="region"] > header:first-child > a .icon.right {
+  margin-right: -3rem;
+  margin-left: auto;
 }
 
 section[role="region"] > header:first-child > button .icon:after,
@@ -231,10 +244,22 @@ section[role="region"] > header:first-child > a .icon:after {
   background: #9d3d26 url(headers/images/ui/negative.png) repeat-x 0 0;
 }
 
+section[role="region"] > header:first-child > button .icon.right:after,
+section[role="region"] > header:first-child > a .icon.right:after {
+  left: auto;
+  right: 0px;
+}
+
 section[role="region"] > header > a .icon.icon-menu,
 section[role="region"] > header > button .icon.icon-menu {
   background-position: -1rem center;
 }
+
+section[role="region"] > header > a .icon.icon-menu.right,
+section[role="region"] > header > button .icon.icon-menu.right {
+  background-position: 0.5rem center;
+}
+
 
 /* ----------------------------------
  * HEADERS: subheader

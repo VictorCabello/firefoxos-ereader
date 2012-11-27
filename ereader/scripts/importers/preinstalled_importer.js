@@ -19,6 +19,13 @@ define(['book_data', 'book'], function(BookData, Book) {
       chap2: chap2
     };
 
+    this.bookData.toc = [
+        {title: 'Cover', src: 'front0'},
+        {title: 'Letter 1', src: 'chap0'},
+        {title: 'Letter 2', src: 'chap1'},
+        {title: 'Letter 3', src: 'chap2'}
+    ];
+
     this._container = container;
     this._loadingContainer = this._container.
       getElementsByClassName('loading')[0];

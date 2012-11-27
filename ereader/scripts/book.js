@@ -56,9 +56,23 @@ Book.prototype.getAuthor = function() {
     return this.bookData.getMetaData('author') || 'Unknown';
 };
 
-Book.prototype.save = function(callback) {
+Book.prototype.saveInfo = function(callback) {
     var self = this;
     var bookInfo = self._serializeBookInfo();
+
+    asyncStorage.getItem('books', function(value) {
+        // save metadata
+        var books = !value ? [] : JSON.parse(value);
+        books.push(bookInfo);
+        // save content
+        asyncStorage.setItem('books', JSON.stringify(books), function() {
+            if (callback) callback();
+        });
+    });
+};
+
+Book.prototype.save = function(callback) {
+    var self = this;
     var content = self._serializeContent();
 
     var savedCount = 0;
@@ -75,17 +89,10 @@ Book.prototype.save = function(callback) {
         });
     };
 
-    asyncStorage.getItem('books', function(value) {
-        // save metadata
-        var books = !value ? [] : JSON.parse(value);
-        books.push(bookInfo);
-        // save content
-
-        asyncStorage.setItem('books', JSON.stringify(books), function() {
-            for (var key in content) {
-                saveContent(key);
-            }
-        });
+    this.saveInfo(function() {
+        for (var key in content) {
+            saveContent(key);
+        }
     });
 };
 

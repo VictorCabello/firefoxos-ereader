@@ -5,6 +5,7 @@ function() {
 function BookData(metadata, components) {
     this.metadata = metadata || {};
     this.components = components || {};
+    this.toc = [];
 }
 
 BookData.prototype.getComponents = function() {
@@ -33,7 +34,7 @@ BookData.prototype.getComponent = function(componentId, callback) {
 
 BookData.prototype.getContents = function() {
     // TODO: implement this!!!
-    return [];
+    return this.toc;
 };
 
 BookData.prototype.getMetaData = function(key) {

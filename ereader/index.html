@@ -13,6 +13,7 @@
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/toolbars.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/seekbars.css" />
+    <link rel="stylesheet" type="text/css" href="style/bb/drawer/style.css" />
 
     <link rel="stylesheet" type="text/css" href="style/ereader.css" />
 
@@ -77,30 +78,60 @@
 
         <!-- The reader element, with all content to paginate inside it -->
         <section class="page" id="page-reader" role="region">
-            <section class="overlay" role="region" style="display:none">
+            <nav class="toc" id="toc" role="drawer-panel">
                 <header>
-                    <a href="#" id="back-to-library">
-                        <span class="icon icon-back">Back</span>
-                    </a>
-                    <h1>Book</h1>
+                    <h1>Contents</h1>
                 </header>
-                <nav role="toolbar">
-                    <div role="slider" class="seeker">
-                      <progress value="0" max="100"></progress>
-                    </div>
+                <div class="inner">
                     <ul>
-                      <li><button class="previous">Previous</button></li>
-                      <li><button class="bookmark">Bookmark</button></li>
-                      <li><button class="search">Search</button></li>
+                        <li><a href="#">Cover</a></li>
+                        <li><a href="#">Chapter 1</a></li>
                     </ul>
-                    <ul class="end">
+                    <ul>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label larger label than the asdasdasdad</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label larger label than the asdasdasdad</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label</a></li>
+                      <li><a href="#">label larger label than the asdasdasdad</a></li>
+                      <li><a href="#">label</a></li>
+                    </ul>
+                </div>
+            </nav><!-- toc -->
 
-                      <li><button class="next">Next</button></li>
-                    </ul>
-                    <div style="clear:both;"></div>
-                </nav>
-            </section><!-- overlay -->
-            <div id="reader" class="reader"></div>
+            <div class="wrapper" role="region" data-state="none">
+                <section class="overlay" role="region" style="display:none">
+                    <header>
+                        <a href="#" id="back-to-library">
+                            <span class="icon icon-back">Back</span>
+                        </a>
+                        <h1>Book</h1>
+                        <a href="#" id="show_toc" class="right">
+                            <span class="icon icon-menu right">ToC</span>
+                        </a>
+                    </header>
+                    <nav role="toolbar">
+                        <div role="slider" class="seeker">
+                            <progress value="0" max="100"></progress>
+                        </div>
+                        <ul>
+                            <li><button class="previous">Previous</button></li>
+                            <li><button class="bookmark">Bookmark</button></li>
+                            <li><button class="search">Search</button></li>
+                        </ul>
+                        <ul class="end">
+                            <li><button class="next">Next</button></li>
+                        </ul>
+                        <div style="clear:both;"></div>
+                    </nav>
+                </section>
+                <div id="reader" class="reader"></div>
+            </div><!-- wrapper -->
         </section><!-- reader -->
     </div><!-- pages -->
 </body>

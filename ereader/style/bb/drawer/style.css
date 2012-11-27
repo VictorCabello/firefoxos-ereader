@@ -1,0 +1,154 @@
+/* ----------------------------------
+* DRAWERS
+* ---------------------------------- */
+
+div[role="region"][data-state="drawer"] {
+  transform: translateX(-80%);
+}
+
+div[role="drawer-panel"],
+section[role="drawer-panel"],
+nav[role="drawer-panel"] {
+    position: absolute;
+    width: 80%;
+    background: url(images/ui/pattern.png) repeat;
+    height: 100%;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+    font-family: 'Open Sans', Sans-serif;
+}
+
+nav[role="drawer-panel"] > header {
+    position: relative;
+    z-index: 10;
+    height: 5rem;
+    color: #fff;
+    background: url(images/ui/header.png) repeat-x left top;
+}
+
+nav[role="drawer-panel"]:before {
+  content: '';
+  width: 1rem;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: url(images/ui/shadow_reversed.png) left top repeat-y;
+}
+
+nav[role="drawer-panel"] > header:after {
+    content: "";
+    height: 0.3rem;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: url(images/ui/shadow-header.png) repeat-x left top;
+    background-size: auto 100%;
+}
+
+nav[role="drawer-panel"] > header h1 {
+  font: 2.2rem/4.8rem "Open Sans", Sans-serif;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  overflow: hidden;
+  margin: 0 0 0 3rem;
+  height: 100%
+}
+
+div[role="drawer-panel"] .inner,
+section[role="drawer-panel"] .inner,
+nav[role="drawer-panel"] .inner {
+  overflow-y: auto;
+  max-height: -moz-calc(100% - 9rem);
+  color: red !important;
+}
+
+div[role="drawer-panel"] .inner > h2,
+section[role="drawer-panel"] .inner > h2,
+nav[role="drawer-panel"] .inner > h2 {
+  font-weight: bold;
+  font-size: 1.4rem;
+  line-height: 3.3rem;
+  text-indent: 3rem;
+  color: #fff;
+  background: url(images/ui/pattern-subheader.png) repeat left top;
+  border-bottom: 0.1rem solid #596068;
+  margin: 0;
+  padding-right: 0.8rem;
+}
+
+div[role="drawer-panel"] .inner > ul,
+section[role="drawer-panel"] .inner > ul,
+nav[role="drawer-panel"] .inner > ul {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+div[role="drawer-panel"] .inner > ul > li,
+section[role="drawer-panel"] .inner > ul > li,
+nav[role="drawer-panel"] .inner > ul > li {
+  color: #fff;
+  list-style: none;
+  transition: background 0.2s ease;
+  border: none;
+}
+
+div[role="drawer-panel"] .inner > ul > li:active,
+section[role="drawer-panel"] .inner > ul > li:active,
+nav[role="drawer-panel"] .inner > ul > li:active {
+  background: #00ABCC;
+}
+
+div[role="drawer-panel"] .inner > ul > li > a,
+section[role="drawer-panel"] .inner > ul > li > a,
+nav[role="drawer-panel"] .inner > ul > li > a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 4.35rem;
+  border-bottom: 0.1rem solid #596068;
+  text-indent: 3rem;
+  padding-right: 0.8rem;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+div[role="region"].wrapper {
+  width: -moz-calc(100%);
+  transition: all 0.25s ease;
+  position: relative;
+  left: 0;
+  z-index: 100;
+  padding-left: 0;
+}
+
+div.wrapper[data-state="drawer"] section[role="region"] > header a:last-child .icon:after {
+  transition: all 0.25s linear;
+  width: 100%;
+}
+
+div.wrapper[data-state="drawer"] section[role="region"] > header a:last-child  {
+  transition: all 0.25s linear;
+  background-position: left center;
+}
+
+div.wrapper[data-state="drawer"] section[role="region"] > header a:last-child .icon {
+  transition: all 0.25s linear;
+  background-position: center center;
+  margin-right: 0px;
+}
+
+
+/* Header */
+/*body[role="application"] section[role="region"] > header {
+  margin-left: -1.6rem;
+}*/

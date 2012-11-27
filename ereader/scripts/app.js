@@ -76,6 +76,12 @@ App.prototype._bindEvents = function() {
         self.viewer.saveLastLocation();
         self.switchTo('page-library');
     }, true);
+
+    // app
+    // ---
+    window.onbeforeunload = function(event) {
+        self._onAppClose(event);
+    };
 };
 
 App.prototype._handleFileSelect = function(file) {
@@ -107,6 +113,10 @@ App.prototype._importBook = function(file, importer) {
     };
 
     reader.readAsBinaryString(file);
+};
+
+App.prototype._onAppClose = function(event) {
+    // TODO: implement save of last page
 };
 
 return App;

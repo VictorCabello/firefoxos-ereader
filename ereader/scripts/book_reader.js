@@ -135,6 +135,8 @@ function BookReader(container, bookData, location) {
     this.components = new Array(this.bookData.getComponentCount());
     this.componentLoadQueue = [];
 
+    this.controlsEnabled = true;
+
     this._updateComponentLengths();
     this._bindEvents();
 
@@ -146,12 +148,16 @@ function BookReader(container, bookData, location) {
 }
 
 BookReader.prototype.enableGestures = function() {
+    console.log('ENABLED GESTURES');
     this.gestures.startDetecting();
+    this.controlsEnabled = true;
 };
 
 BookReader.prototype.disableGestures = function() {
+    console.log('DISABLED GESTURES');
     this.gestures.stopDetecting();
-}
+    this.controlsEnabled = false;
+};
 
 BookReader.prototype.goToLocation = function(loc) {
     var self = this;
@@ -421,12 +427,12 @@ BookReader.prototype._bindEvents = function() {
 
    this.overlay.getElementsByClassName('right')[0].
    addEventListener('tap', function(event) {
-       self.nextPage();
+       if (self.controlsEnabled) self.nextPage();
    });
 
    this.overlay.getElementsByClassName('left')[0].
    addEventListener('tap', function(event) {
-       self.previousPage();
+       if (self.controlsEnabled) self.previousPage();
    });
 
    this.container.addEventListener('swipe', function(event) {
