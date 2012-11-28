@@ -1,37 +1,34 @@
 define([
     'vendor/monocle/monocore',
     'vendor/hogan',
-    'book_flipper',
-    'book_reader'
-], function(Monocore, hogan, BookFlipper, Reader) {
+    'book_reader',
+    'book_toc',
+], function(Monocore, hogan, Reader, BookToc) {
 
 function BookViewer(containerId) {
     this.container = document.getElementById(containerId);
     this.bookContainer = this.container.getElementsByClassName('reader')[0];
     this.overlay = this.container.getElementsByClassName('overlay')[0];
-    this.tocContainer = this.container.getElementsByClassName('toc')[0];
+    this.tocContainer = this.container.getElementsByClassName(
+        'toc-container')[0];
+
+    // this.tocContainer = this.container.getElementsByClassName('toc')[0];
     this.wrapper = this.container.getElementsByClassName('wrapper')[0];
     this.controlsEnabled = true;
+
     this.book = null;
     this.reader = null;
-    this._bindEvents();
+    this.toc = null;
 
-    this.tocTemplate = Hogan.compile(
-    '<ul>' +
-    '{{#toc}}' +
-    '  <li><a href="#" data-target="{{src}}" class="toc-link">' +
-    '  {{title}}</a></li>' +
-    '{{/toc}}' +
-    '</ul>'
-    );
+    this._bindEvents();
 }
 
 BookViewer.prototype.showBook = function(book) {
     this.book = book;
     this.reader = new Reader.BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
-    this.tocContainer.getElementsByClassName('inner')[0].innerHTML =
-        this.tocTemplate.render({toc: this.book.getContents()});
+    this.toc = new BookToc(this.tocContainer, this.book.getContents());
+
     this.reader.enableGestures();
 };
 
@@ -47,8 +44,7 @@ BookViewer.prototype._bindEvents = function() {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) {
-            self.overlay.style.display = 'block';
-            self.reader.disableGestures();
+            self._showOverlay();
         }
     }, false);
 
@@ -56,8 +52,7 @@ BookViewer.prototype._bindEvents = function() {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) {
-            self.overlay.style.display = 'none';
-            self.reader.enableGestures();
+            self._hideOverlay();
         }
     }, false);
 
@@ -95,23 +90,41 @@ BookViewer.prototype._bindEvents = function() {
     addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-
-        if (self.wrapper.getAttribute('data-state') == 'drawer') {
-            var state = 'none';
-            self.controlsEnabled = true;
-            self.reader.enableGestures();
-        }
-        else {
-            var state = 'drawer';
-            self.controlsEnabled = false;
-            self.reader.disableGestures();
-        }
-
-        self.wrapper.setAttribute('data-state', state);
+        self._toggleTocPanel();
     }, false);
-}
+
+    self.tocContainer.addEventListener('tocitemselected', function(event) {
+        self.reader.goToComponentLocation(event.detail);
+        self._toggleTocPanel();
+        self._hideOverlay();
+    }, false);
+};
+
+BookViewer.prototype._toggleTocPanel = function() {
+    if (this.wrapper.getAttribute('data-state') == 'drawer') {
+        var state = 'none';
+        this.controlsEnabled = true;
+        this.reader.enableGestures();
+    }
+    else {
+        var state = 'drawer';
+        this.controlsEnabled = false;
+        this.reader.disableGestures();
+    }
+
+    this.wrapper.setAttribute('data-state', state);
+};
+
+BookViewer.prototype._hideOverlay = function() {
+    this.overlay.style.display = 'none';
+    this.reader.enableGestures();
+};
+
+BookViewer.prototype._showOverlay = function() {
+    this.overlay.style.display = 'block';
+    this.reader.disableGestures();
+};
 
 return BookViewer;
 
 });
-

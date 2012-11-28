@@ -9,6 +9,10 @@ div.reader {
     position: relative;
 }
 
+section.overlay {
+    -moz-user-select: none;
+}
+
 div.reader-overlay {
     width: 320px;
     height: 460px;

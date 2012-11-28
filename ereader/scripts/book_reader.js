@@ -139,11 +139,7 @@ function BookReader(container, bookData, location) {
     this._updateComponentLengths();
     this._bindEvents();
 
-    var self = this;
-    this._loadComponent(location.componentIndex, function(component) {
-        self.currentComponent = component;
-        self.goToLocation(location.cursor);
-    });
+    this.goToComponentLocation(location);
 }
 
 BookReader.prototype.enableGestures = function() {
@@ -154,6 +150,17 @@ BookReader.prototype.enableGestures = function() {
 BookReader.prototype.disableGestures = function() {
     this.gestures.stopDetecting();
     this.controlsEnabled = false;
+};
+
+BookReader.prototype.goToComponentLocation = function(location, callback) {
+    console.log('GO TO: ');
+    console.log(location);
+    var self = this;
+    this._loadComponent(location.componentIndex, function(component) {
+        self.currentComponent = component;
+        self.goToLocation(location.cursor);
+        if (callback) callback();
+    });
 };
 
 BookReader.prototype.goToLocation = function(loc) {
