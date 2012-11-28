@@ -2,10 +2,10 @@ define([
 ],
 function() {
 
-function BookData(metadata, components) {
+function BookData(metadata, components, toc) {
     this.metadata = metadata || {};
     this.components = components || {};
-    this.toc = [];
+    this.toc = toc || [];
 }
 
 BookData.prototype.getComponents = function() {

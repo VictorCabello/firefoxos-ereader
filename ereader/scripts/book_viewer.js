@@ -1,8 +1,9 @@
 define([
     'vendor/monocle/monocore',
+    'vendor/hogan',
     'book_flipper',
     'book_reader'
-], function(Monocore, BookFlipper, Reader) {
+], function(Monocore, hogan, BookFlipper, Reader) {
 
 function BookViewer(containerId) {
     this.container = document.getElementById(containerId);
@@ -14,12 +15,23 @@ function BookViewer(containerId) {
     this.book = null;
     this.reader = null;
     this._bindEvents();
+
+    this.tocTemplate = Hogan.compile(
+    '<ul>' +
+    '{{#toc}}' +
+    '  <li><a href="#" data-target="{{src}}" class="toc-link">' +
+    '  {{title}}</a></li>' +
+    '{{/toc}}' +
+    '</ul>'
+    );
 }
 
 BookViewer.prototype.showBook = function(book) {
     this.book = book;
     this.reader = new Reader.BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
+    this.tocContainer.getElementsByClassName('inner')[0].innerHTML =
+        this.tocTemplate.render({toc: this.book.getContents()});
     this.reader.enableGestures();
 };
 

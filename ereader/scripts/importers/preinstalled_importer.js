@@ -28,7 +28,7 @@ define(['book_data', 'book'], function(BookData, Book) {
 
     this._container = container;
     this._loadingContainer = this._container.
-      getElementsByClassName('loading')[0];
+        getElementsByClassName('loading')[0];
     this._progressBar = this._container.getElementsByTagName('progress')[0];
   }
 

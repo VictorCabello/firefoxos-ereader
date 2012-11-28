@@ -1,8 +1,7 @@
 define([
-    'vendor/hogan',
     'utils',
     'vendor/gaia/gesture_detector'
-], function(hogan, utils, GestureDetector) {
+], function(utils, GestureDetector) {
 
 function Component(index, componentId, bookDataComponent, lengthOffset,
 ownLength) {
@@ -148,13 +147,11 @@ function BookReader(container, bookData, location) {
 }
 
 BookReader.prototype.enableGestures = function() {
-    console.log('ENABLED GESTURES');
     this.gestures.startDetecting();
     this.controlsEnabled = true;
 };
 
 BookReader.prototype.disableGestures = function() {
-    console.log('DISABLED GESTURES');
     this.gestures.stopDetecting();
     this.controlsEnabled = false;
 };

@@ -56,6 +56,10 @@ Book.prototype.getAuthor = function() {
     return this.bookData.getMetaData('author') || 'Unknown';
 };
 
+Book.prototype.getContents = function() {
+    return this.bookData.getContents();
+};
+
 Book.prototype.saveInfo = function(callback) {
     var self = this;
     var bookInfo = self._serializeBookInfo();
@@ -100,7 +104,8 @@ Book.prototype._load = function(bookId, callback) {
     var self = this;
     this._deserializeBookInfo(bookId, function(bookInfo) {
         self._deserializeContent(bookId, bookInfo.spine, function(content) {
-            self.bookData = new BookData(bookInfo.metadata, content);
+            self.bookData = new BookData(bookInfo.metadata, content,
+                bookInfo.toc);
             if (callback) callback();
         });
     });
@@ -111,7 +116,8 @@ Book.prototype._serializeBookInfo = function() {
     return {
         metadata: this.bookData.metadata,
         contentKey: this.getId(),
-        spine: this.bookData.getComponents()
+        spine: this.bookData.getComponents(),
+        toc: this.bookData.toc
     };
 };
 
