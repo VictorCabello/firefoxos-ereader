@@ -10,7 +10,6 @@ ownLength) {
     this.src = bookDataComponent;
     this.lengthOffset = lengthOffset;
     this.ownLength = ownLength;
-    this.puta = Math.floor(Math.random() * 10000);
 }
 
 Component.prototype.loadToFrame = function(frameName, frame, callback) {
@@ -150,6 +149,18 @@ BookReader.prototype.enableGestures = function() {
 BookReader.prototype.disableGestures = function() {
     this.gestures.stopDetecting();
     this.controlsEnabled = false;
+};
+
+BookReader.prototype.goToTarget = function(target, callback) {
+    if (target.anchor == null) {
+        this.goToComponentLocation({
+            componentIndex: target.componentIndex,
+            cursor: 0
+        }, callback);
+    }
+    else {
+        console.log('TODO');
+    }
 };
 
 BookReader.prototype.goToComponentLocation = function(location, callback) {

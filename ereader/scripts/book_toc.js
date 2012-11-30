@@ -2,8 +2,9 @@ define([
     'vendor/hogan'
 ], function(hogan) {
 
-function BookToc(container, contents) {
+function BookToc(container, contents, components) {
     this.contents = contents || [];
+    this.components = components || [];
     this.container = container;
 
     this.template = Hogan.compile(
@@ -31,23 +32,35 @@ BookToc.prototype._bindEvents = function() {
         links[i].addEventListener('click', function(event) {
             event.stopPropagation();
             event.preventDefault();
+            var itemTarget = self._getTocItemTarget(
+                this.getAttribute('data-target'));
             self.container.dispatchEvent(new CustomEvent('tocitemselected', {
-                detail: self._getLocation(this.getAttribute('data-target'))
+                detail: itemTarget
             }));
         }, false);
     }
 };
 
-BookToc.prototype._getLocation = function(target) {
+BookToc.prototype._getTocItemTarget = function(target) {
     var index = 0;
-    for (index = 0; index < this.contents.length; index++) {
-        if (this.contents[index].src == target) break;
+    var anchor = null;
+
+    var matches = /(\.)+#?(\.)/.exec(target);
+    if (matches && matches.length == 2) {
+        target = matches[1];
+        anchor = matches[2];
     }
-    if (index == this.contents.length) throw ('Target not found');
+
+
+    for (index = 0; index < this.components.length; index++) {
+        if (this.components[index] == target) break;
+    }
+    if (index == this.components.length) throw ('Target not found');
+
 
     return {
         componentIndex: index,
-        cursor: 0
+        anchor: anchor
     };
 };
 

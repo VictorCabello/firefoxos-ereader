@@ -60,6 +60,10 @@ Book.prototype.getContents = function() {
     return this.bookData.getContents();
 };
 
+Book.prototype.getComponents = function() {
+    return this.bookData.getComponents();
+};
+
 Book.prototype.saveInfo = function(callback) {
     var self = this;
     var bookInfo = self._serializeBookInfo();

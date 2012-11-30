@@ -31,7 +31,8 @@ BookViewer.prototype.showBook = function(book) {
         // debugger;
         console.log('No TOC');
     }
-    this.toc = new BookToc(this.tocContainer, this.book.getContents());
+    this.toc = new BookToc(this.tocContainer, this.book.getContents(),
+        this.book.getComponents());
 
     this.reader.enableGestures();
 };
@@ -98,7 +99,7 @@ BookViewer.prototype._bindEvents = function() {
     }, false);
 
     self.tocContainer.addEventListener('tocitemselected', function(event) {
-        self.reader.goToComponentLocation(event.detail);
+        self.reader.goToTarget(event.detail);
         self._toggleTocPanel();
         self._hideOverlay();
     }, false);
