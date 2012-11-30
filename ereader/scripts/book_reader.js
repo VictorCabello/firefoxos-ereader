@@ -152,29 +152,45 @@ BookReader.prototype.disableGestures = function() {
 };
 
 BookReader.prototype.goToTarget = function(target, callback) {
-    if (target.anchor == null) {
-        this.goToComponentLocation({
-            componentIndex: target.componentIndex,
-            cursor: 0
-        }, callback);
-    }
-    else {
-        console.log('TODO');
-    }
-};
-
-BookReader.prototype.goToComponentLocation = function(location, callback) {
-    console.log('GO TO: ');
-    console.log(location);
+    var cursor = 0;
     var self = this;
-    this._loadComponent(location.componentIndex, function(component) {
-        self.currentComponent = component;
-        self.goToLocation(location.cursor);
+
+    var targetCallback = function() {
+        self.currentComponent.goToPage('main', self.frames['main'],
+            self._findCursorForAnchor(target.anchor));
         if (callback) callback();
+    };
+
+    this._loadComponent(target.componentIndex, function(component) {
+        self.currentComponent = self.components[target.componentIndex];
+        self.goToLocation(0, (target.anchor == null) ?
+            callback : targetCallback);
     });
 };
 
-BookReader.prototype.goToLocation = function(loc) {
+BookReader.prototype._findCursorForAnchor = function(anchor) {
+    var doc = self.frames['main'].node;
+    var node = doc.getElementById(anchor);
+    if (!node) return 0;
+
+    var offset = node.getBoundingClientRect().left -
+        doc.body.getBoundingClientRect().left;
+
+    // // We know at least 1px will be visible, and offset should not be 0.
+    // offset += 1;
+
+    return Math.ceil(offset / self.currentComponent.totalWidth);
+};
+
+BookReader.prototype.goToComponentLocation = function(location, callback) {
+    var self = this;
+    this._loadComponent(location.componentIndex, function(component) {
+        self.currentComponent = component;
+        self.goToLocation(location.cursor, callback);
+    });
+};
+
+BookReader.prototype.goToLocation = function(loc, callback) {
     var self = this;
 
     this.container.addEventListener('cursorchanged', function(event) {
@@ -182,6 +198,7 @@ BookReader.prototype.goToLocation = function(loc) {
             self.cursor);
         self.container.removeEventListener('cursorchanged', arguments.callee,
             false);
+        if (callback) callback();
     }, false);
 
     this.currentComponent.loadToFrame('main', this.frames['main']);
