@@ -53,9 +53,8 @@ EPubImporter.prototype._processCallback = function(step, extras, epub) {
 EPubImporter.prototype._onParsingDone = function(epub) {
     this._loadingContainer.style.display = 'none';
 
-    var bookData = new BookData();
-    bookData.metadata = this._readMetadata(epub);
-    bookData.components = this._readContent(epub);
+    var bookData = new BookData(this._readMetadata(epub),
+        this._readContent(epub), epub.opf.toc);
 
     var book = new Book({bookData: bookData});
 
@@ -80,7 +79,7 @@ EPubImporter.prototype._readMetadata = function(epub) {
 	}));
 
 	return metadata;
-}
+};
 
 EPubImporter.prototype._readContent = function(epub) {
     var components = {};

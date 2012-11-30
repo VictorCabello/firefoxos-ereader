@@ -73,9 +73,12 @@
             notifier(3);
             this.opfPath = this.getOpfPathFromContainer();
             this.readOpf(this.files[this.opfPath]);
+            this.readToC();
 
             notifier(4);
+
             this.postProcess();
+
             notifier(5);
         },
 
@@ -105,6 +108,53 @@
             return doc
                 .getElementsByTagName("rootfile")[0]
                 .getAttribute("full-path");
+        },
+
+        readNcx: function(xml) {
+            function readInnerXml(node) {
+                return (new XMLSerializer()).serializeToString(node);
+            }
+            function readNavPoint(navPoint) {
+                var items = navPoint.childNodes;
+                var target = null;
+                var label = null;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].tagName == 'content') {
+                        target = items[i].getAttribute('src');
+                    }
+                    else if (items[i].tagName == 'navLabel') {
+                        label = />(.+)</.exec(readInnerXml(items[i].
+                            getElementsByTagName('text')[0]))[1];
+                    }
+                }
+
+                var tocItem = null;
+                if (target && label) {
+                    tocItem = {
+                        src: target,
+                        title: label
+                    };
+                }
+
+                return tocItem;
+            }
+
+            var doc = this.xmlDocument(xml);
+            // var doc = xml;
+            var ns = doc.getElementsByTagName('ncx')[0].getAttribute('xmlns');
+            var x = doc.getElementsByTagNameNS(ns, 'navMap')[0];
+            var items = x.childNodes;
+
+            var toc = [];
+
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].tagName == 'navPoint') {
+                    var tocItem = readNavPoint(items[i]);
+                    if (tocItem) toc.push(tocItem);
+                }
+            }
+
+            return toc;
         },
 
         readOpf: function (xml) {
@@ -226,6 +276,27 @@
             });
 
             return file;
+        },
+
+        readToC: function() {
+            var tocFilename = null;
+            for (key in this.opf.manifest) {
+                var resource = this.opf.manifest[key];
+                if (resource.href.match(/\.ncx$/)) {
+                    tocFilename = resource.href;
+                    break;
+                }
+            }
+
+            if (tocFilename) {
+                try {
+                    var toc = this.readNcx(this.files[tocFilename]);
+                }
+                catch (e) {
+                    var toc = [];
+                }
+                this.opf.toc = toc;
+            }
         },
 
         postProcessHTML: function (href) {
