@@ -45,18 +45,17 @@ BookToc.prototype._getTocItemTarget = function(target) {
     var index = 0;
     var anchor = null;
 
-    var matches = /(\.)+#?(\.)/.exec(target);
-    if (matches && matches.length == 2) {
+    var matches = /(.+)#(.+)/.exec(target);
+    if (matches && matches.length == 3) {
         target = matches[1];
         anchor = matches[2];
     }
 
-
     for (index = 0; index < this.components.length; index++) {
         if (this.components[index] == target) break;
     }
-    if (index == this.components.length) throw ('Target not found');
 
+    if (index == this.components.length) throw ('Target not found');
 
     return {
         componentIndex: index,

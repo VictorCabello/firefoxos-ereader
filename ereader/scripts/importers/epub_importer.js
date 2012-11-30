@@ -89,7 +89,7 @@ EPubImporter.prototype._readContent = function(epub) {
         var href = epub.opf.manifest[key].href;
         var body = epub.files[href].getElementsByTagName('body')[0];
 
-        components[key] = body.innerHTML;
+        components[href] = body.innerHTML; // TODO: aqui
         // TODO: save other files in the manifest into local storage
     }
 

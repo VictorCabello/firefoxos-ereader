@@ -28,8 +28,8 @@ BookViewer.prototype.showBook = function(book) {
     this.reader = new Reader.BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
     if (!this.book.getContents() || this.book.getContents().length == 0) {
-        // debugger;
         console.log('No TOC');
+        // TODO
     }
     this.toc = new BookToc(this.tocContainer, this.book.getContents(),
         this.book.getComponents());

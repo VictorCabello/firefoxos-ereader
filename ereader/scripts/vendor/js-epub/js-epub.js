@@ -110,7 +110,7 @@
                 .getAttribute("full-path");
         },
 
-        readNcx: function(xml) {
+        readNcx: function(xml, tocPrefix) {
             function readInnerXml(node) {
                 return (new XMLSerializer()).serializeToString(node);
             }
@@ -131,7 +131,7 @@
                 var tocItem = null;
                 if (target && label) {
                     tocItem = {
-                        src: target,
+                        src: tocPrefix + target,
                         title: label
                     };
                 }
@@ -280,9 +280,12 @@
 
         readToC: function() {
             var tocFilename = null;
+            var tocPrefix = null;
             for (key in this.opf.manifest) {
                 var resource = this.opf.manifest[key];
-                if (resource.href.match(/\.ncx$/)) {
+                var matches = /(.*\/)?.+\.ncx$/.exec(resource.href);
+                if (matches) {
+                    tocPrefix = matches[1];
                     tocFilename = resource.href;
                     break;
                 }
@@ -290,7 +293,8 @@
 
             if (tocFilename) {
                 try {
-                    var toc = this.readNcx(this.files[tocFilename]);
+                    var toc = this.readNcx(this.files[tocFilename],
+                        tocPrefix);
                 }
                 catch (e) {
                     var toc = [];

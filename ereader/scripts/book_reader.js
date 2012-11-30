@@ -156,41 +156,45 @@ BookReader.prototype.goToTarget = function(target, callback) {
     var self = this;
 
     var targetCallback = function() {
-        self.currentComponent.goToPage('main', self.frames['main'],
-            self._findCursorForAnchor(target.anchor));
-        if (callback) callback();
+        self._goToLocation(self._findCursorForAnchor(target.anchor));
     };
 
-    this._loadComponent(target.componentIndex, function(component) {
-        self.currentComponent = self.components[target.componentIndex];
-        self.goToLocation(0, (target.anchor == null) ?
-            callback : targetCallback);
-    });
+    this.goToComponentLocation({
+        componentIndex: target.componentIndex,
+        cursor: 0
+    }, target.anchor == null ? callback : targetCallback);
 };
 
 BookReader.prototype._findCursorForAnchor = function(anchor) {
-    var doc = self.frames['main'].node;
+    var doc = this.frames['main'].node.contentDocument;
     var node = doc.getElementById(anchor);
-    if (!node) return 0;
+    var cursor = 0;
 
-    var offset = node.getBoundingClientRect().left -
-        doc.body.getBoundingClientRect().left;
+    if (node) {
+        var offset = node.getBoundingClientRect().left -
+            doc.body.getBoundingClientRect().left;
+        cursor = Math.floor(offset / this.currentComponent.pageWidth);
+    }
 
-    // // We know at least 1px will be visible, and offset should not be 0.
-    // offset += 1;
-
-    return Math.ceil(offset / self.currentComponent.totalWidth);
+    return cursor;
 };
 
 BookReader.prototype.goToComponentLocation = function(location, callback) {
     var self = this;
+
     this._loadComponent(location.componentIndex, function(component) {
         self.currentComponent = component;
-        self.goToLocation(location.cursor, callback);
+
+        self.currentComponent.loadToFrame('main', self.frames['main']);
+        self.currentComponent.loadToFrame('other', self.frames['other'],
+            function() {
+                self._goToLocation(location.cursor, callback);
+            }
+        );
     });
 };
 
-BookReader.prototype.goToLocation = function(loc, callback) {
+BookReader.prototype._goToLocation = function(loc, callback) {
     var self = this;
 
     this.container.addEventListener('cursorchanged', function(event) {
@@ -201,12 +205,7 @@ BookReader.prototype.goToLocation = function(loc, callback) {
         if (callback) callback();
     }, false);
 
-    this.currentComponent.loadToFrame('main', this.frames['main']);
-    this.currentComponent.loadToFrame('other', this.frames['other'],
-        function() {
-            self._updateCursor(loc);
-        }
-    );
+    self._updateCursor(loc);
 };
 
 BookReader.prototype.nextPage = function() {
