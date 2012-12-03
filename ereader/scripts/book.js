@@ -79,6 +79,11 @@ Book.prototype.saveInfo = function(callback) {
     });
 };
 
+Book.prototype.saveLastLocation = function(callback) {
+    var key = this.getId() + '__last_location';
+    localStorage.setItem(key, JSON.stringify(this.lastLocation));
+};
+
 Book.prototype.save = function(callback) {
     var self = this;
     var content = self._serializeContent();
@@ -110,18 +115,19 @@ Book.prototype._load = function(bookId, callback) {
         self._deserializeContent(bookId, bookInfo.spine, function(content) {
             self.bookData = new BookData(bookInfo.metadata, content,
                 bookInfo.toc);
+            self.lastLocation = self._deserializeLastLocation(bookId);
+
             if (callback) callback();
         });
     });
 };
-
 
 Book.prototype._serializeBookInfo = function() {
     return {
         metadata: this.bookData.metadata,
         contentKey: this.getId(),
         spine: this.bookData.getComponents(),
-        toc: this.bookData.toc
+        toc: this.bookData.toc,
     };
 };
 
@@ -175,6 +181,22 @@ Book.prototype._deserializeContent = function(bookId, spine, callback) {
         var storedKey = bookId + '__spine__' + spine[i];
         loadContent(i, storedKey);
     }
+};
+
+Book.prototype._deserializeLastLocation = function(bookId) {
+    var raw = localStorage.getItem(bookId + '__last_location');
+    var location = {
+        componentIndex: 0,
+        cursor: 0
+    };
+
+    try {
+        location = JSON.parse(raw);
+    }
+    catch (e) {
+    }
+
+    return location;
 };
 
 return Book;

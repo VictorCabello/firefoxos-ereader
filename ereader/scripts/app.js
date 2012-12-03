@@ -116,6 +116,9 @@ App.prototype._importBook = function(file, importer) {
 };
 
 App.prototype._onAppClose = function(event) {
+    if (this.viewer) {
+        this.viewer.saveLastLocation();
+    }
     // TODO: implement save of last page
 };
 

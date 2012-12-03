@@ -7,11 +7,6 @@
     "name": "The Gaia Team",
     "url": "https://github.com/mozilla-b2g/gaia"
   },
-  "permissions": {
-    "alarms":{},
-    "settings":{},
-    "attention":{}
-  },
   "locales": {
     "es": {
       "name": "eReader",
@@ -20,8 +15,7 @@
   },
   "default_locale": "es",
   "icons": {
-    "120": "/icons/Clock.png",
-    "60": "/icons/60/Clock.png"
-  },
-  "orientation": "portrait-primary"
+    "120": "/style/icons/Clock.png",
+    "60": "/style/icons/60/Clock.png"
+  }
 }

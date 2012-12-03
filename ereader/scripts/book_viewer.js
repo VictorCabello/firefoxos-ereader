@@ -38,8 +38,10 @@ BookViewer.prototype.showBook = function(book) {
 };
 
 BookViewer.prototype.saveLastLocation = function() {
-    this.book.lastLocation = this.reader.getCurrentLocation();
-    // this.book.save(true);
+    if (this.reader && this.book) {
+        this.book.lastLocation = this.reader.getCurrentLocation();
+        this.book.saveLastLocation();
+    }
 };
 
 BookViewer.prototype._bindEvents = function() {
