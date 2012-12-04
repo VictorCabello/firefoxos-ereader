@@ -28,6 +28,8 @@ define(['book_data', 'book'], function(BookData, Book) {
         {title: 'Letter 3', src: 'chap2.html'}
     ];
 
+    this.bookData.spine = Object.keys(this.bookData.components);
+
     this._container = container;
     this._loadingContainer = this._container.
         getElementsByClassName('loading')[0];
