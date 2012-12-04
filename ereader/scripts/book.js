@@ -30,6 +30,35 @@ function Book(data) {
     }
 }
 
+Book.deleteFromStorage = function(bookId) {
+    Book._deleteBookInfo(bookId, function(bookInfo) {
+        // remove book contents
+        for (var i = 0; i < bookInfo.spine.length; i++) {
+            asyncStorage.removeItem(bookId + '__spine__' + bookInfo.spine[i]);
+        }
+
+        // remove lastLocation
+        localStorage.removeItem(bookId + '__last_location');
+    });
+};
+
+Book._deleteBookInfo = function(bookId, callback) {
+    // update array with bookinfos
+    var bookInfo = null;
+    asyncStorage.getItem('books', function(value) {
+        var books = JSON.parse(value);
+        for (var i = 0; i < books.length; i++) {
+            if (books[i].contentKey == bookId) {
+                bookInfo = books.splice(i, 1)[0];
+                break;
+            }
+        }
+        if (callback) callback(bookInfo);
+        // save content
+        asyncStorage.setItem('books', JSON.stringify(books));
+    });
+};
+
 Book.prototype.isEqualTo = function(other) {
     try {
         return this.getId() == other.getId();

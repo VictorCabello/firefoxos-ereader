@@ -6,7 +6,7 @@ function BookData(metadata, components, toc, spine) {
     this.metadata = metadata || {};
     this.components = components || {};
     this.toc = toc || [];
-    this.spine = spine || Object.keys(components);
+    this.spine = spine || Object.keys(this.components);
 }
 
 BookData.prototype.getComponents = function() {

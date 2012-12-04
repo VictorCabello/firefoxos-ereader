@@ -74,8 +74,23 @@ Library.prototype.addBook = function(book) {
     this.render();
 };
 
+Library.prototype.removeBook = function(bookId) {
+    var book = null;
+    for (var i = 0; i < this.books.length; i++) {
+        if (this.books[i].contentKey == bookId) {
+            book = this.books.splice(i, 1)[0];
+            break;
+        }
+    }
+    if (book) {
+        Book.deleteFromStorage(bookId);
+        this.render();
+    }
+}
+
 Library.prototype.clear = function() {
     asyncStorage.clear();
+    localStorage.clear();
     this.books = [];
     this.render();
 };
@@ -136,6 +151,7 @@ Library.prototype._bindBookPan = function(bookNode) {
             event.preventDefault();
             event.stopPropagation();
             closeDialog(bookNode, node);
+            self.removeBook(bookNode.getAttribute('data-bookid'));
         });
 
         var closeButton = node.getElementsByClassName('cancel')[0];
