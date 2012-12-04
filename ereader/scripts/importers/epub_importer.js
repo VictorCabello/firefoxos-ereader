@@ -56,6 +56,8 @@ EPubImporter.prototype._onParsingDone = function(epub) {
     var bookData = new BookData(this._readMetadata(epub),
         this._readContent(epub), epub.opf.toc);
 
+    var splittedBookData = (new BookSplitter(bookData)).splitFiles();
+
     var book = new Book({bookData: bookData});
 
     document.dispatchEvent(new CustomEvent('bookimported', {
@@ -96,6 +98,125 @@ EPubImporter.prototype._readContent = function(epub) {
     return components;
 };
 
+// splitter methods
+// TODO: refactorise this in its own file
+// ---------------------------------------
+
+function BookSplitter(bookData) {
+    this.bookData = bookData;
+}
+
+BookSplitter.prototype.splitFiles = function() {
+    if (this.bookData.toc) {
+        var items = this._findItemsWithAnchors();
+        var groups = this._groupByHref(items);
+        for (key in groups) {
+            var ranges = this._sliceGroup(groups[key]);
+            this._addRangesToBookData(groups[key], ranges);
+        }
+    }
+    return this.bookData;
+};
+
+BookSplitter.prototype._addRangesToBookData = function(group, ranges) {
+    var self = this;
+
+    var addComponents = function(hrefPrefix, bookData) {
+        var newIds = [];
+
+        for (var i = 0; i < ranges.length; i++) {
+            var html = (new XMLSerializer()).serializeToString(
+                ranges[i].extractContents());
+            var componentId = hrefPrefix + '__' + group[i].anchor;
+
+            self.bookData.components[componentId] = html;
+            newIds.push(componentId);
+        }
+
+        return newIds;
+    };
+
+    var addToSpine = function(originalId, newIds) {
+        var spine = self.bookData.getComponents();
+        var originalIndex = spine.indexOf(originalId);
+
+        spine.splice.apply(spine, [originalIndex, 1].concat(newIds));
+        self.bookData.spine = spine;
+    };
+
+    var updateToC = function(newIds) {
+        var toc = self.bookData.getContents();
+        for (var i = 0; i < newIds.length; i++) {
+            for (var j = 0; j < toc.length; j++) {
+                if (toc[j].src.replace('#', '__') == newIds[i]) {
+                    toc[j].src = newIds[i];
+                }
+            }
+        }
+
+        self.bookData.toc = toc;
+    };
+
+    var hrefPrefix = group[0].href;
+    var newIds = addComponents(hrefPrefix);
+    addToSpine(hrefPrefix, newIds);
+    updateToC(newIds);
+}
+
+BookSplitter.prototype._findItemsWithAnchors = function() {
+    var items = [];
+    for (var i = 0; i < this.bookData.toc.length; i++) {
+        var matches = /(.+)#(.+)/.exec(this.bookData.toc[i].src);
+        if (matches.length == 3) {
+            items.push({
+                href: matches[1],
+                anchor: matches[2]
+            });
+        }
+    }
+    return items;
+};
+
+BookSplitter.prototype._groupByHref = function(items) {
+    var groups = {};
+    for (var i = 0; i < items.length; i++) {
+        if (!groups[items[i].href]) {
+            groups[items[i].href] = [items[i]];
+        }
+        else {
+            groups[items[i].href].push(items[i]);
+        }
+    }
+    // remove all groups with just 1 element
+    var filtered = {};
+    for (var key in groups) {
+        if (groups[key].length > 1) filtered[key] = groups[key];
+    }
+
+    return filtered;
+};
+
+BookSplitter.prototype._sliceGroup = function(group) {
+    var doc = document.implementation.createHTMLDocument('junk');
+    doc.body.innerHTML = this.bookData.getComponent([group[0].href]);
+
+    var ranges = [];
+
+    for (var i = 0; i < group.length; i++) {
+        var range = doc.createRange();
+        var start = doc.getElementById(group[i].anchor);
+        range.setStartBefore(start);
+        if (i < group.length - 1) {
+            range.setEndBefore(doc.getElementById(group[i + 1].anchor));
+        }
+        else {
+            range.setEndAfter(start.parentNode.lastChild);
+        }
+
+        ranges.push(range);
+    }
+    return ranges;
+};
 
 return EPubImporter;
 

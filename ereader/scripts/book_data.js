@@ -2,18 +2,19 @@ define([
 ],
 function() {
 
-function BookData(metadata, components, toc) {
+function BookData(metadata, components, toc, spine) {
     this.metadata = metadata || {};
     this.components = components || {};
     this.toc = toc || [];
+    this.spine = spine || Object.keys(components);
 }
 
 BookData.prototype.getComponents = function() {
-    return Object.keys(this.components);
+    return this.spine;
 };
 
 BookData.prototype.getComponentCount = function() {
-    return Object.keys(this.components).length;
+    return this.spine.length;
 };
 
 BookData.prototype.getComponent = function(componentId, callback) {
@@ -33,7 +34,6 @@ BookData.prototype.getComponent = function(componentId, callback) {
 };
 
 BookData.prototype.getContents = function() {
-    // TODO: implement this!!!
     return this.toc;
 };
 
