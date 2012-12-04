@@ -169,7 +169,7 @@ BookSplitter.prototype._findItemsWithAnchors = function() {
     var items = [];
     for (var i = 0; i < this.bookData.toc.length; i++) {
         var matches = /(.+)#(.+)/.exec(this.bookData.toc[i].src);
-        if (matches.length == 3) {
+        if (matches && matches.length == 3) {
             items.push({
                 href: matches[1],
                 anchor: matches[2]

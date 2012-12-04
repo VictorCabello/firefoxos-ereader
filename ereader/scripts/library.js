@@ -86,7 +86,7 @@ Library.prototype.removeBook = function(bookId) {
         Book.deleteFromStorage(bookId);
         this.render();
     }
-}
+};
 
 Library.prototype.clear = function() {
     asyncStorage.clear();
@@ -108,7 +108,7 @@ Library.prototype._bindBookEvents = function(bookNode) {
     (new GestureDetector(bookNode)).startDetecting();
 
     this._bindBookTap(bookNode);
-    this._bindBookPan(bookNode);
+    this._bindBookSwipe(bookNode);
 };
 
 Library.prototype._bindBookTap = function(bookNode) {
@@ -129,7 +129,7 @@ Library.prototype._bindBookTap = function(bookNode) {
     }, false);
 };
 
-Library.prototype._bindBookPan = function(bookNode) {
+Library.prototype._bindBookSwipe = function(bookNode) {
     var self = this;
 
     var createDialog = function(book) {
@@ -162,10 +162,20 @@ Library.prototype._bindBookPan = function(bookNode) {
         });
     };
 
-    bookNode.addEventListener('pan', function(event) {
+    bookNode.addEventListener('swipe', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        bookNode.parentNode.setAttribute('data-state', 'edit');
+
+        var state = bookNode.parentNode.getAttribute('data-state') || '';
+
+        if (event.detail.direction == 'left') {
+            state = '';
+        }
+        else if (event.detail.direction == 'right' && state == '') {
+            state = 'edit';
+        }
+
+        bookNode.parentNode.setAttribute('data-state', state);
     });
 
     bookNode.parentNode.getElementsByClassName('action')[0].
