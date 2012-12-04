@@ -197,12 +197,20 @@ body[role="application"] ol[data-state="edit"] li {
   transform: translateX(5rem);
 }
 
+body[role="application"] ul li[data-state="edit"],
+body[role="application"] ol li[data-state="edit"] {
+  transform: translateX(5rem);
+}
+
 body[role="application"] ul[data-state="edit"] li > label.check,
-body[role="application"] ol[data-state="edit"] li > label.check {
+body[role="application"] ol[data-state="edit"] li > label.check,
+body[role="application"] li[data-state="edit"] > button.action,
+body[role="application"] li[data-state="edit"] > button.action {
    opacity: 1;
 }
 
-body[role="application"] li > label.check {
+body[role="application"] li > label.check,
+body[role="application"] li > button.action {
   transition: opacity 0.6s ease;
   width: 5rem;
   height: 6rem;

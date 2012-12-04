@@ -9,6 +9,14 @@ div.reader {
     position: relative;
 }
 
+div#current-page, section.page {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
 section.overlay {
     -moz-user-select: none;
 }

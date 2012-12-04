@@ -1,8 +1,10 @@
 define([
     'vendor/hogan',
     'book',
-    'vendor/gaia/async_storage'
-], function(hogan, Book, asyncStorage) {
+    'vendor/gaia/async_storage',
+    'vendor/gaia/gesture_detector',
+    'utils'
+], function(hogan, Book, asyncStorage, GestureDetector, utils) {
 
 function Library(container) {
     this.container = container;
@@ -10,7 +12,8 @@ function Library(container) {
     '<h2 class="bb-heading">Books</h2>' +
     '<ul>' +
     '{{#books}}' +
-    '  <li><a href="#" class="book" data-bookid="{{contentKey}}">' +
+    '  <li><button class="action danger"><big>&times;</big></button>' +
+    '  <a href="#" class="book" data-bookid="{{contentKey}}">' +
     '    <img src="images/no_cover.png">' +
     '    <dl>' +
     '        <dt><strong>{{metadata.title}}</strong></dt>' +
@@ -19,6 +22,23 @@ function Library(container) {
     '  </a></li>' +
     '{{/books}}' +
     '</ul>'
+    );
+
+    this.removeBookTemplate = Hogan.compile(
+    '<form role="dialog" onsubmit="return false;">' +
+    '    <section>' +
+    '       <p>' +
+    '           <strong>{{metadata.title}}</strong>' +
+    '           <small>{{metadata.creator}}</small>' +
+    '       </p>' +
+    '       <p>Are you sure you want to delete this book?</p>' +
+    '    </section>' +
+    '   <menu>' +
+    '       <button class="cancel">Cancel</button>' +
+    '       <button class="danger remove" data-bookid={{contentKey}}>' +
+    '       Delete</button>' +
+    '   </menu>' +
+    '   </form>'
     );
 
     this.books = [];
@@ -60,10 +80,25 @@ Library.prototype.clear = function() {
     this.render();
 };
 
+Library.prototype.getBookInfo = function(bookId) {
+    for (var i = 0; i < this.books.length; i++) {
+        if (this.books[i].contentKey == bookId) return this.books[i];
+    }
+    return null;
+};
+
 Library.prototype._bindBookEvents = function(bookNode) {
     var self = this;
 
-    bookNode.addEventListener('click', function(event) {
+    (new GestureDetector(bookNode)).startDetecting();
+
+    this._bindBookTap(bookNode);
+    this._bindBookPan(bookNode);
+};
+
+Library.prototype._bindBookTap = function(bookNode) {
+    bookNode.addEventListener('tap', function(event) {
+        event.stopPropagation();
         var bookId = this.getAttribute('data-bookid');
 
         if (!self.currentBook || self.currentBook.getId() != bookId) {
@@ -78,6 +113,54 @@ Library.prototype._bindBookEvents = function(bookNode) {
         }
     }, false);
 };
+
+Library.prototype._bindBookPan = function(bookNode) {
+    var self = this;
+
+    var createDialog = function(book) {
+        var node = document.createElement('div');
+        node.innerHTML = self.removeBookTemplate.render(book);
+        utils.addClass(node.getElementsByTagName('form')[0], 'visible');
+        self.container.appendChild(node);
+        return node;
+    };
+
+    var closeDialog = function(bookNode, node) {
+        self.container.removeChild(node);
+        bookNode.parentNode.setAttribute('data-state', '');
+    };
+
+    var bindDialogActions = function(bookNode, node) {
+        var removeButton = node.getElementsByClassName('remove')[0];
+        removeButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeDialog(bookNode, node);
+        });
+
+        var closeButton = node.getElementsByClassName('cancel')[0];
+        closeButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeDialog(bookNode, node);
+        });
+    };
+
+    bookNode.addEventListener('pan', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        bookNode.parentNode.setAttribute('data-state', 'edit');
+    });
+
+    bookNode.parentNode.getElementsByClassName('action')[0].
+    addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var node = createDialog(self.getBookInfo(
+            bookNode.getAttribute('data-bookid')));
+        bindDialogActions(bookNode, node);
+    });
+}
 
 Library.prototype._bindBookLoaded = function() {
     var self = this;
