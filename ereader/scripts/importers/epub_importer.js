@@ -133,6 +133,9 @@ BookSplitter.prototype._addRangesToBookData = function(group, ranges) {
             newIds.push(componentId);
         }
 
+        // remove original component
+        delete self.bookData.components[hrefPrefix];
+
         return newIds;
     };
 
@@ -153,7 +156,6 @@ BookSplitter.prototype._addRangesToBookData = function(group, ranges) {
                 }
             }
         }
-
         self.bookData.toc = toc;
     };
 
