@@ -1,45 +1,21 @@
 define([
-    'vendor/hogan',
     'book',
     'vendor/gaia/async_storage',
     'vendor/gaia/gesture_detector',
     'utils'
-], function(hogan, Book, asyncStorage, GestureDetector, utils) {
+], function(Book, asyncStorage, GestureDetector, utils) {
 
 function Library(container) {
     this.container = container;
-    this.bookListTemplate = Hogan.compile(
+    this.bookListTemplatePre =
     '<h2 class="bb-heading">Books</h2>' +
-    '<ul>' +
-    '{{#books}}' +
-    '  <li><button class="action danger"><big>&times;</big></button>' +
-    '  <a href="#" class="book" data-bookid="{{contentKey}}">' +
-    '    <img src="images/no_cover.png">' +
-    '    <dl>' +
-    '        <dt><strong>{{metadata.title}}</strong></dt>' +
-    '        <dd>{{metadata.creator}}</dd>' +
-    '    </dl>' +
-    '  </a></li>' +
-    '{{/books}}' +
-    '</ul>'
-    );
-
-    this.removeBookTemplate = Hogan.compile(
-    '<form role="dialog" onsubmit="return false;">' +
-    '    <section>' +
-    '       <p>' +
-    '           <strong>{{metadata.title}}</strong>' +
-    '           <small>{{metadata.creator}}</small>' +
-    '       </p>' +
-    '       <p>Are you sure you want to delete this book?</p>' +
-    '    </section>' +
-    '   <menu>' +
-    '       <button class="cancel">Cancel</button>' +
-    '       <button class="danger remove" data-bookid={{contentKey}}>' +
-    '       Delete</button>' +
-    '   </menu>' +
-    '   </form>'
-    );
+    '<ul role="tablist" class="filter" data-items="3">' +
+    '   <li role="tab" aria-selected="true"><a href="#">By access</a></li>' +
+    '   <li role="tab"><a href="#">By title</a></li>' +
+    '   <li role="tab"><a href="#">By author</a></li>' +
+    '</ul>' +
+    '<ul>';
+    this.bookListTemplatePost = '</ul>';
 
     this.books = [];
     this.currentBook = null;
@@ -56,11 +32,22 @@ function Library(container) {
 
 
 Library.prototype.render = function() {
-    var self = this;
 
-    this.container.innerHTML = this.bookListTemplate.render({
-        books:this.books
-    });
+    var html = this.bookListTemplatePre;
+    for (var i = 0; i < this.books.length; i++) {
+        var book = this.books[i];
+        html += '<li>';
+        html += '<button class="action danger"><big>&times;</big></button>'
+        html += '<a href="#" class="book" data-bookid="' +
+            book.contentKey + '">';
+        html += '<img src="images/no_cover.png">';
+        html += '<dl>';
+        html += '<dt><strong>' + book.metadata.title + '</strong></dt>';
+        html += '<dd>' + book.metadata.creator + '</dd>';
+        html += '</dl></a></li>';
+    }
+    html += this.bookListTemplatePost;
+    this.container.innerHTML = html;
 
     var bookNodes = this.container.getElementsByClassName('book');
     for (var i = 0; i < bookNodes.length; i++) {
@@ -70,7 +57,7 @@ Library.prototype.render = function() {
 
 Library.prototype.addBook = function(book) {
     var bookInfo = book._serializeBookInfo();
-    this.books.push(bookInfo);
+    this.books.unshift(bookInfo);
     this.render();
 };
 
@@ -122,6 +109,9 @@ Library.prototype._bindBookTap = function(bookNode) {
             });
         }
         else {
+            // save book at the beginning of the book list
+            self.currentBook.saveInfo();
+            // trigger event
             document.dispatchEvent(new CustomEvent('bookselected', {
                 detail: self.currentBook
             }));
@@ -134,7 +124,7 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 
     var createDialog = function(book) {
         var node = document.createElement('div');
-        node.innerHTML = self.removeBookTemplate.render(book);
+        node.innerHTML = self._renderRemoteBookTemplate(book);
         utils.addClass(node.getElementsByTagName('form')[0], 'visible');
         self.container.appendChild(node);
         return node;
@@ -198,6 +188,25 @@ Library.prototype._bindBookLoaded = function() {
         // self.container.removeEventListener('bookloaded',
         //     arguments.callee, false);
     }, false);
+};
+
+Library.prototype._renderRemoteBookTemplate = function(book) {
+    var html = '<form role="dialog" onsubmit="return false;">';
+    html += '<section>';
+    html += '<p>';
+    html += '<strong>' + book.metadata.title + '</strong>';
+    html += '<small>' + book.metadata.creator + '</small>';
+    html += '</p>';
+    html += '<p>Are you sure you want to delete this book?</p>';
+    html += '</section>';
+    html += '<menu>';
+    html += '<button class="cancel">Cancel</button>';
+    html += '<button class="danger remove" data-bookid="' +
+        book.contentKey + '">Delete</button>';
+    html += '</menu>';
+    html += '</form>';
+
+    return html;
 };
 
 return Library;

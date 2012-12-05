@@ -1,26 +1,31 @@
 define([
-    'vendor/hogan'
-], function(hogan) {
+], function() {
 
 function BookToc(container, contents, components) {
     this.contents = contents || [];
     this.components = components || [];
     this.container = container;
 
-    this.template = Hogan.compile(
+    this.template =
     '<ul>' +
     '{{#toc}}' +
     '  <li><a href="#" data-target="{{src}}" class="toc-link">' +
     '  {{title}}</a></li>' +
     '{{/toc}}' +
-    '</ul>'
-    );
+    '</ul>';
 
     this.render();
 }
 
 BookToc.prototype.render = function() {
-    this.container.innerHTML = this.template.render({toc: this.contents});
+    var html = '<ul>';
+    for (var i = 0; i < this.contents.length; i++) {
+        html += '<li><a href="#" data-target="' + this.contents[i].src +
+            '" class="toc-link">' + this.contents[i].title + '</a></li>';
+    }
+    html += '</ul>';
+
+    this.container.innerHTML = html;
     this._bindEvents();
 };
 

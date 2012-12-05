@@ -1,9 +1,8 @@
 define([
     'vendor/monocle/monocore',
-    'vendor/hogan',
     'book_reader',
     'book_toc',
-], function(Monocore, hogan, Reader, BookToc) {
+], function(Monocore, Reader, BookToc) {
 
 function BookViewer(containerId) {
     this.container = document.getElementById(containerId);

@@ -97,10 +97,21 @@ Book.prototype.saveInfo = function(callback) {
     var self = this;
     var bookInfo = self._serializeBookInfo();
 
+    var removeInfoIfExists = function(bookInfo, books) {
+        for (var i = 0; i < books.length; i++) {
+            if (bookInfo.contentKey == books[i].contentKey) {
+                books.splice(i, 1);
+                break;
+            }
+        }
+        return books;
+    };
+
     asyncStorage.getItem('books', function(value) {
         // save metadata
         var books = !value ? [] : JSON.parse(value);
-        books.push(bookInfo);
+        books = removeInfoIfExists(bookInfo, books);
+        books.unshift(bookInfo);
         // save content
         asyncStorage.setItem('books', JSON.stringify(books), function() {
             if (callback) callback();
