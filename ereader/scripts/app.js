@@ -4,14 +4,18 @@ define([
     'library',
     'book',
     'book_viewer',
-], function(EPubImporter, PreinstalledImporter, Library, Book, BookViewer) {
+    'file_browser'
+], function(EPubImporter, PreinstalledImporter, Library, Book, BookViewer,
+FileBrowser) {
 
 function App() {
     this.currentContainer = document.getElementById('current-page');
     this.pagesContainer = document.getElementById('pages');
-    this.library = new Library(document.getElementById('book-list'));
+    this.fileBrowserContainer = document.getElementById('import_overlay')
 
+    this.library = new Library(document.getElementById('book-list'));
     this.viewer = new BookViewer('page-reader');
+    this.browser = null;
 
     this._bindEvents();
 }
@@ -32,6 +36,23 @@ App.prototype._bindEvents = function() {
 
     // library management
     // ------------------
+
+
+    // TODO: refactor this method
+    document.getElementById('show_import_book').addEventListener('click',
+    function(event) {
+        if (!self.fileBrowser) {
+            self.fileBrowser = new FileBrowser(self.fileBrowserContainer);
+        }
+        self.fileBrowser.show();
+    }, false);
+
+    this.fileBrowserContainer.addEventListener('fileselected',
+    function(event) {
+        console.log(event.detail);
+        self._handleFileSelect(event.detail);
+    });
+
     document.getElementById('import_book').addEventListener('change',
     function(event) {
         self._handleFileSelect(event.target.files[0]);
@@ -87,10 +108,11 @@ App.prototype._bindEvents = function() {
 App.prototype._handleFileSelect = function(file) {
     var importer = null;
 
-    if (file.type == 'application/epub+zip') {
-        importer = new EPubImporter(document.getElementById('import'));
-    }
-    // TODO: add other importers here
+    // TODO: find out why reading from the SD card removes file type
+    //if (file.type == 'application/epub+zip' || !file.type)
+    importer = new EPubImporter(document.getElementById('import'));
+
+    // NOTE: this is the place to add other importers
 
     if (importer != null) {
         this._importBook(file, importer);

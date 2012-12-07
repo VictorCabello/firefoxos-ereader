@@ -1,0 +1,125 @@
+/* ----------------------------------
+ * Value selector (Single & Multiple)
+ * ---------------------------------- */
+
+form[role="dialog"].selector {
+    opacity: 1;
+}
+
+form[role="dialog"].selector h1 {
+  font: 1.6rem/1em 'Open Sans', Sans-serif;
+  color: #fff;
+  border-bottom: 0.1rem solid #616262;
+  background: url(value_selector/images/ui/alpha.png) repeat 0 0;
+  margin: 0 -1.5rem;
+  padding: 2.5rem 3rem 1rem;
+  text-align: left;
+}
+
+form[role="dialog"].selector:before {
+  vertical-align: top;
+}
+
+form[role="dialog"].selector > section {
+  font-weight: normal;
+  font-size: 12px;
+  color: auto;
+  padding: 0 1.5rem 0;
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+
+/* Specific component code */
+form[role="dialog"] [role="listbox"] {
+  position: relative;
+  padding: 0 1.5rem;
+  margin: 0 -1.5rem;
+  max-height: calc(100% - 5rem);
+  overflow: auto;
+  border-top: solid 0.1rem #222323;
+}
+
+form[role="dialog"] .scrollable:before {
+  content: "";
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  top: 5.2rem;
+  left: 0;
+  right: 0;
+  bottom: 6.9rem;
+  background: url(value_selector/images/ui/shadow.png) repeat-x left top, url(value_selector/images/ui/shadow-invert.png) repeat-x left bottom;
+}
+
+form[role="dialog"] [role="listbox"] li {
+  margin: 0;
+  padding-bottom: 1px;
+  height: 5.9rem;
+  max-height: 5.9em;
+  list-style: none;
+  position: relative;
+  border: none;
+  border-bottom: 1px solid #666;
+  font-weight: lighter;
+  font-size: 1.75rem;
+  line-height: 5.9rem;
+  width: 100%;
+  color: #fff;
+  transition: background 0.2s ease;
+  -moz-box-sizing: default;
+}
+
+form[role="dialog"] [role="listbox"] li span {
+  padding: 0 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+form[role="dialog"] [role="listbox"] li:active,
+form[role="dialog"] [role="listbox"] li:active label span {
+  background: #00ABCC;
+  color: #fff!important;
+}
+
+form[role="dialog"] [role="listbox"] li input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+form[role="dialog"] [role="listbox"] li:last-child {
+    border: none;
+}
+
+form[role="dialog"] [role="listbox"] li:last-child a,
+form[role="dialog"] [role="listbox"] li:last-child label
+{
+    border: none;
+}
+
+form[role="dialog"] [role="listbox"]:not(.nochecked) li input:checked + span,
+form[role="dialog"] [role="listbox"]:not(.nochecked) li[aria-checked="true"] span {
+  color: #00abcd;
+  background: url(value_selector/images/icons/checked.png) content-box right center no-repeat;
+}
+
+form[role="dialog"] [role="listbox"] li a,
+form[role="dialog"] [role="listbox"] li label {
+  border-bottom: 1px solid #000;
+  outline: none;
+}
+
+form[role="dialog"] [role="listbox"] li a,
+form[role="dialog"] [role="listbox"] li label,
+form[role="dialog"] [role="listbox"] li label span {
+  text-decoration: none;
+  display: block;
+  color: #fff;
+}

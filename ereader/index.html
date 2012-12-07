@@ -18,6 +18,7 @@
     <link rel="stylesheet" type="text/css" href="style/bb/buttons.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/confirm.css" />
     <link rel="stylesheet" type="text/css" href="style/bb/filters/style.css" />
+        <link rel="stylesheet" type="text/css" href="style/bb/value_selector.css" />
 
     <link rel="stylesheet" type="text/css" href="style/ereader.css" />
 
@@ -68,9 +69,25 @@
             </section><!-- book list -->
 
             <section id="import">
-                <h2 class="bb-heading">Import books</h2>
-                <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
-                <p><button id="frankenstein">Import Frankenstein</button><button id="reset_library">Reset library</button></p>
+                <div style="display:none">
+                    <h2 class="bb-heading">Import books</h2>
+                    <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
+                    <p><button id="frankenstein">Import Frankenstein</button><button id="reset_library">Reset library</button></p>
+                </div>
+
+                <button id="show_import_book">Load book</button>
+
+                <form role="dialog" onsubmit="return false;"  class="selector" id="import_overlay" style="display:none">
+                    <section>
+                      <h1>Choose a book</h1>
+                      <ul role="listbox" id="import_book_list" class="nochecked">
+                      </ul>
+                    </section>
+                    <menu>
+                      <button class="full cancel">Cancel</button>
+                    </menu>
+                  </form>
+
                 <div id="import_loading" class="loading" style="display:none">
                     <p role="status"><span>Loading</span> <progress value="0" max="100"></progress></p>
                 </div>

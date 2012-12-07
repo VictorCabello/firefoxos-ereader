@@ -17,6 +17,19 @@ div#current-page, section.page {
     bottom: 0px;
 }
 
+section#import {
+    padding: 1rem;
+}
+
+div#import_overlay {
+    z-index: 10;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    position: absolute;
+}
+
 section.overlay {
     -moz-user-select: none;
 }

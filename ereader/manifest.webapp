@@ -7,6 +7,10 @@
     "name": "The Gaia Team",
     "url": "https://github.com/mozilla-b2g/gaia"
   },
+  "permissions": {
+    "device-storage:sdcard":{ "access": "readonly"},
+    "storage": {}
+  },
   "locales": {
     "es": {
       "name": "eReader",
@@ -17,5 +21,6 @@
   "icons": {
     "120": "/style/icons/Clock.png",
     "60": "/style/icons/60/Clock.png"
-  }
+  },
+  "orientation": ["portrait"]
 }
