@@ -1,7 +1,4 @@
-define([
-    'utils',
-    'vendor/gaia/gesture_detector'
-], function(utils, GestureDetector) {
+BookReader = (function() {
 
 function Component(index, componentId, bookDataComponent, lengthOffset,
 ownLength) {
@@ -64,6 +61,12 @@ Component.prototype.goToPage = function(frameName, frame, page) {
     }
 };
 
+Component.prototype.currentPosition = function(cursor) {
+    if (this.pageCount == undefined) return 0;
+    var partialLength = this.ownLength * (cursor / this.pageCount);
+    return (partialLength + this.lengthOffset);
+};
+
 Component.prototype._refreshDimensions = function(frame, callback) {
     this.pageWidth = frame.offsetWidth;
 
@@ -83,12 +86,6 @@ Component.prototype._refreshDimensions = function(frame, callback) {
     if (callback) callback();
     document.dispatchEvent(new CustomEvent('dimensionschanged'));
 
-};
-
-Component.prototype.currentPosition = function(cursor) {
-    if (this.pageCount == undefined) return 0;
-    var partialLength = this.ownLength * (cursor / this.pageCount);
-    return (partialLength + this.lengthOffset);
 };
 
 // -----------------------
@@ -487,9 +484,6 @@ BookReader.prototype._onComponentLoaded = function(component, callback) {
     }));
 };
 
-return {
-    BookReader: BookReader,
-    Component: Component
-};
+return BookReader;
 
-});
+}());

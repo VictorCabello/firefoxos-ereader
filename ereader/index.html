@@ -4,8 +4,37 @@
 <head>
     <meta charset="utf-8">
 
-    <!-- Include the Monocle library and styles -->
-    <script data-main="scripts/main" src="scripts/require.js"></script>
+    <!-- vendor libs -->
+    <script defer data-main="scripts/main" src="scripts/vendor/js-epub/vendor/js-unzip/js-unzip.js"></script>
+    <script defer data-main="scripts/main" src="scripts/vendor/js-epub/vendor/js-inflate/js-inflate.js"></script>
+    <script defer data-main="scripts/main" src="scripts/vendor/js-epub/js-epub.js"></script>
+    <script defer data-main="scripts/main" src="scripts/vendor/domReady.js"></script>
+
+    <!-- shared gaia scripts -->
+    <script defer data-main="scripts/main" src="scripts/vendor/gaia/async_storage.js"></script>
+    <script defer data-main="scripts/main" src="scripts/vendor/gaia/gesture_detector.js"></script>
+    <script defer data-main="scripts/main" src="scripts/vendor/gaia/mediadb.js"></script>
+
+    <!-- own libs and utils -->
+    <script defer data-main="scripts/main" src="scripts/utils.js"></script>
+
+    <!-- books -->
+    <script defer data-main="scripts/main" src="scripts/book_data.js"></script>
+    <script defer data-main="scripts/main" src="scripts/book.js"></script>
+    <script defer data-main="scripts/main" src="scripts/book_toc.js"></script>
+    <script defer data-main="scripts/main" src="scripts/book_reader.js"></script>
+    <script defer data-main="scripts/main" src="scripts/book_viewer.js"></script>
+
+    <!-- library -->
+    <script defer data-main="scripts/main" src="scripts/importers/epub_importer.js"></script>
+    <script defer data-main="scripts/main" src="scripts/importers/preinstalled_importer.js"></script>
+    <script defer data-main="scripts/main" src="scripts/library.js"></script>
+
+    <!-- app -->
+    <script defer data-main="scripts/main" src="scripts/file_browser.js"></script>
+    <script defer data-main="scripts/main" src="scripts/app.js"></script>
+    <script defer data-main="scripts/main" src="scripts/main.js"></script>
+
     <link rel="stylesheet" type="text/css" href="scripts/vendor/monocle/styles/monocore.css" />
     <!-- gaia bb's -->
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css" />

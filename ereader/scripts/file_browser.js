@@ -1,8 +1,4 @@
-define([
-    'utils',
-    'vendor/gaia/mediadb'
-],
-function(utils, MediaDB) {
+FileBrowser = (function() {
 
 function FileBrowser(container) {
     this.files = [];
@@ -167,6 +163,7 @@ FileBrowser.prototype._bindDBEvents = function() {
     }, false);
 
     this.bookDB.addEventListener('deleted', function(event) {
+        console.log('deleted');
         event.detail.forEach(self.fileDeleted);
     }, false);
 };
@@ -174,10 +171,10 @@ FileBrowser.prototype._bindDBEvents = function() {
 FileBrowser.prototype._mockStorage = function() {
     this.files = [{name: 'waka.epub'},
         {name: 'quijote.epub'},
-        {name:'mass effect - rising from the ashes.epub'}];
+        {name: 'mass effect - rising from the ashes.epub'}];
     this.render();
 };
 
 return FileBrowser;
 
-});
+}());

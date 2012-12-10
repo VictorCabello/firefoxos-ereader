@@ -1,8 +1,4 @@
-define([
-    'vendor/monocle/monocore',
-    'book_reader',
-    'book_toc',
-], function(Monocore, Reader, BookToc) {
+BookViewer = (function() {
 
 function BookViewer(containerId) {
     this.container = document.getElementById(containerId);
@@ -24,7 +20,7 @@ function BookViewer(containerId) {
 
 BookViewer.prototype.showBook = function(book) {
     this.book = book;
-    this.reader = new Reader.BookReader(this.bookContainer,
+    this.reader = new BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
     if (!this.book.getContents() || this.book.getContents().length == 0) {
         console.log('No TOC');
@@ -133,4 +129,4 @@ BookViewer.prototype._showOverlay = function() {
 
 return BookViewer;
 
-});
+}());

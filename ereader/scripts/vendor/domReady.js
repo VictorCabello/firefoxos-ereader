@@ -9,7 +9,7 @@
   self: false, setInterval: false */
 
 
-define(function () {
+domReady = (function() {
     'use strict';
 
     var isTop, testDiv, scrollIntervalId,
@@ -126,4 +126,4 @@ define(function () {
     /** END OF PUBLIC API **/
 
     return domReady;
-});
+}());

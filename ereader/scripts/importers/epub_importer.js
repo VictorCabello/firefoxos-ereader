@@ -1,11 +1,4 @@
-define([
-    'vendor/js-epub/vendor/js-unzip/js-unzip',
-    'vendor/js-epub/vendor/js-inflate/js-inflate',
-    'vendor/js-epub/js-epub',
-    'book_data',
-    'book',
-],
-function(unzip, inflate, epubReader, BookData, Book) {
+EPubImporter = (function() {
 
 function EPubImporter(container) {
     this._container = container;
@@ -222,6 +215,6 @@ BookSplitter.prototype._sliceGroup = function(group) {
 
 return EPubImporter;
 
-});
+}());
 
 

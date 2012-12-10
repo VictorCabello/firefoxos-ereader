@@ -45,7 +45,7 @@
  * feature or a bug.
  */
 
-define([], function() {
+GestureDetector = (function() {
   //
   // Constructor
   //
@@ -833,5 +833,5 @@ define([], function() {
   };
 
   return GD;
-});
+}());
 

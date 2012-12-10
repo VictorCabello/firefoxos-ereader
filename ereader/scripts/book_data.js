@@ -1,6 +1,4 @@
-define([
-],
-function() {
+BookData = (function() {
 
 function BookData(metadata, components, toc, spine) {
     this.metadata = metadata || {};
@@ -47,4 +45,4 @@ BookData.prototype.getComponentLength = function(componentId) {
 
 return BookData;
 
-});
+}());

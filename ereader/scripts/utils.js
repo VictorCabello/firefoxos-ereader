@@ -1,5 +1,4 @@
-define([], function() {
-var utils = {
+utils = {
     __next_objid: 1,
 
     objectId: function(obj) {
@@ -28,8 +27,5 @@ var utils = {
             }
         }
         node.className = classes.join(' ');
-    },
+    }
 };
-
-return utils;
-});

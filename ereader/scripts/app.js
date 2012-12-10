@@ -1,12 +1,4 @@
-define([
-    'importers/epub_importer',
-    'importers/preinstalled_importer',
-    'library',
-    'book',
-    'book_viewer',
-    'file_browser'
-], function(EPubImporter, PreinstalledImporter, Library, Book, BookViewer,
-FileBrowser) {
+App = (function() {
 
 function App() {
     this.currentContainer = document.getElementById('current-page');
@@ -161,7 +153,7 @@ App.prototype._hideLoading = function() {
 
 return App;
 
-});
+}());
 
 
 

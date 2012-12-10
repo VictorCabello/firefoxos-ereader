@@ -298,7 +298,7 @@
  * - stat(): call the DeviceStorage stat() method and pass an the stats
  *     object to the specified callback
  */
-define([], function() {
+MediaDB = (function() {
 
   function MediaDB(mediaType, metadataParser, options) {
     this.mediaType = mediaType;
@@ -1391,4 +1391,4 @@ define([], function() {
   }
 
   return MediaDB;
-});
+}());

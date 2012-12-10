@@ -1,10 +1,4 @@
-define([
-    'book',
-    'vendor/gaia/async_storage',
-    'vendor/gaia/gesture_detector',
-    'utils'
-], function(Book, asyncStorage, GestureDetector, utils) {
-
+Library = (function() {
 function Library(container) {
     this.container = container;
     this.bookListTemplatePre =
@@ -211,5 +205,5 @@ Library.prototype._renderRemoteBookTemplate = function(book) {
 
 return Library;
 
-});
+}());
 

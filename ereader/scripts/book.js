@@ -1,7 +1,4 @@
-define([
-    'book_data',
-    'vendor/gaia/async_storage'
-], function(BookData, asyncStorage) {
+Book = (function() {
 
 function Book(data) {
     var self = this;
@@ -241,5 +238,5 @@ Book.prototype._deserializeLastLocation = function(bookId) {
 
 return Book;
 
-});
+}());
 

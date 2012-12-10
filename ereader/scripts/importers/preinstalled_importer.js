@@ -1,4 +1,4 @@
-define(['book_data', 'book'], function(BookData, Book) {
+PreinstalledImporter = (function() {
 
   function Preinstaller(container) {
 	var front = "<h1 style=\"margin:0px\" xmlns=\"http://www.w3.org/1999/xhtml\" class=\"c1\" id=\"pgepubid00000\">Frankenstein,</h1><h2 xmlns=\"http://www.w3.org/1999/xhtml\" class=\"c2\" id=\"pgepubid00001\" style=\"margin: 0px\">or the Modern Prometheus</h2><h3 style=\"margin:0px\"  xmlns=\"http://www.w3.org/1999/xhtml\" class=\"c3\" id=\"pgepubid00002\">by</h3> <h2 xmlns=\"http://www.w3.org/1999/xhtml\" class=\"c2\" id=\"pgepubid00003\">Mary Shelley</h2> <p xmlns=\"http://www.w3.org/1999/xhtml\"><br/> <br/> <br/></p><p xmlns=\"http://www.w3.org/1999/xhtml\">";
@@ -51,5 +51,5 @@ define(['book_data', 'book'], function(BookData, Book) {
   };
 
   return Preinstaller;
-});
+}());
 

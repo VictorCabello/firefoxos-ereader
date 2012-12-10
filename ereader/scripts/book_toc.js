@@ -1,5 +1,4 @@
-define([
-], function() {
+BookToc = (function() {
 
 function BookToc(container, contents, components) {
     this.contents = contents || [];
@@ -69,4 +68,4 @@ BookToc.prototype._getTocItemTarget = function(target) {
 };
 
 return BookToc;
-});
+}());

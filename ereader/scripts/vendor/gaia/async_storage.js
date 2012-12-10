@@ -39,7 +39,7 @@
  * Unit tests are in apps/gallery/test/unit/asyncStorage_test.js
  */
 
-define([], function() {
+asyncStorage = (function() {
   var DBNAME = 'asyncStorage';
   var DBVERSION = 1;
   var STORENAME = 'keyvaluepairs';
@@ -177,4 +177,4 @@ define([], function() {
     length: length,
     key: key
   };
-});
+}());
