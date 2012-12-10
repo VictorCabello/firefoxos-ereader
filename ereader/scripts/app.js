@@ -11,7 +11,8 @@ FileBrowser) {
 function App() {
     this.currentContainer = document.getElementById('current-page');
     this.pagesContainer = document.getElementById('pages');
-    this.fileBrowserContainer = document.getElementById('import_overlay')
+    this.fileBrowserContainer = document.getElementById('import_overlay');
+    this.loadingContainer = document.getElementById('master_overlay');
 
     this.library = new Library(document.getElementById('book-list'));
     this.viewer = new BookViewer('page-reader');
@@ -49,7 +50,7 @@ App.prototype._bindEvents = function() {
 
     this.fileBrowserContainer.addEventListener('fileselected',
     function(event) {
-        console.log(event.detail);
+        self._showLoading();
         self._handleFileSelect(event.detail);
     });
 
@@ -79,6 +80,8 @@ App.prototype._bindEvents = function() {
         book.save(function() {
             self.library.addBook(book);
         });
+
+        self._hideLoading();
     }, false);
 
     document.addEventListener('bookselected', function(event) {
@@ -142,6 +145,18 @@ App.prototype._onAppClose = function(event) {
         this.viewer.saveLastLocation();
     }
     // TODO: implement save of last page
+};
+
+App.prototype._showLoading = function() {
+    console.log('LOADING');
+    this.loadingContainer.style.display = 'block';
+    console.log('++++');
+};
+
+App.prototype._hideLoading = function() {
+    console.log('END LOADING');
+    this.loadingContainer.style.display = 'none';
+    console.log('*****');
 };
 
 return App;

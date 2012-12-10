@@ -8,8 +8,13 @@
     "url": "https://github.com/mozilla-b2g/gaia"
   },
   "permissions": {
-    "device-storage:sdcard":{ "access": "readonly"},
-    "storage": {}
+    "device-storage:sdcard":{
+        "description": "Required to import books from the SD card",
+        "access": "readonly"
+    },
+    "storage": {
+        "description": "Required to store imported books"
+    }
   },
   "locales": {
     "es": {

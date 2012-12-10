@@ -126,6 +126,29 @@ div.reader-wrapper.backwards {
     -webkit-transform: translateX(320px);
 }
 
+div#master_overlay {
+    z-index: 10000;
+    position: relative;
+    width: 320px;
+    height: 460px;
+}
+
+div#master_overlay p[role=status] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -25px;
+    margin-top: -25px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(55, 55, 55, 0.9);
+}
+
+div#master_overlay p[role=status] progress {
+    margin: 0px;
+}
+
+
 @keyframes slide-forward {
     from {
         -moz-transform: translateX(0px);
