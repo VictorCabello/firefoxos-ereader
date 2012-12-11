@@ -97,15 +97,15 @@ Library.prototype._bindBookTap = function(bookNode) {
         event.stopPropagation();
         var bookId = this.getAttribute('data-bookid');
 
+        // the book tapped is different to the current one
         if (!self.currentBook || self.currentBook.getId() != bookId) {
             var book = new Book({
                 bookId: bookId
             });
+            // NOTE: creating a book from a bookID will trigger the
+            // 'bookloaded' event later
         }
-        else {
-            // save book at the beginning of the book list
-            self.currentBook.saveInfo();
-            // trigger event
+        else { // the book tapped is the same as the current one
             document.dispatchEvent(new CustomEvent('bookselected', {
                 detail: self.currentBook
             }));
@@ -175,7 +175,8 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 Library.prototype._bindBookLoaded = function() {
     var self = this;
     document.addEventListener('bookloaded', function(event) {
-        self.currentBook = event.detail;
+        self._updateCurrentBook(event.detail);
+
         document.dispatchEvent(new CustomEvent('bookselected', {
             detail: self.currentBook
         }));
@@ -201,6 +202,25 @@ Library.prototype._renderRemoteBookTemplate = function(book) {
     html += '</form>';
 
     return html;
+};
+
+Library.prototype._updateCurrentBook = function(book) {
+    // update library book list
+    var i = 0;
+    for (i = 0; i < this.books.length; i++) {
+        if (this.books[i].contentKey == book.getId()) {
+            break;
+        }
+    }
+    if (i < this.books.length && i > 0) {
+        var bookInfo = this.books.splice(i, 1)[0];
+        this.books.unshift(bookInfo);
+        this.render();
+    }
+
+    // update current book and save it at the beginning of the list
+    this.currentBook = book;
+    book.saveInfo();
 };
 
 return Library;
