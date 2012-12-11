@@ -1,10 +1,12 @@
 App = (function() {
 
 function App() {
+    this.loadingContainer = document.getElementById('master_overlay');
+    this._showLoading();
+
     this.currentContainer = document.getElementById('current-page');
     this.pagesContainer = document.getElementById('pages');
     this.fileBrowserContainer = document.getElementById('import_overlay');
-    this.loadingContainer = document.getElementById('master_overlay');
 
     this.library = new Library(document.getElementById('book-list'));
     this.viewer = new BookViewer('page-reader');
@@ -29,7 +31,9 @@ App.prototype._bindEvents = function() {
 
     // library management
     // ------------------
-
+    this.library.container.addEventListener('libraryloaded', function(event) {
+        self._hideLoading();
+    }, false);
 
     // TODO: refactor this method
     document.getElementById('show_import_book').addEventListener('click',

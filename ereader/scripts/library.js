@@ -18,12 +18,7 @@ function Library(container) {
 
     this.bookOrderKey = 'access';
 
-    var self = this;
-    asyncStorage.getItem('books', function(jsonBooks) {
-        self.books = (jsonBooks != undefined) ? JSON.parse(jsonBooks) : [];
-        self.render();
-    });
-
+    this._loadBooks();
 };
 
 
@@ -97,6 +92,15 @@ Library.prototype.updateBookOrderKey = function(key) {
         this.bookOrderKey = key;
         this.render();
     }
+};
+
+Library.prototype._loadBooks = function() {
+    var self = this;
+    asyncStorage.getItem('books', function(jsonBooks) {
+        self.books = (jsonBooks != undefined) ? JSON.parse(jsonBooks) : [];
+        self.render();
+        self.container.dispatchEvent(new CustomEvent('libraryloaded'), {});
+    });
 };
 
 Library.prototype._bindBookTabEvents = function() {
