@@ -4,17 +4,19 @@ function Library(container) {
     this.bookListTemplatePre =
     '<h2 class="bb-heading">Books</h2>' +
     '<ul role="tablist" class="filter" data-items="3">' +
-    '   <li role="tab" aria-selected="true"><a href="#">By access</a></li>' +
-    '   <li role="tab"><a href="#">By title</a></li>' +
-    '   <li role="tab"><a href="#">By author</a></li>' +
+    '   <li role="tab" data-key="access" id="order_key_access"><a href="#">By access</a></li>' +
+    '   <li role="tab" data-key="title" id="order_key_title"><a href="#">By title</a></li>' +
+    '   <li role="tab" data-key="author" id="order_key_author"><a href="#">By author</a></li>' +
     '</ul>' +
-    '<ul>';
+    '<ul class="booklist">';
     this.bookListTemplatePost = '</ul>';
 
     this.books = [];
     this.currentBook = null;
 
     this._bindBookLoaded();
+
+    this.bookOrderKey = 'access';
 
     var self = this;
     asyncStorage.getItem('books', function(jsonBooks) {
@@ -26,11 +28,14 @@ function Library(container) {
 
 
 Library.prototype.render = function() {
+    var books = this._sortedBookList(this.bookOrderKey);
 
     var html = this.bookListTemplatePre;
-    for (var i = 0; i < this.books.length; i++) {
-        var book = this.books[i];
-        html += '<li>';
+    for (var i = 0; i < books.length; i++) {
+        var book = books[i];
+        html += '<li data-index="' + i + '"';
+        html += ' data-title="' + book.metadata.title + '"';
+        html += ' data-author="' + book.metadata.creator + '">';
         html += '<button class="action danger"><big>&times;</big></button>'
         html += '<a href="#" class="book" data-bookid="' +
             book.contentKey + '">';
@@ -42,6 +47,10 @@ Library.prototype.render = function() {
     }
     html += this.bookListTemplatePost;
     this.container.innerHTML = html;
+
+    document.getElementById('order_key_' + this.bookOrderKey).
+        setAttribute('aria-selected', 'true');
+    this._bindBookTabEvents();
 
     var bookNodes = this.container.getElementsByClassName('book');
     for (var i = 0; i < bookNodes.length; i++) {
@@ -81,6 +90,27 @@ Library.prototype.getBookInfo = function(bookId) {
         if (this.books[i].contentKey == bookId) return this.books[i];
     }
     return null;
+};
+
+Library.prototype.updateBookOrderKey = function(key) {
+    if (key != this.bookOrderKey) {
+        this.bookOrderKey = key;
+        this.render();
+    }
+};
+
+Library.prototype._bindBookTabEvents = function() {
+    var self = this;
+
+    var list = this.container.querySelector('ul.filter');
+    var lis = list.getElementsByTagName('li');
+    for (var i = 0; i < lis.length; i++) {
+        lis[i].addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            self.updateBookOrderKey(this.getAttribute('data-key'));
+        }, false);
+    }
 };
 
 Library.prototype._bindBookEvents = function(bookNode) {
@@ -221,6 +251,25 @@ Library.prototype._updateCurrentBook = function(book) {
     // update current book and save it at the beginning of the list
     this.currentBook = book;
     book.saveInfo();
+};
+
+Library.prototype._sortedBookList = function(key) {
+    var copy =  this.books.slice(0);
+
+    if (key == 'title') {
+        copy.sort(function(a, b) {
+            return a.metadata.title.toLowerCase().localeCompare(
+                b.metadata.title.toLowerCase());
+        });
+    }
+    else if (key == 'author') {
+        copy.sort(function(a, b) {
+           return a.metadata.creator.toLowerCase().localeCompare(
+               b.metadata.creator.toLowerCase());
+        });
+    }
+
+    return copy;
 };
 
 return Library;
