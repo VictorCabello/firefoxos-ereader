@@ -14,9 +14,9 @@ Component.prototype.loadToFrame = function(frameName, frame, callback) {
     'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; padding: 0px; width: 100%; height: 100%; -webkit-column-width: 280px;     -webkit-column-gap: 0px; -webkit-column-fill: auto; -moz-column-width: 280px;        -moz-column-gap: 0px; -moz-column-fill: auto; position: absolute; font-size: 12pt; color: #5a3120;}' +
     'body * { overflow: visible !important; word-wrap: break-word !important;        line-height: 1.25em; }' +
     'p { margin: 0px;  text-indent: 1.5em; text-align: justify;}' +
-    '</style></head><body>' +
+    '</style></head><body><div id="reader_wrapper">' +
     this.src +
-    '</body></html>';
+    '</div></body></html>';
     var frameNode = frame.node;
     frame.componentIndex = this.index;
     frameNode.contentDocument.open('text/html', 'replace');
@@ -252,6 +252,8 @@ BookReader.prototype._changePage = function(offset) {
     var self = this;
 
     var flipPage = function(direction) {
+        // self.framesContainer.setAttribute('style', '');
+
         var directionClass = (direction > 0) ? 'forward' : 'backwards';
         utils.removeClass(self.frames['other'].node.parentNode,
             (direction > 0) ? 'left' : 'right');
@@ -272,6 +274,9 @@ BookReader.prototype._changePage = function(offset) {
     this.container.addEventListener('cursorchanged', function(event) {
         self.currentComponent.goToPage('other', self.frames['other'],
             self.cursor);
+        // TODO: refactor this
+        // HERE
+        // -----
         flipPage(event.detail.direction);
 
         self.container.removeEventListener('cursorchanged', arguments.callee,
@@ -418,7 +423,7 @@ BookReader.prototype._loadComponent = function(index, callback) {
     this.bookData.getComponent(key, function(componentData) {
         var component = new Component(index, key, componentData, lengthOffset,
             self.lengths[index]);
-        console.log("Loaded component #" + component.index);
+        console.log("Loaded component #" + component.index + ' (' + key + ')');
         self._onComponentLoaded(component, callback);
     });
 };
@@ -453,24 +458,32 @@ BookReader.prototype._bindEvents = function() {
             {}));
     }, false);
 
-   this.overlay.getElementsByClassName('right')[0].
-   addEventListener('tap', function(event) {
-       if (self.controlsEnabled) self.nextPage();
-   });
+    this.overlay.getElementsByClassName('right')[0].
+    addEventListener('tap', function(event) {
+        if (self.controlsEnabled) self.nextPage();
+    }, false);
 
-   this.overlay.getElementsByClassName('left')[0].
-   addEventListener('tap', function(event) {
-       if (self.controlsEnabled) self.previousPage();
-   });
+    this.overlay.getElementsByClassName('left')[0].
+    addEventListener('tap', function(event) {
+        if (self.controlsEnabled) self.previousPage();
+    }, false);
 
-   this.container.addEventListener('swipe', function(event) {
-       if (event.detail.direction == 'left') {
-           self.nextPage();
-       }
-       else {
-           self.previousPage();
-       }
-   });
+    this.container.addEventListener('swipe', function(event) {
+        if (event.detail.direction == 'left') {
+            self.nextPage();
+        }
+        else {
+            self.previousPage();
+        }
+    }, false);
+
+    this.container.addEventListener('pan', function(event) {
+        // var panning = event.detail;
+        // if (Math.abs(panning.relative.dx) > 0) {
+        //     self.framesContainer.setAttribute('style',
+        //         '-moz-transform: translateX(' + panning.absolute.dx + 'px)');
+        // }
+    }, false);
 };
 
 BookReader.prototype._onComponentLoaded = function(component, callback) {

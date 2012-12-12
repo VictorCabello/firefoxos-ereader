@@ -92,8 +92,6 @@ Book.prototype.saveInfo = function(callback) {
         var books = !value ? [] : JSON.parse(value);
         books = removeInfoIfExists(bookInfo, books);
         books.unshift(bookInfo);
-        console.log('Saving books');
-        console.log(books);
         // save content
         asyncStorage.setItem('books', JSON.stringify(books), function() {
             if (callback) callback();

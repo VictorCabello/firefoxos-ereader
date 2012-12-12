@@ -45,13 +45,17 @@ EPubImporter.prototype._processCallback = function(step, extras, epub) {
 
 EPubImporter.prototype._onParsingDone = function(epub) {
     this._loadingContainer.style.display = 'none';
-
-    var bookData = new BookData(this._readMetadata(epub),
-        this._readContent(epub), epub.opf.toc);
+    var contents = this._readContent(epub);
+    var bookData = new BookData(
+        this._readMetadata(epub),
+        contents.components,
+        epub.opf.toc,
+        contents.spine
+        );
 
     var splittedBookData = (new BookSplitter(bookData)).splitFiles();
 
-    var book = new Book({bookData: bookData});
+    var book = new Book({bookData: splittedBookData});
 
     document.dispatchEvent(new CustomEvent('bookimported', {
         detail: book
@@ -78,17 +82,19 @@ EPubImporter.prototype._readMetadata = function(epub) {
 
 EPubImporter.prototype._readContent = function(epub) {
     var components = {};
+    var spine = [];
 
     for (var i = 0; i < epub.opf.spine.length; i++) {
         var key = epub.opf.spine[i];
         var href = epub.opf.manifest[key].href;
         var body = epub.files[href].getElementsByTagName('body')[0];
 
-        components[href] = body.innerHTML; // TODO: aqui
+        components[href] = body.innerHTML;
+        spine.push(href);
         // TODO: save other files in the manifest into local storage
     }
 
-    return components;
+    return {components: components, spine: spine};
 };
 
 // splitter methods
@@ -142,6 +148,7 @@ BookSplitter.prototype._addRangesToBookData = function(group, ranges) {
 
     var updateToC = function(newIds) {
         var toc = self.bookData.getContents();
+
         for (var i = 0; i < newIds.length; i++) {
             for (var j = 0; j < toc.length; j++) {
                 if (toc[j].src.replace('#', '__') == newIds[i]) {
@@ -150,6 +157,10 @@ BookSplitter.prototype._addRangesToBookData = function(group, ranges) {
             }
         }
         self.bookData.toc = toc;
+    };
+
+    var updateSpine = function(newIds) {
+        // var spine = self.bookData.
     };
 
     var hrefPrefix = group[0].href;
