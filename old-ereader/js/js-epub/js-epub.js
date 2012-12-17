@@ -53,14 +53,19 @@
             var self = this;
             var compressedFile = this.compressedFiles.shift();
             if (compressedFile) {
-                notifier(2, compressedFile.fileName);
-                this.uncompressFile(compressedFile);
-                this.withTimeout(this.uncompressNextCompressedFile, notifier);
+                if (this.isValidFile(compressedFile.fileName)) {
+                    notifier(2, 'WAKA ' + compressedFile.fileName);
+                    this.uncompressFile(compressedFile);
+                    this.withTimeout(this.uncompressNextCompressedFile, notifier);
+                }
+                else {
+                    notifier(2, 'skipping ' + compressedFile.fileName);
+                }
             } else {
                 this.didUncompressAllFiles(notifier);
             }
         },
-        
+
         // For mockability
         withTimeout: function (func, notifier) {
             var self = this;
@@ -80,6 +85,7 @@
         },
 
         uncompressFile: function (compressedFile) {
+            console.log('PUTA');
             var data;
             if (compressedFile.compressionMethod === 0) {
                 data = compressedFile.data;
@@ -87,7 +93,7 @@
                 data = this.inflate(compressedFile.data);
             } else {
                 throw new Error("Unknown compression method "
-                                + compressedFile.compressionMethod 
+                                + compressedFile.compressionMethod
                                 + " encountered.");
             }
 
@@ -95,9 +101,16 @@
                 this.container = data;
             } else if (compressedFile.fileName === "mimetype") {
                 this.mimetype = data;
+                console.log('JS EPUB: found mimetype ' + this.mimetype);
             } else {
                 this.files[compressedFile.fileName] = data;
             }
+        },
+
+        isValidFile: function(filename) {
+            var res = (filename.match(/mimetype|\.(html|xml|htm|ncx)$/) != null);
+            console.log('Is valid file? ' + filename + ' => ' + res);
+            return res;
         },
 
         getOpfPathFromContainer: function () {
@@ -109,7 +122,7 @@
 
         readOpf: function (xml) {
             var doc = this.xmlDocument(xml);
-            
+
             var opf = {
                 metadata: {},
                 manifest: {},
@@ -200,7 +213,7 @@
                 var result;
 
                 if (mediaType === "text/css") {
-                    result = this.postProcessCSS(href);
+                    // result = this.postProcessCSS(href);
                 } else if (mediaType === "application/xhtml+xml") {
                     result = this.postProcessHTML(href);
                 }
@@ -229,32 +242,41 @@
         },
 
         postProcessHTML: function (href) {
-            var xml = decodeURIComponent(escape(this.files[href]));
+            // var xml = decodeURIComponent(escape(this.files[href]));
+            var xml = decodeURIComponent(this.files[href]);
             var doc = this.xmlDocument(xml);
 
+            // TODO: not include images (temp thing)
             var images = doc.getElementsByTagName("img");
             for (var i = 0, il = images.length; i < il; i++) {
                 var image = images[i];
-                var src = image.getAttribute("src");
-                if (/^data/.test(src)) { continue }
-                image.setAttribute("src", this.getDataUri(src, href))
+                image.parentNode.removeChild(image);
             }
+            // -------
 
-            var head = doc.getElementsByTagName("head")[0];
-            var links = head.getElementsByTagName("link");
-            for (var i = 0, il = links.length; i < il; i++) {
-                var link = links[0];
-                if (link.getAttribute("type") === "text/css") {
-                    var inlineStyle = document.createElement("style");
-                    inlineStyle.setAttribute("type", "text/css");
-                    inlineStyle.setAttribute("data-orig-href", link.getAttribute("href"));
+            // var images = doc.getElementsByTagName("img");
+            // for (var i = 0, il = images.length; i < il; i++) {
+            //     var image = images[i];
+            //     var src = image.getAttribute("src");
+            //     if (/^data/.test(src)) { continue }
+            //     image.setAttribute("src", this.getDataUri(src, href))
+            // }
 
-                    var css = this.files[this.resolvePath(link.getAttribute("href"), href)];
-                    inlineStyle.appendChild(document.createTextNode(css));
-
-                    head.replaceChild(inlineStyle, link);
-                }
-            }
+            // var head = doc.getElementsByTagName("head")[0];
+            // var links = head.getElementsByTagName("link");
+            // for (var i = 0, il = links.length; i < il; i++) {
+            //     var link = links[0];
+            //     if (link.getAttribute("type") === "text/css") {
+            //         var inlineStyle = document.createElement("style");
+            //         inlineStyle.setAttribute("type", "text/css");
+            //         inlineStyle.setAttribute("data-orig-href", link.getAttribute("href"));
+            //
+            //         var css = this.files[this.resolvePath(link.getAttribute("href"), href)];
+            //         inlineStyle.appendChild(document.createTextNode(css));
+            //
+            //         head.replaceChild(inlineStyle, link);
+            //     }
+            // }
 
             return doc;
         },

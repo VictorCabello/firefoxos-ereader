@@ -23,6 +23,8 @@ Component.prototype.loadToFrame = function(frameName, frame, callback) {
     frameNode.contentDocument.write(src);
     frameNode.contentDocument.close();
 
+    console.log(document.domain + ' vs ' + frameNode.contentDocument.domain);
+
     console.log('[' + frameName + '] <- ' + this.index);
     if (this.pageCount == undefined) {
         this._refreshDimensions(frameNode, callback);

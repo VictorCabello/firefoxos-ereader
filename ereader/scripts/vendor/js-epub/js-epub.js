@@ -53,12 +53,18 @@
             var self = this;
             var compressedFile = this.compressedFiles.shift();
             if (compressedFile) {
-                notifier(2, compressedFile.fileName);
-                this.uncompressFile(compressedFile);
+                if (this.isValidFile(compressedFile.fileName)) {
+                    notifier(2, compressedFile.fileName);
+                    this.uncompressFile(compressedFile);
+                }
                 this.withTimeout(this.uncompressNextCompressedFile, notifier);
             } else {
                 this.didUncompressAllFiles(notifier);
             }
+        },
+
+        isValidFile: function(filename) {
+            return (filename.match(/mimetype|\.(html|xml|htm|ncx|opf|xhtml)$/) != null);
         },
 
         // For mockability
@@ -159,7 +165,6 @@
 
         readOpf: function (xml) {
             var doc = this.xmlDocument(xml);
-
             var opf = {
                 metadata: {},
                 manifest: {},
@@ -250,7 +255,7 @@
                 var result;
 
                 if (mediaType === "text/css") {
-                    result = this.postProcessCSS(href);
+                    // result = this.postProcessCSS(href);
                 } else if (mediaType === "application/xhtml+xml") {
                     result = this.postProcessHTML(href);
                 }
@@ -307,29 +312,53 @@
             var xml = decodeURIComponent(escape(this.files[href]));
             var doc = this.xmlDocument(xml);
 
+            // TODO: temp thing
+            var replaceImage = function(image) {
+                var src = image.getAttribute('src') ||
+                    image.getAttribute('xlink:href') || '';
+                var alt = image.getAttribute('alt') ||
+                    src.replace(/(.*\/)+/, '');
+                var span = document.createElement('span');
+                span.setAttribute('class', 'image-alt');
+                span.innerHTML = alt;
+
+                var parent = image.parentNode;
+                image.parentNode.insertBefore(span, image);
+                image.parentNode.removeChild(image);
+            };
             var images = doc.getElementsByTagName("img");
-            for (var i = 0, il = images.length; i < il; i++) {
-                var image = images[i];
-                var src = image.getAttribute("src");
-                if (/^data/.test(src)) { continue }
-                image.setAttribute("src", this.getDataUri(src, href))
+            for (var i = 0; i < images.length; i++) {
+                replaceImage(images[i]);
             }
-
-            var head = doc.getElementsByTagName("head")[0];
-            var links = head.getElementsByTagName("link");
-            for (var i = 0, il = links.length; i < il; i++) {
-                var link = links[0];
-                if (link.getAttribute("type") === "text/css") {
-                    var inlineStyle = document.createElement("style");
-                    inlineStyle.setAttribute("type", "text/css");
-                    inlineStyle.setAttribute("data-orig-href", link.getAttribute("href"));
-
-                    var css = this.files[this.resolvePath(link.getAttribute("href"), href)];
-                    inlineStyle.appendChild(document.createTextNode(css));
-
-                    head.replaceChild(inlineStyle, link);
-                }
+            images = doc.getElementsByTagName("image");
+            for (var i = 0; i < images.length; i++) {
+                replaceImage(images[i]);
             }
+            // ----------------
+
+            // var images = doc.getElementsByTagName("img");
+            // for (var i = 0, il = images.length; i < il; i++) {
+            //     var image = images[i];
+            //     var src = image.getAttribute("src");
+            //     if (/^data/.test(src)) { continue }
+            //     image.setAttribute("src", this.getDataUri(src, href))
+            // }
+            //
+            // var head = doc.getElementsByTagName("head")[0];
+            // var links = head.getElementsByTagName("link");
+            // for (var i = 0, il = links.length; i < il; i++) {
+            //     var link = links[0];
+            //     if (link.getAttribute("type") === "text/css") {
+            //         var inlineStyle = document.createElement("style");
+            //         inlineStyle.setAttribute("type", "text/css");
+            //         inlineStyle.setAttribute("data-orig-href", link.getAttribute("href"));
+            //
+            //         var css = this.files[this.resolvePath(link.getAttribute("href"), href)];
+            //         inlineStyle.appendChild(document.createTextNode(css));
+            //
+            //         head.replaceChild(inlineStyle, link);
+            //     }
+            // }
 
             return doc;
         },

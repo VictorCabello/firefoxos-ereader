@@ -23,19 +23,19 @@ EPubImporter.prototype._processCallback = function(step, extras, epub) {
     var msg;
 
     if (step === 1) {
-        // msg = "Unzipping";
+        msg = "Unzipping";
     } else if (step === 2) {
-        // msg = "Uncompressing " + extras;
+        msg = "Uncompressing " + extras;
     } else if (step === 3) {
-        // msg = "Reading OPF";
+        msg = "Reading OPF";
     } else if (step === 4) {
-        // msg = "Post processing";
+        msg = "Post processing";
     } else if (step === 5) {
-        // msg = "Finishing";
+        msg = "Finishing";
         this._onParsingDone(epub);
     }
     else {
-        alert('Erorr loading ebook');
+        alert('Error loading ebook');
         // TODO: error handling here
     }
 
