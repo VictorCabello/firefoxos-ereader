@@ -1,6 +1,7 @@
 Library = (function() {
 function Library(container) {
     this.container = container;
+    this.loadingContainer = document.getElementById('master_overlay');
     this.bookListTemplatePre =
     '<h2 class="bb-heading">Books</h2>' +
     '<ul role="tablist" class="filter" data-items="3">' +
@@ -136,6 +137,8 @@ Library.prototype._bindBookEvents = function(bookNode) {
 };
 
 Library.prototype._bindBookTap = function(bookNode) {
+    var self = this;
+
     bookNode.addEventListener('tap', function(event) {
         event.stopPropagation();
         var bookId = this.getAttribute('data-bookid');
@@ -145,6 +148,7 @@ Library.prototype._bindBookTap = function(bookNode) {
             var book = new Book({
                 bookId: bookId
             });
+            self._showLoading();
             // NOTE: creating a book from a bookID will trigger the
             // 'bookloaded' event later
         }
@@ -218,6 +222,8 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 Library.prototype._bindBookLoaded = function() {
     var self = this;
     document.addEventListener('bookloaded', function(event) {
+        self._hideLoading();
+
         var book = event.detail.book;
         if (!(event.detail.isNew && self.isBookInLibrary(book))) {
             self._updateCurrentBook(book);
@@ -283,6 +289,14 @@ Library.prototype._sortedBookList = function(key) {
     }
 
     return copy;
+};
+
+Library.prototype._showLoading = function() {
+    this.loadingContainer.style.display = 'block';
+};
+
+Library.prototype._hideLoading = function() {
+    this.loadingContainer.style.display = 'none';
 };
 
 return Library;
