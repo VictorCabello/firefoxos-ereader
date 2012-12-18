@@ -107,17 +107,6 @@
 
                 <button id="show_import_book">Load book</button>
 
-                <form role="dialog" onsubmit="return false;"  class="selector" id="import_overlay" style="display:none">
-                    <section>
-                      <h1>Choose a book</h1>
-                      <ul role="listbox" id="import_book_list" class="nochecked">
-                      </ul>
-                    </section>
-                    <menu>
-                      <button class="full cancel">Cancel</button>
-                    </menu>
-                  </form>
-
                 <div id="import_loading" class="loading" style="display:none">
                     <p role="status"><span>Loading</span> <progress value="0" max="100"></progress></p>
                 </div>
@@ -168,6 +157,20 @@
     <div id="master_overlay" style="display:none">
         <p role="status" class="skin-dark"><progress class="small"></progress></p>
     </div>
+
+    <div id="overlays">
+     <form role="dialog" onsubmit="return false;"  class="selector" id="import_overlay" style="display:none">
+            <section>
+              <h1>Choose a book</h1>
+              <ul role="listbox" id="import_book_list" class="nochecked">
+              </ul>
+            </section>
+            <menu>
+              <button class="full cancel">Cancel</button>
+            </menu>
+          </form>
+    </div>
+
 </body>
 
 </html>

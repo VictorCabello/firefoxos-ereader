@@ -17,6 +17,11 @@ div#current-page, section.page {
     bottom: 0px;
 }
 
+section#page-library {
+    height: 460px;
+    overflow-y: scroll;
+}
+
 section#import {
     padding: 1rem;
 }
