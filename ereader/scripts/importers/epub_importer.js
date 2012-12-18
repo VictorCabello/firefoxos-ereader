@@ -55,6 +55,7 @@ EPubImporter.prototype._onParsingDone = function(epub) {
 
     var splittedBookData = (new BookSplitter(bookData)).splitFiles();
 
+    // NOTE: will trigger bookloaded event
     var book = new Book({bookData: splittedBookData});
 
     document.dispatchEvent(new CustomEvent('bookimported', {
@@ -63,7 +64,7 @@ EPubImporter.prototype._onParsingDone = function(epub) {
 };
 
 EPubImporter.prototype._readMetadata = function(epub) {
-    var keys = ['title', 'creator', 'publisher', 'language'];
+    var keys = ['title', 'creator', 'publisher', 'language', 'identifier'];
     var metadata = {};
 
     for (var i = 0; i < keys.length; i++) {

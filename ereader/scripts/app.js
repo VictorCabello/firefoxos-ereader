@@ -73,9 +73,15 @@ App.prototype._bindEvents = function() {
 
     document.addEventListener('bookimported', function(event) {
         var book = event.detail;
-        book.save(function() {
-            self.library.addBook(book);
-        });
+
+        if (self.library.isBookInLibrary(book)) {
+            alert("This book already exists in the library");
+        }
+        else {
+            book.save(function() {
+                self.library.addBook(book);
+            });
+        }
 
         self._hideLoading();
     }, false);

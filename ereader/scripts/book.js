@@ -54,7 +54,8 @@ Book.prototype.getId = function() {
         return text.replace(/ /g, '-').replace(/[^\w-]+/g, '').toLowerCase();
     }
 
-    return 'book__' + slugify(this.getTitle());
+    return 'book__' + slugify(
+        this.bookData.getMetaData('identifier') || this.getTitle());
 };
 
 Book.prototype.getTitle = function() {

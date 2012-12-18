@@ -94,6 +94,15 @@ Library.prototype.updateBookOrderKey = function(key) {
     }
 };
 
+Library.prototype.isBookInLibrary = function(book) {
+    for (var i = 0; i < this.books.length; i++) {
+        if (book.getId() == this.books[i].contentKey) {
+            return true;
+        }
+    }
+    return false;
+};
+
 Library.prototype._loadBooks = function() {
     var self = this;
     asyncStorage.getItem('books', function(jsonBooks) {
@@ -209,13 +218,14 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 Library.prototype._bindBookLoaded = function() {
     var self = this;
     document.addEventListener('bookloaded', function(event) {
-        self._updateCurrentBook(event.detail);
+        var book = event.detail;
+        if (!self.isBookInLibrary(book)) {
+            self._updateCurrentBook(book);
 
-        document.dispatchEvent(new CustomEvent('bookselected', {
-            detail: self.currentBook
-        }));
-        // self.container.removeEventListener('bookloaded',
-        //     arguments.callee, false);
+            document.dispatchEvent(new CustomEvent('bookselected', {
+                detail: self.currentBook
+            }));
+        }
     }, false);
 };
 
