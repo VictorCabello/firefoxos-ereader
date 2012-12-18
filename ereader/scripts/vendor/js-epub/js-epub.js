@@ -146,7 +146,6 @@
             }
 
             var doc = this.xmlDocument(xml);
-            // var doc = xml;
             var ns = doc.getElementsByTagName('ncx')[0].getAttribute('xmlns');
             var x = doc.getElementsByTagNameNS(ns, 'navMap')[0];
             var items = x.childNodes;
@@ -256,7 +255,8 @@
 
                 if (mediaType === "text/css") {
                     // result = this.postProcessCSS(href);
-                } else if (mediaType === "application/xhtml+xml") {
+                } else if (mediaType === "application/xhtml+xml" &&
+                href.match(/\.(htm|html|xhtml)$/)) {
                     result = this.postProcessHTML(href);
                 }
 
@@ -310,30 +310,28 @@
 
         postProcessHTML: function (href) {
             var xml = decodeURIComponent(escape(this.files[href]));
-            var doc = this.xmlDocument(xml);
+            var doc = this.xmlDocument(html.sanitize(xml), "text/html");
 
             // TODO: temp thing
             var replaceImage = function(image) {
-                var src = image.getAttribute('src') ||
-                    image.getAttribute('xlink:href') || '';
+                var src = image.getAttribute('src') || '';
                 var alt = image.getAttribute('alt') ||
                     src.replace(/(.*\/)+/, '');
-                var span = document.createElement('span');
-                span.setAttribute('class', 'image-alt');
-                span.innerHTML = alt;
 
-                var parent = image.parentNode;
-                image.parentNode.insertBefore(span, image);
+                if (alt) {
+                    var span = document.createElement('span');
+                    span.setAttribute('class', 'image-alt');
+                    span.innerHTML = alt;
+                    image.parentNode.insertBefore(span, image);
+                }
+
                 image.parentNode.removeChild(image);
             };
             var images = doc.getElementsByTagName("img");
             for (var i = 0; i < images.length; i++) {
                 replaceImage(images[i]);
             }
-            images = doc.getElementsByTagName("image");
-            for (var i = 0; i < images.length; i++) {
-                replaceImage(images[i]);
-            }
+
             // ----------------
 
             // var images = doc.getElementsByTagName("img");
@@ -389,13 +387,12 @@
             return escape(data);
         },
 
-        xmlDocument: function (xml) {
-            var doc = new DOMParser().parseFromString(xml, "text/xml");
+        xmlDocument: function (xml, mimetype) {
+            var doc = new DOMParser().parseFromString(xml, mimetype || 'text/xml');
 
             if (doc.childNodes[1] && doc.childNodes[1].nodeName === "parsererror") {
                 throw doc.childNodes[1].childNodes[0].nodeValue;
             }
-
             return doc;
         }
     }

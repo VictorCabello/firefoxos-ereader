@@ -2,6 +2,7 @@ FileBrowser = (function() {
 
 function FileBrowser(container) {
     this.files = [];
+    this.loadingContainer = document.getElementById('master_overlay');
 
     this.bookDB = new MediaDB('sdcard', null, {
         filePattern: /\.epub$/,
@@ -53,18 +54,22 @@ FileBrowser.prototype.fileCreated = function(file) {
     this.render();
 };
 
-FileBrowser.prototype.fileDeleted = function(file) {
-    console.log('File deleted: ' + file.name);
+FileBrowser.prototype.fileDeleted = function(filename) {
+    console.log('File deleted: ' + filename);
 
     var index = 0;
     for (var i = 0; i < this.files; i++) {
-        if (this.files[i].name == file.name) {
+        if (this.files[i].name == filename) {
             index = i;
             break;
         }
     }
 
+    console.log('before');
+    console.log(this.files);
     this.files.splice(index, 1);
+    console.log('after splicing at index = ' + index);
+    console.log(this.files);
     this.render();
 };
 
@@ -147,32 +152,49 @@ FileBrowser.prototype._bindDBEvents = function() {
     this.bookDB.addEventListener('scanstart', function(event) {
         scanning++;
         if (scanning == 1) {
+            self._showLoading();
             console.log('scanning...');
         }
     }, false);
     this.bookDB.addEventListener('scanend', function(event) {
         scanning--;
         if (scanning == 0) {
+            self._hideLoading();
             console.log('scan ended');
         }
     }, false);
 
     this.bookDB.addEventListener('create', function(event) {
         console.log('created');
-        event.detail.forEach(self.fileCreated);
+        // event.detail.forEach(self.fileCreated);
+        var filenames = event.detail;
+        for (var i = 0; i < filenames.length; i++) {
+            self.fileCreated(filenames[i]);
+        }
     }, false);
 
     this.bookDB.addEventListener('deleted', function(event) {
         console.log('deleted');
-        event.detail.forEach(self.fileDeleted);
+        var filenames = event.detail;
+        for (var i = 0; i < filenames.length; i++) {
+            self.fileDeleted(filenames[i]);
+        }
     }, false);
 };
 
 FileBrowser.prototype._mockStorage = function() {
     this.files = [{name: 'waka.epub'},
-        {name: 'quijote.epub'},
-        {name: 'mass effect - rising from the ashes.epub'}];
+        {name: 'mass_effect.epub'},
+        {name: 'El Ingenioso Hidalgo Don Quijote de la Mancha.epub'}];
     this.render();
+};
+
+FileBrowser.prototype._showLoading = function() {
+    this.loadingContainer.style.display = 'block';
+};
+
+FileBrowser.prototype._hideLoading = function() {
+    this.loadingContainer.style.display = 'none';
 };
 
 return FileBrowser;
