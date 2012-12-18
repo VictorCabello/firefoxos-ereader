@@ -218,10 +218,9 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 Library.prototype._bindBookLoaded = function() {
     var self = this;
     document.addEventListener('bookloaded', function(event) {
-        var book = event.detail;
-        if (!self.isBookInLibrary(book)) {
+        var book = event.detail.book;
+        if (!(event.detail.isNew && self.isBookInLibrary(book))) {
             self._updateCurrentBook(book);
-
             document.dispatchEvent(new CustomEvent('bookselected', {
                 detail: self.currentBook
             }));

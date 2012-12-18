@@ -8,16 +8,19 @@ function Book(data) {
         cursor: 0
     };
 
-    var dispatchLoaded = function() {
+    var dispatchLoaded = function(isNew) {
         document.dispatchEvent(new CustomEvent('bookloaded', {
-            detail: self
+            detail: {
+                book: self,
+                isNewBook: isNew || false
+            }
         }));
     };
 
     // new book with provided bookData
     if (data.bookData != undefined) {
         this.bookData = data.bookData;
-        dispatchLoaded();
+        dispatchLoaded(true);
     }
     // load book from asyncStorage
     else {
