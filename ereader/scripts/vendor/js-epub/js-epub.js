@@ -309,14 +309,14 @@
         },
 
         postProcessHTML: function (href) {
+            console.log('postprocessing ' + href);
             var xml = decodeURIComponent(escape(this.files[href]));
             var doc = this.xmlDocument(html.sanitize(xml), "text/html");
 
             // TODO: temp thing
             var replaceImage = function(image) {
-                var src = image.getAttribute('src') || '';
-                var alt = image.getAttribute('alt') ||
-                    src.replace(/(.*\/)+/, '');
+                console.log('replacing ' + image.getAttribute('alt'));
+                var alt = image.getAttribute('alt');
 
                 if (alt) {
                     var span = document.createElement('span');
@@ -324,10 +324,9 @@
                     span.innerHTML = alt;
                     image.parentNode.insertBefore(span, image);
                 }
-
                 image.parentNode.removeChild(image);
             };
-            var images = doc.getElementsByTagName("img");
+            var images = Array.prototype.slice.call(doc.getElementsByTagName("img"));
             for (var i = 0; i < images.length; i++) {
                 replaceImage(images[i]);
             }
