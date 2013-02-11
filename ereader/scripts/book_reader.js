@@ -10,14 +10,22 @@ ownLength) {
 }
 
 Component.prototype.loadToFrame = function(frameName, frame, callback) {
+    var frameNode = frame.node;
+    var columnWidth = frameNode.contentWindow.innerWidth;
+
     var src = '<html><head><style>' +
-    'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; padding: 0px; width: 100%; height: 100%; -webkit-column-width: 280px;     -webkit-column-gap: 0px; -webkit-column-fill: auto; -moz-column-width: 280px;        -moz-column-gap: 0px; -moz-column-fill: auto; position: absolute; font-size: 12pt; color: #5a3120;}' +
+    'body { font-family: "Open Sans", Arial, sans-serif; margin: 0px; ' +
+    'padding: 0px; width: 100%; height: 100%; ' +
+    '-moz-column-width: ' + columnWidth + 'px; ' +
+    '-moz-column-gap: 0px; ' +
+    '-moz-column-fill: auto; position: absolute; font-size: 1rem;  ' +
+    'color: #5a3120;}' +
     'body * { overflow: visible !important; word-wrap: break-word !important;        line-height: 1.25em; }' +
-    'p { margin: 0px;  text-indent: 1.5em; text-align: justify;}' +
+    'p { margin: 0px;  text-indent: 1.5rem; text-align: justify;}' +
     '</style></head><body><div id="reader_wrapper">' +
     this.src +
     '</div></body></html>';
-    var frameNode = frame.node;
+
     frame.componentIndex = this.index;
     frameNode.contentDocument.open('text/html', 'replace');
     frameNode.contentDocument.write(src);
@@ -82,6 +90,9 @@ Component.prototype._refreshDimensions = function(frame, callback) {
 
     this.totalWidth = frame.contentDocument.body.scrollWidth + correction;
     this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
+
+    console.log('total width', this.totalWidth);
+    console.log('page count', this.pageCount);
 
     if (callback) callback();
     document.dispatchEvent(new CustomEvent('dimensionschanged'));
