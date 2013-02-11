@@ -36,8 +36,8 @@ App.prototype._bindEvents = function() {
     }, false);
 
     // TODO: refactor this method
-    document.getElementById('show_import_book').addEventListener('click',
-    function(event) {
+    utils.addEventListeners(document.getElementById('show_import_book'),
+    ['tap', 'click'], function(event) {
         if (!self.fileBrowser) {
             self.fileBrowser = new FileBrowser(self.fileBrowserContainer);
         }
@@ -55,8 +55,8 @@ App.prototype._bindEvents = function() {
         self._handleFileSelect(event.target.files[0]);
     }, false);
 
-    document.getElementById('frankenstein').addEventListener('click',
-    function(event) {
+    utils.addEventListeners(document.getElementById('frankenstein'),
+    ['tap', 'click'], function(event) {
         event.preventDefault();
         event.stopPropagation();
         var preinstaller = new PreinstalledImporter(
@@ -64,12 +64,12 @@ App.prototype._bindEvents = function() {
         preinstaller.load();
     }, false);
 
-    document.getElementById('reset_library').addEventListener('click',
-    function(event) {
+    utils.addEventListeners(document.getElementById('reset_library'),
+    ['tap', 'click'], function(event) {
         event.preventDefault();
         event.stopPropagation();
         self.library.clear();
-    });
+    }, false);
 
     document.addEventListener('bookimported', function(event) {
         var book = event.detail;
@@ -87,6 +87,7 @@ App.prototype._bindEvents = function() {
     }, false);
 
     document.addEventListener('bookselected', function(event) {
+        console.log('BOOK-selected');
         self.switchTo('page-reader');
         // NOTE: we need to always redraw the book because Firefox reloads
         // the iframes when hidden and visible again... and we have no src
@@ -96,12 +97,12 @@ App.prototype._bindEvents = function() {
 
     // book viewer
     // -----------
-    document.getElementById('back-to-library').addEventListener('click',
-    function(event) {
+    utils.addEventListeners(document.getElementById('back-to-library'),
+    ['tap', 'click'], function(event) {
         event.preventDefault();
         self.viewer.saveLastLocation();
         self.switchTo('page-library');
-    }, true);
+    }, false);
 
     // app
     // ---

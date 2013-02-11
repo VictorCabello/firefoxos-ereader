@@ -1,6 +1,8 @@
 FileBrowser = (function() {
 
 function FileBrowser(container) {
+    var self = this;
+
     this.files = [];
     this.loadingContainer = document.getElementById('master_overlay');
 
@@ -11,9 +13,21 @@ function FileBrowser(container) {
     });
 
     this.container = container;
+    this.mocked = null;
 
-    this._bindUIEvents();
-    this._bindDBEvents();
+    utils.checkMediaStorage('sdcard', {
+        success: function() {
+            self._bindUIEvents();
+            self._bindDBEvents();
+            self.mocked = false;
+        },
+        error: function() {
+            self.bookDB = null;
+            self._mockStorage();
+            self._bindUIEvents();
+            self.mocked = true;
+        }
+    });
 }
 
 FileBrowser.prototype.show = function() {
@@ -104,19 +118,14 @@ FileBrowser.prototype._getFile = function(filename, callback, errcallback) {
 FileBrowser.prototype._bindUIEvents = function() {
     var self = this;
 
-    this.container.querySelector('button.cancel').addEventListener('click',
-    function(event) {
+    utils.addEventListeners(this.container.querySelector('button.cancel'),
+    ['tap', 'click'], function(event) {
         self.hide();
     }, false);
 };
 
 FileBrowser.prototype._bindDBEvents = function() {
     var self = this;
-
-    this.bookDB.addEventListener('nostorage', function(event) {
-        self.bookDB = null;
-        self._mockStorage();
-    });
 
     // This is called when DeviceStorage becomes unavailable because the
     // sd card is removed or because it is mounted for USB mass storage
@@ -166,7 +175,6 @@ FileBrowser.prototype._bindDBEvents = function() {
 
     this.bookDB.addEventListener('create', function(event) {
         console.log('created');
-        // event.detail.forEach(self.fileCreated);
         var filenames = event.detail;
         for (var i = 0; i < filenames.length; i++) {
             self.fileCreated(filenames[i]);
@@ -183,9 +191,12 @@ FileBrowser.prototype._bindDBEvents = function() {
 };
 
 FileBrowser.prototype._mockStorage = function() {
-    this.files = [{name: 'waka.epub'},
+    this.files = [
+        {name: 'waka.epub'},
         {name: 'mass_effect.epub'},
-        {name: 'El Ingenioso Hidalgo Don Quijote de la Mancha.epub'}];
+        {name: 'El Ingenioso Hidalgo Don Quijote de la Mancha.epub'},
+        {name: 'frankenstein.epub'}
+    ];
     this.render();
 };
 

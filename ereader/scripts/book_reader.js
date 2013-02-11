@@ -450,21 +450,20 @@ BookReader.prototype._bindEvents = function() {
     var self = this;
 
     // central click
-    this.overlay.getElementsByClassName('central')[0]
-    .addEventListener('tap', function(event) {
+    utils.addEventListeners(this.overlay.getElementsByClassName('central')[0],
+    ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
-        self.container.dispatchEvent(new CustomEvent('centralclick',
-            {}));
+        self.container.dispatchEvent(new CustomEvent('centralclick', {}));
     }, false);
 
-    this.overlay.getElementsByClassName('right')[0].
-    addEventListener('tap', function(event) {
+    utils.addEventListeners(this.overlay.getElementsByClassName('right')[0],
+    ['tap', 'click'], function(event) {
         if (self.controlsEnabled) self.nextPage();
     }, false);
 
-    this.overlay.getElementsByClassName('left')[0].
-    addEventListener('tap', function(event) {
+    utils.addEventListeners(this.overlay.getElementsByClassName('left')[0],
+    ['tap', 'click'], function(event) {
         if (self.controlsEnabled) self.previousPage();
     }, false);
 
@@ -475,14 +474,6 @@ BookReader.prototype._bindEvents = function() {
         else {
             self.previousPage();
         }
-    }, false);
-
-    this.container.addEventListener('pan', function(event) {
-        // var panning = event.detail;
-        // if (Math.abs(panning.relative.dx) > 0) {
-        //     self.framesContainer.setAttribute('style',
-        //         '-moz-transform: translateX(' + panning.absolute.dx + 'px)');
-        // }
     }, false);
 };
 

@@ -27,5 +27,27 @@ utils = {
             }
         }
         node.className = classes.join(' ');
+    },
+
+    addEventListeners: function(node, events, callback, capture) {
+        try{
+            events.forEach(function(eventName) {
+                node.addEventListener(eventName, callback, capture);
+            });
+        }
+        catch (e) {
+            debugger;
+        }
+    },
+
+    checkMediaStorage: function(mediaType, callbacks) {
+        if (!callbacks) callbacks = {};
+        mediaStorage = navigator.getDeviceStorage(mediaType);
+        if (!mediaStorage) {
+            if (callbacks.error) callbacks.error();
+        }
+        else {
+            if (callbacks.success) callbacks.success();
+        }
     }
 };

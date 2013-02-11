@@ -19,6 +19,7 @@ function BookViewer(containerId) {
 }
 
 BookViewer.prototype.showBook = function(book) {
+    console.log('showing book');
     this.book = book;
     this.reader = new BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
@@ -30,6 +31,7 @@ BookViewer.prototype.showBook = function(book) {
         this.book.getComponents());
 
     this.reader.enableGestures();
+    console.log('end of showing book');
 };
 
 BookViewer.prototype.saveLastLocation = function() {
@@ -50,7 +52,7 @@ BookViewer.prototype._bindEvents = function() {
         }
     }, false);
 
-    this.overlay.addEventListener('click', function(event) {
+    utils.addEventListeners(this.overlay, ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) {
@@ -58,15 +60,15 @@ BookViewer.prototype._bindEvents = function() {
         }
     }, false);
 
-    this.overlay.getElementsByClassName('previous')[0].
-    addEventListener('click', function(event) {
+    var previous = this.overlay.getElementsByClassName('previous')[0];
+    utils.addEventListeners(previous, ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) self.reader.previousPage();
     }, false);
 
-    this.overlay.getElementsByClassName('next')[0].
-    addEventListener('click', function(event) {
+    utils.addEventListeners(this.overlay.getElementsByClassName('next')[0],
+    ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) self.reader.nextPage();
@@ -82,18 +84,20 @@ BookViewer.prototype._bindEvents = function() {
     // TODO: implement actual button behavior
     var buttons = this.overlay.getElementsByTagName('button');
     for (var i = 0; i < buttons.length; i++) {
-        buttons[i].addEventListener('click', function(event) {
+        utils.addEventListeners(buttons[i],
+        ['tap', 'click'],function(event) {
             event.stopPropagation();
             event.preventDefault();
         }, false);
     }
 
-    document.getElementById('show_toc').
-    addEventListener('click', function(event) {
+    utils.addEventListeners(document.getElementById('show_toc'),
+    ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         self._toggleTocPanel();
-    }, false);
+    })
+
 
     self.tocContainer.addEventListener('tocitemselected', function(event) {
         self.reader.goToTarget(event.detail);

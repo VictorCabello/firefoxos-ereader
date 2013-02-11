@@ -33,7 +33,7 @@ BookToc.prototype._bindEvents = function() {
     var links = this.container.getElementsByClassName('toc-link');
 
     for (var i = 0; i < links.length; i++) {
-        links[i].addEventListener('click', function(event) {
+        utils.addEventListeners(links[i], ['tap', 'click'], function(event) {
             event.stopPropagation();
             event.preventDefault();
             var itemTarget = self._getTocItemTarget(

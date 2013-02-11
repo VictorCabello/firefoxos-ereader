@@ -175,3 +175,10 @@ div#master_overlay p[role=status] progress {
         -webkit-transform: translateX(320px);
     }
 }
+
+
+div.wrapper[role=region] {
+  height: 100%;
+  -moz-box-sizing: border-box;
+  position: relative;
+}

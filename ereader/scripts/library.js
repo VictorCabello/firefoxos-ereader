@@ -119,7 +119,7 @@ Library.prototype._bindBookTabEvents = function() {
     var list = this.container.querySelector('ul.filter');
     var lis = list.getElementsByTagName('li');
     for (var i = 0; i < lis.length; i++) {
-        lis[i].addEventListener('click', function(event) {
+        utils.addEventListeners(lis[i], ['tap', 'click'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             self.updateBookOrderKey(this.getAttribute('data-key'));
@@ -139,8 +139,9 @@ Library.prototype._bindBookEvents = function(bookNode) {
 Library.prototype._bindBookTap = function(bookNode) {
     var self = this;
 
-    bookNode.addEventListener('tap', function(event) {
+    utils.addEventListeners(bookNode, ['tap', 'click'], function(event) {
         event.stopPropagation();
+        console.log('HOSTIA');
         var bookId = this.getAttribute('data-bookid');
 
         // the book tapped is different to the current one
@@ -177,20 +178,22 @@ Library.prototype._bindBookSwipe = function(bookNode) {
     };
 
     var bindDialogActions = function(bookNode, node) {
-        var removeButton = node.getElementsByClassName('remove')[0];
-        removeButton.addEventListener('click', function(event) {
+        // remove
+        utils.addEventListeners(node.getElementsByClassName('remove')[0],
+        ['tap', 'click'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             closeDialog(bookNode, node);
             self.removeBook(bookNode.getAttribute('data-bookid'));
-        });
+        }, false);
 
-        var closeButton = node.getElementsByClassName('cancel')[0];
-        closeButton.addEventListener('click', function(event) {
+        // close
+        utils.addEventListeners(node.getElementsByClassName('cancel')[0],
+        ['tap', 'click'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             closeDialog(bookNode, node);
-        });
+        }, false);
     };
 
     bookNode.addEventListener('swipe', function(event) {
@@ -209,14 +212,15 @@ Library.prototype._bindBookSwipe = function(bookNode) {
         bookNode.parentNode.setAttribute('data-state', state);
     });
 
-    bookNode.parentNode.getElementsByClassName('action')[0].
-    addEventListener('click', function(event) {
+    // click on X to remove book (triggers confirm dialog)
+    var removeButton = bookNode.parentNode.getElementsByClassName('action')[0];
+    utils.addEventListeners(removeButton, ['tap', 'click'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         var node = createDialog(self.getBookInfo(
             bookNode.getAttribute('data-bookid')));
         bindDialogActions(bookNode, node);
-    });
+    }, false);
 }
 
 Library.prototype._bindBookLoaded = function() {
