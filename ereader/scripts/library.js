@@ -119,7 +119,7 @@ Library.prototype._bindBookTabEvents = function() {
     var list = this.container.querySelector('ul.filter');
     var lis = list.getElementsByTagName('li');
     for (var i = 0; i < lis.length; i++) {
-        utils.addEventListeners(lis[i], ['tap', 'click'], function(event) {
+        utils.addEventListeners(lis[i], ['tap'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             self.updateBookOrderKey(this.getAttribute('data-key'));
@@ -139,7 +139,7 @@ Library.prototype._bindBookEvents = function(bookNode) {
 Library.prototype._bindBookTap = function(bookNode) {
     var self = this;
 
-    utils.addEventListeners(bookNode, ['tap', 'click'], function(event) {
+    utils.addEventListeners(bookNode, ['tap'], function(event) {
         event.stopPropagation();
         console.log('HOSTIA');
         var bookId = this.getAttribute('data-bookid');
@@ -180,7 +180,7 @@ Library.prototype._bindBookSwipe = function(bookNode) {
     var bindDialogActions = function(bookNode, node) {
         // remove
         utils.addEventListeners(node.getElementsByClassName('remove')[0],
-        ['tap', 'click'], function(event) {
+        ['tap'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             closeDialog(bookNode, node);
@@ -189,7 +189,7 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 
         // close
         utils.addEventListeners(node.getElementsByClassName('cancel')[0],
-        ['tap', 'click'], function(event) {
+        ['tap'], function(event) {
             event.preventDefault();
             event.stopPropagation();
             closeDialog(bookNode, node);
@@ -214,7 +214,7 @@ Library.prototype._bindBookSwipe = function(bookNode) {
 
     // click on X to remove book (triggers confirm dialog)
     var removeButton = bookNode.parentNode.getElementsByClassName('action')[0];
-    utils.addEventListeners(removeButton, ['tap', 'click'], function(event) {
+    utils.addEventListeners(removeButton, ['tap'], function(event) {
         event.stopPropagation();
         event.preventDefault();
         var node = createDialog(self.getBookInfo(

@@ -1,13 +1,16 @@
 BookViewer = (function() {
 
 function BookViewer(containerId) {
+    // var oldContainer = document.getElementById(containerId);
+    // this.container = oldContainer.cloneNode(true);
+    // oldContainer.parentNode.replaceChild(this.container, oldContainer);
     this.container = document.getElementById(containerId);
+
     this.bookContainer = this.container.getElementsByClassName('reader')[0];
     this.overlay = this.container.getElementsByClassName('overlay')[0];
     this.tocContainer = this.container.getElementsByClassName(
         'toc-container')[0];
 
-    // this.tocContainer = this.container.getElementsByClassName('toc')[0];
     this.wrapper = this.container.getElementsByClassName('wrapper')[0];
     this.controlsEnabled = true;
 
@@ -19,8 +22,8 @@ function BookViewer(containerId) {
 }
 
 BookViewer.prototype.showBook = function(book) {
-    console.log('showing book');
     this.book = book;
+
     this.reader = new BookReader(this.bookContainer,
         this.book.bookData, this.book.lastLocation);
     if (!this.book.getContents() || this.book.getContents().length == 0) {
@@ -31,7 +34,6 @@ BookViewer.prototype.showBook = function(book) {
         this.book.getComponents());
 
     this.reader.enableGestures();
-    console.log('end of showing book');
 };
 
 BookViewer.prototype.saveLastLocation = function() {
@@ -48,7 +50,9 @@ BookViewer.prototype._bindEvents = function() {
         event.stopPropagation();
         event.preventDefault();
         if (self.controlsEnabled) {
-            self._showOverlay();
+            setTimeout(function() {
+                self._showOverlay();
+            }, 0);
         }
     }, false);
 
@@ -97,7 +101,6 @@ BookViewer.prototype._bindEvents = function() {
         event.preventDefault();
         self._toggleTocPanel();
     })
-
 
     self.tocContainer.addEventListener('tocitemselected', function(event) {
         self.reader.goToTarget(event.detail);

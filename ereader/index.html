@@ -14,7 +14,6 @@
     <script src="scripts/vendor/caja/html_sanitizer_min.js" defer></script>
 
     <!-- shared gaia scripts -->
-    <!-- <script defer src="shared/js/mouse_event_shim.js"></script> -->
     <script defer src="shared/js/async_storage.js"></script>
     <script defer src="shared/js/gesture_detector.js"></script>
     <script defer src="shared/js/mediadb.js"></script>
@@ -81,9 +80,9 @@
             left: 0px;
             right: 0px;
             bottom: 0px;
-
-            background: rgba(0, 0, 255, 0.5) !important;
-            z-index: 10000;
+/*            width: 320px;
+            height: 460px;*/
+            z-index: 200;
         }
 
     </style>
@@ -103,7 +102,7 @@
             </section><!-- book list -->
 
             <section id="import">
-                <div style="display:none">
+                <div style="display:block">
                     <h2 class="bb-heading">Import books</h2>
                     <p><label>Import ePub <input type="file" id="import_book" value="Import"  name="importedFile"></label></p>
                     <p><button id="frankenstein">Import Frankenstein</button><button id="reset_library">Reset library</button></p>

@@ -73,7 +73,6 @@ App.prototype._bindEvents = function() {
 
     document.addEventListener('bookimported', function(event) {
         var book = event.detail;
-
         if (self.library.isBookInLibrary(book)) {
             alert("This book already exists in the library");
         }
@@ -82,17 +81,18 @@ App.prototype._bindEvents = function() {
                 self.library.addBook(book);
             });
         }
-
         self._hideLoading();
     }, false);
 
     document.addEventListener('bookselected', function(event) {
         console.log('BOOK-selected');
-        self.switchTo('page-reader');
-        // NOTE: we need to always redraw the book because Firefox reloads
-        // the iframes when hidden and visible again... and we have no src
-        // parameter, so the iframes are empty :(
-        self.viewer.showBook(self.library.currentBook);
+        // setTimeout(function() {
+            self.switchTo('page-reader');
+            // NOTE: we need to always redraw the book because Firefox reloads
+            // the iframes when hidden and visible again... and we have no src
+            // parameter, so the iframes are empty :(
+            self.viewer.showBook(self.library.currentBook);
+        // }, 0);
     }, false);
 
     // book viewer

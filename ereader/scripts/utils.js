@@ -30,14 +30,15 @@ utils = {
     },
 
     addEventListeners: function(node, events, callback, capture) {
-        try{
-            events.forEach(function(eventName) {
-                node.addEventListener(eventName, callback, capture);
-            });
-        }
-        catch (e) {
-            debugger;
-        }
+        events.forEach(function(eventName) {
+            node.addEventListener(eventName, callback, capture);
+        });
+    },
+
+    removeEventListeners: function(node, events, callback, capture) {
+        events.forEach(function(eventName) {
+            node.removeEventListener(eventName, callback, capture);
+        });
     },
 
     checkMediaStorage: function(mediaType, callbacks) {

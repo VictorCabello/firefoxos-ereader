@@ -91,9 +91,6 @@ Component.prototype._refreshDimensions = function(frame, callback) {
     this.totalWidth = frame.contentDocument.body.scrollWidth + correction;
     this.pageCount = Math.ceil(this.totalWidth / this.pageWidth);
 
-    console.log('total width', this.totalWidth);
-    console.log('page count', this.pageCount);
-
     if (callback) callback();
     document.dispatchEvent(new CustomEvent('dimensionschanged'));
 
@@ -144,8 +141,37 @@ function BookReader(container, bookData, location) {
     this.controlsEnabled = true;
 
     this._updateComponentLengths();
-    this._bindEvents();
 
+    var self = this;
+
+    // events handlers
+    // ---------------
+
+    this.onCentralClick = function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        self.container.dispatchEvent(new CustomEvent('centralclick', {
+        }));
+    }
+
+    this.onLeftTap = function(event) {
+        if (self.controlsEnabled) self.previousPage();
+    }
+
+    this.onRightTap = function(event) {
+        if (self.controlsEnabled) self.nextPage();
+    }
+
+    this.onSwipe = function(event) {
+        if (event.detail.direction == 'left') {
+            self.nextPage();
+        }
+        else {
+            self.previousPage();
+        }
+    }
+
+    this._bindEvents();
     this.goToComponentLocation(location);
 }
 
@@ -458,34 +484,13 @@ BookReader.prototype._findFrames = function() {
 };
 
 BookReader.prototype._bindEvents = function() {
-    var self = this;
-
-    // central click
-    utils.addEventListeners(this.overlay.getElementsByClassName('central')[0],
-    ['tap', 'click'], function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        self.container.dispatchEvent(new CustomEvent('centralclick', {}));
-    }, false);
-
-    utils.addEventListeners(this.overlay.getElementsByClassName('right')[0],
-    ['tap', 'click'], function(event) {
-        if (self.controlsEnabled) self.nextPage();
-    }, false);
-
-    utils.addEventListeners(this.overlay.getElementsByClassName('left')[0],
-    ['tap', 'click'], function(event) {
-        if (self.controlsEnabled) self.previousPage();
-    }, false);
-
-    this.container.addEventListener('swipe', function(event) {
-        if (event.detail.direction == 'left') {
-            self.nextPage();
-        }
-        else {
-            self.previousPage();
-        }
-    }, false);
+    this.overlay.querySelector('.central').addEventListener('tap',
+        this.onCentralClick, false);
+    this.overlay.querySelector('.right').addEventListener('tap',
+        this.onRightTap, false);
+    this.overlay.querySelector('.left').addEventListener('tap',
+        this.onLeftTap, false);
+    this.container.addEventListener('swipe', this.onSwipe, false);
 };
 
 BookReader.prototype._onComponentLoaded = function(component, callback) {

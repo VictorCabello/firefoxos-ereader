@@ -53,6 +53,7 @@ div.reader-overlay {
 
     right: 0px;
     bottom: 0px;
+
 }
 
 div.reader-overlay a.panel {
@@ -146,7 +147,7 @@ div.reader-wrapper.backwards {
 }
 
 div#master_overlay {
-    z-index: 10000;
+    z-index: 200;
     position: absolute;
     top: 0px;
     left: 0px;
@@ -164,7 +165,6 @@ div#master_overlay p[role=status] {
     margin-top: -25px;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(55, 55, 55, 0.9);
 }
 
 div#master_overlay p[role=status] progress {
