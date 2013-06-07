@@ -1,3 +1,0 @@
-[submodule "pocs/epubreader/js-epub"]
-	path = pocs/epubreader/js-epub
-	url = https://github.com/augustl/js-epub.git
